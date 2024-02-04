@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button,Text } from 'react-native';
+import {StyleSheet, View, TextInput, Button,Text } from 'react-native';
 import validator from 'validator';
 
 
@@ -41,7 +41,7 @@ const Welcome = () => {
         if(!emptyFullName) {
 
           //Valid entry 
-          console.log('gg');
+       
 
           //Valid Entry - No error message needed
           setEmailErrorMessage('');
@@ -146,7 +146,7 @@ const Welcome = () => {
 
   }
   return (
-    <View>
+    <View styles={styles.container}>
     <Text>Sign Up</Text>
     <Text>{errorMessage}</Text>
     <Text>{emailErrorMessage}</Text>
@@ -174,3 +174,12 @@ const Welcome = () => {
 };
 
 export default Welcome;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
