@@ -1,76 +1,60 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Button} from 'react-native';
+
 import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Welcome from './screens/welcome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import SignUp from './screens/signup';
-import Login from './screens/login';
-
-// Current TASK / BUG SignUP page is appearing but no content ? 
-
-export default function App() {
+import Home from './screens/Home';
+import DashboardCRM from './screens/DashboardCRM';
+import SignUp from './screens/SignUp';
+import Login from './screens/Login';
 
 const Stack = createNativeStackNavigator();
-const Drawer = createDrawerNavigator();
 
-const HomeStack = () => (
-  <Stack.Navigator>
-    <Stack.Screen
-      name="Welcome"
-      component={Welcome}
-      options={{ title: 'Welcome', headerShown: false }}
-      />
-    {/* Add more screens to your stack if needed */}
-   
+const App = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  </Stack.Navigator>
-);
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        const jwtToken = await AsyncStorage.getItem('jwtToken');
+        setIsLoggedIn(!!jwtToken);
+        console.log("token");
+      } catch (error) {
+        console.error('Error fetching JWT token:', error);
+      }
+    };
 
+    checkAuthentication(); // Call the function to check authentication status when component mounts
+  }, []); // Empty dependency array ensures the effect runs only once when component mounts
 
-const SignUpStack = () => {
-  <Stack.Navigator>
-    <Stack.Screen
-      name="Sign Up"
-      component={SignUp}
-      options={{ title: 'Sign Up', headerShown: false }}
-    />
-    
-  </Stack.Navigator>
-
-};
-
-
-// const LoginStack = () => {
-//   <Stack.Navigator>
-  
-// <Stack.Screen
-//       name="Login"
-//       component={Login}
-//       options={{ title: 'Login', headerShown: false }}
-//       />
-    
-//   </Stack.Navigator>
-
-// };
-
-return (
-  <NavigationContainer>
-    <Drawer.Navigator initialRouteName="SignUp">
-      {/* <Drawer.Screen name="Home" component={HomeStack} /> */}
-      <Drawer.Screen name="SignUp" component={SignUpStack} />
-      {/* Add more screens to your drawer if needed */}
-    </Drawer.Navigator>
-  </NavigationContainer>
-);
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName={isLoggedIn ? 'DashboardCRM' : 'Home'}>
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="SignUp" component={SignUp} />
+        <Stack.Screen name="DashboardCRM" component={DashboardCRM} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 }
+
+export default App;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  innerContainer: {
+    marginBottom: 20, // Adjust the value to control the space between the inner containers
+  },
+  text: {
+    fontSize: 20,
+    marginBottom: 10,
   },
 });

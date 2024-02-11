@@ -6,8 +6,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const bcrypt = require('bcrypt')
-
-
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const routes = require('../routes/routes'); // Import the routes module
 
 app.use(bodyParser.json());
 app.use(express.json());
@@ -28,63 +29,8 @@ mongoose.connect(mongoURI)
   .then(async () => {
     console.log('Connected to MongoDB');
     
-  
+    app.use('/', routes);
 
-
-    // Define a Mongoose Schema for User Booking 
- 
-    const UserSchema = new mongoose.Schema({
-      email: { type: String, required: 'Please enter an email address' },
-      password: { type: String, required: 'Please enter your password'},
-      fullName: { type: String, required: 'Please enter your Full Name' }
-    });
-    
-    //Define Model
-    const User = mongoose.model('User', UserSchema);
-    
-
-
-
-
-// API endpoint for saving data
-app.post('/api/signup', async (req, res) => {
-
-  try {
-    
-        const { email  , password , fullName} = req.body;
-   
-
-        // Check if a user with the given email already exists
-const existingUser = await User.findOne({ email });
-
-if (existingUser) {
-  return res.status(400).json({ error: 'User with this email already exists' });
-}
-        // Hash the password before saving it to the database
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Save data to MongoDB
-        const newUser = new User({ email, password: hashedPassword, fullName });
-        await newUser.save();
-
-
-        res.status(200).json({ message: 'Data saved successfully' });
-  
-
-
-
-
-
-    } catch (error) {
-        
-        console.error('Error:', error.message);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-
-
-
-
-  });
 
     // Start the Express.js server
     app.listen(PORT, () => {
