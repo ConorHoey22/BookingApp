@@ -1,5 +1,5 @@
 // app.js
-
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -9,6 +9,8 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const routes = require('../routes/routes'); // Import the routes module
+
+
 
 app.use(bodyParser.json());
 app.use(express.json());

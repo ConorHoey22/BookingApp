@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View, TextInput, Button, Text } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ navigation }) => {
 
@@ -12,54 +13,136 @@ const Login = ({ navigation }) => {
   const [emailErrorMessage, setEmailErrorMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+ 
 
-  const handleLogin = async () => {
-    //reset - error messages needed
-    setEmailErrorMessage('');
-    setPasswordErrorMessage('');
-    setErrorMessage('');
 
-    try {
-      const apiUrl = 'http://localhost:3000/api/login'; // Update with your actual server login endpoint
+const handleLogin = async () => {
+  // Reset error messages
+  setEmailErrorMessage('');
+  setPasswordErrorMessage('');
+  setErrorMessage('');
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
+  try {
+    const apiUrlLogin = 'http://localhost:3000/api/login';
+  
+
+    const response = await fetch(apiUrlLogin, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password}),
+    });
+
+    if (response.ok) {
+      const jsonResponse = await response.json();
+      console.log('Login Successful:', jsonResponse);
+      const token = jsonResponse.token;
+      console.log('JWT Token:', token);
+
+      // Store the token in AsyncStoragei
+      await AsyncStorage.setItem('jwtToken', token);// Store token in AsyncStorage
+
+      // Get the user ID from the response
+      const userId = jsonResponse.userId; // Assuming the user ID is available in the response
+      const apiUrlUser = `http://localhost:3000/api/user/${userId}`;
+
+      const userResponse = await fetch(apiUrlUser, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ email, password }),
       });
 
-      if (response.ok) {
-        const jsonResponse = await response.json();
-        console.log('Login Successful:', jsonResponse);
-        const token = await jsonResponse.token;
-        console.log('JWT Token:', token);
-        navigation.navigate('DashboardCRM');
+      if (userResponse.ok) {
+        const userJsonResponse = await userResponse.json();
+        console.log('User Details:', userJsonResponse);
 
-
-      } else {
-        let errorMessage = 'Invalid email or password. Please try again.';
-        console.log(errorMessage);
-
-        try {
-          const errorResponse = await response.json();
-          if (errorResponse && errorResponse.error) {
-            errorMessage = errorResponse.error;
+          if(userJsonResponse.userType == "Admin")
+          {
+              // Navigate to UserProfile screen
+               navigation.navigate('DashboardAdmin', { user: userJsonResponse });
           }
-        } catch (jsonError) {
-          console.error('JSON Parsing Error:', jsonError);
-        }
+          else{
+               // Navigate to UserProfile screen
+               navigation.navigate('DashboardCRM', { user: userJsonResponse });
+          }
 
-        console.error('Login Error:', errorMessage);
-        setErrorMessage(errorMessage);
+
+        // // Navigate to UserProfile screen
+        // navigation.navigate('DashboardCRM', { user: userJsonResponse });
+      } else {
+        console.error('Failed to fetch user details:', userResponse.statusText);
+        // Handle error appropriately (e.g., show error message to user)
       }
-    } catch (error) {
-      console.error('Network Error:', error.message);
-      setErrorMessage('Network error occurred. Please check your internet connection.');
-    }
-  };
+    } else {
+      let errorMessage = 'Invalid email or password. Please try again.';
+      console.log(errorMessage);
 
+      try {
+        const errorResponse = await response.json();
+        if (errorResponse && errorResponse.error) {
+          errorMessage = errorResponse.error;
+        }
+      } catch (jsonError) {
+        console.error('JSON Parsing Error:', jsonError);
+      }
+
+      console.error('Login Error:', errorMessage);
+      setErrorMessage(errorMessage);
+    }
+  } catch (error) {
+    console.error('Network Error:', error.message);
+    setErrorMessage('Network error occurred. Please check your internet connection.');
+  }
+};
+
+
+        // // Fetch user details after successful login
+        // const userResponse = await fetch(apiUrlUser, {
+        //   method: 'GET',
+        //   headers: {
+        //     'Authorization': `Bearer ${token}`, // Pass the JWT token for authentication
+        //   },
+        // });
+  
+        // if (userResponse.ok) {
+        //   const userJsonResponse = await userResponse.json();
+        //   console.log('User Details:', userJsonResponse);
+  
+        //   // Now you can access user details like userType
+        //   const userId = userJsonResponse._id; // Assuming the user's _id is available in the response
+        //   console.log('User ID:', userId);
+  
+        //   // Perform actions based on user ID
+        //   // For example, you can navigate to a specific page based on the user ID
+        //   navigation.navigate('UserProfile', { userId });
+        // } else {
+        //   console.error('Failed to fetch user details:', userResponse.statusText);
+        //   // Handle error appropriately
+        // }
+  //     } else {
+  //       let errorMessage = 'Invalid email or password. Please try again.';
+  //       console.log(errorMessage);
+  
+  //       try {
+  //         const errorResponse = await response.json();
+  //         if (errorResponse && errorResponse.error) {
+  //           errorMessage = errorResponse.error;
+  //         }
+  //       } catch (jsonError) {
+  //         console.error('JSON Parsing Error:', jsonError);
+  //       }
+  
+  //       console.error('Login Error:', errorMessage);
+  //       setErrorMessage(errorMessage);
+  //     }
+  //   } catch (error) {
+  //     console.error('Network Error:', error.message);
+  //     setErrorMessage('Network error occurred. Please check your internet connection.');
+  //   }
+  // };
+  
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>

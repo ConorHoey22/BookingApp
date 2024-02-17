@@ -1,6 +1,7 @@
 Auth routes 
 unauth Routes 
 
+CLear console logs of JWT token 
 
 Unauthenicated Nav
 Authentication Nav
@@ -11,6 +12,26 @@ Check Auth on App.js so on load
 
 
 
-Logout 
-Admin View  -- This where they will be able to add / Delete upcoming events and add Payment links with Stripe
-CRM view   -- there will be Stripe links created
+Logout Button
+
+
+
+------
+Admin View  -- 
+
+This where they will be able to add / Delete upcoming events and add Payment links with Stripe
+Create event
+Create a Camp 
+Manage bookings 
+
+------
+
+
+----
+CRM view   -- 
+there will be Stripe links created
+Booking into a Camp
+Book into an event
+Enquiry about a birthday / This is not a guareented commitment just suggest / notify The ADMin that the user would like to book a bday party etc 
+Notifications when Event/Camp is created , different alerts to device 
+-----

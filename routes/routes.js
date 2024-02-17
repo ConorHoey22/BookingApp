@@ -1,9 +1,9 @@
 // routes/auth.js
-
+require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
-const authMiddleware = require('../middleware/auth');
+
 
 const jwt = require('jsonwebtoken');
 
@@ -31,14 +31,13 @@ router.post('/api/login', async (req, res) => {
     }
 
     // Generate a JWT token for the authenticated user
-    const token = jwt.sign({ userId: user._id }, 'your-secret-key', { expiresIn: '1h' });
-
-
+    const token = jwt.sign({userId: user._id},process.env.JWT_SECRET,{ expiresIn: '1h' });
 
     // Return the token or any other relevant information
     res.json({ token });
   } catch (error) {
     console.error('Login Error:', error);
+  
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
@@ -48,7 +47,7 @@ router.post('/api/signup', async (req, res) => {
 
     try {
       
-          const { email  , password , fullName} = req.body;
+          const { email  , password , fullName, userType} = req.body;
      
           // Check if a user with the given email already exists
           const existingUser = await User.findOne({ email });
@@ -60,7 +59,7 @@ router.post('/api/signup', async (req, res) => {
           const hashedPassword = await bcrypt.hash(password, 10);
   
           // Save data to MongoDB
-          const newUser = new User({ email, password: hashedPassword, fullName });
+          const newUser = new User({ email, password: hashedPassword, fullName , userType });
           await newUser.save();
   
   
@@ -73,5 +72,61 @@ router.post('/api/signup', async (req, res) => {
       }
     
 });
+
+
+ 
+
+// Middleware to verify JWT token
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+      const token = authHeader.split(" ")[1];
+
+      jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+          if (err) {
+              return res.status(403).json("Token is invalid");
+          }
+          // Assign the decoded user object to req.user
+          req.user = user;
+
+          console.log(req.user);
+          next();
+      });
+  } else {
+      return res.status(403).json("You are not authenticated");
+  }
+};
+
+
+// Define your route handler
+router.get('/api/user/:userId', verifyToken, async (req, res) => {
+  try {
+   
+    const recordId = req.user.userId; // Corrected parameter name
+
+    // Use findById method to find a record by its ID
+    const record = await User.findById(recordId);
+        
+    // If the record is found, you can send it in the response
+    if (record) {
+      res.json(record);
+    } else {
+      // If the record is not found, send a 404 response
+      res.status(404).json({ error: 'Record not found' });
+    }
+  } catch (error) {
+    // Handle errors appropriately
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+ 
+
+
+
   
 module.exports = router;

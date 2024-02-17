@@ -70,7 +70,7 @@ const SignUp = () => {
                     'Content-Type': 'application/json',
                     // Add any additional headers if needed
                   },
-                  body: JSON.stringify({email , fullName, password}),
+                  body: JSON.stringify({email , fullName, password, userType: 'CRM'}),
 
                 });
 

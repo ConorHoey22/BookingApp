@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Home from './screens/Home';
 import DashboardCRM from './screens/DashboardCRM';
+import DashboardAdmin from './screens/DashboardAdmin';
 import SignUp from './screens/SignUp';
 import Login from './screens/Login';
 
@@ -37,6 +38,7 @@ const App = () => {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="DashboardCRM" component={DashboardCRM} />
+        <Stack.Screen name="DashboardAdmin" component={DashboardAdmin} />
       </Stack.Navigator>
     </NavigationContainer>
   );
