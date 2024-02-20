@@ -7,7 +7,7 @@ const UpcomingBooking = () => {
     { id: 2, bookingType: 'Party', date: '02-01-2024', time: '8:00 PM', attendance: 50, bookedBy: 'Bob' },
     { id: 3, bookingType: 'Conference', date: '03-01-2024', time: '9:00 AM', attendance: 100, bookedBy: 'Charlie' },
     // More data ...
-  ];s
+  ];
 
   return (
     

@@ -21,9 +21,11 @@ Admin View  --
 
 This where they will be able to add / Delete upcoming events and add Payment links with Stripe
 Create event
-Create a Camp 
+Create a Camp  -- Fix frontend of Date time picker looks like its appearing end time twice , also make it more user friendly
 Manage bookings 
 
+Test needed on Andriod to confirm that all modules work on Andriod/ ios / web - mainly the date picker
+Andriod date time not sure if working or coded right , will need to test
 ------
 
 

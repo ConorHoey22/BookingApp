@@ -11,6 +11,8 @@ import DashboardCRM from './screens/DashboardCRM';
 import DashboardAdmin from './screens/DashboardAdmin';
 import SignUp from './screens/SignUp';
 import Login from './screens/Login';
+import CreateCamp from './Views/CreateCamp';
+import CreateAnEvent from './Views/CreateAnEvent';
 
 const Stack = createNativeStackNavigator();
 
@@ -39,6 +41,8 @@ const App = () => {
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="DashboardCRM" component={DashboardCRM} />
         <Stack.Screen name="DashboardAdmin" component={DashboardAdmin} />
+        <Stack.Screen name="CreateAnEvent" component={CreateAnEvent} />
+        <Stack.Screen name="CreateCamp" component={CreateCamp} />
       </Stack.Navigator>
     </NavigationContainer>
   );
