@@ -3,11 +3,13 @@ require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const Camp = require('../models/Camp');
 
 
 const jwt = require('jsonwebtoken');
 
 const AsyncStorage = require('@react-native-async-storage/async-storage');
+
 
 const router = express.Router();
 
@@ -121,6 +123,39 @@ router.get('/api/user/:userId', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+
+// API endpoint for SignUp
+router.post('/api/createCamp', verifyToken, async (req, res) => {
+
+  try {
+    
+
+        const { location, price, startDate,startTime, endDate, endTime   } = req.body;
+   
+
+
+        //Is there a way to obtain the UserID and Ass
+        const createdByUserID = req.user.userId; // Corrected parameter name
+
+        //Camp model 
+
+        // Save data to MongoDB
+        const newCamp = new Camp({createdByUserID,location, price, startDate,startTime,endDate,endTime});
+        await newCamp.save();
+       
+      
+        res.status(200).json({ message: 'Camp Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error1:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
 
 
 

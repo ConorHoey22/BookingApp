@@ -13,6 +13,7 @@ const DashboardCRM = ({navigation}) => {
       try {
         const jwtToken = await AsyncStorage.getItem('jwtToken');
         setIsLoggedIn(!!jwtToken);
+        console.log(jwtToken+ 'yep');
       
       } catch (error) {
         console.error('Error fetching JWT token:', error);

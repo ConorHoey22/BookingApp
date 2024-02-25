@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 
 import { StyleSheet, View, Button, Text, Platform ,TextInput , SafeAreaView} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { DatePickerModal } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -11,17 +11,16 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 const CreateCamp = () => {
 
   
+  useEffect(() => {
+    setStartPickerVisible(true);
+    setEndPickerVisible(true);
+    setShow(true);
+  }, []);
 
   const [location, setLocation] = useState('');
   const [price, setPrice] = useState('');
   const [error, setError] = useState('');
-
-
-
-
-
-
-
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 
 
@@ -35,13 +34,13 @@ const [endPickerVisible, setEndPickerVisible] = useState(false);
   const handleStartChange = (event, selectedDate) => {
     const currentDate = selectedDate || startDate;
     setStartDate(currentDate);
-    setStartPickerVisible(false);
+
   };
 
   const handleEndChange = (event, selectedDate) => {
     const currentDate = selectedDate || endDate;
     setEndDate(currentDate);
-    setEndPickerVisible(false);
+    
   };
 
   const showStartPicker = () => {
@@ -81,19 +80,38 @@ const onEndChange = (event, selectedTime) => {
 
 
 
-  const showMode = (currentMode) => {
+const showMode = (currentMode) => {
     setShow(true);
     setMode(currentMode);
-  };
+};
 
-  const showDatepicker = () => {
+const showDatepicker = () => {
     showMode('date');
+};
+
+const showTimepicker = () => {
+    showMode('time');
+};
+//------------------------
+
+
+
+useEffect(() => {
+  const checkAuthentication = async () => {
+    try {
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+      setIsLoggedIn(!!jwtToken);
+
+      // Obtain and store UserID ? aysc or maybe a GET? then pass it to the POST
+    
+    
+    } catch (error) {
+      console.error('Error fetching JWT token:', error);
+    }
   };
 
-  const showTimepicker = () => {
-    showMode('time');
-  };
-//------------------------
+  checkAuthentication(); // Call the function to check authentication status when component mounts
+}, []); // Empty dependency array ensures the effect runs only once when component mounts
 
 
   const [range, setRange] = React.useState({ startDate: undefined, endDate: undefined });
@@ -114,40 +132,77 @@ const onEndChange = (event, selectedTime) => {
 
 
 
-
-
-
-  const handleSubmit = () => {
-    if (!location || !date || !time || !price) {
-      setError('Please fill out all fields');
-      return;
+  const handleSubmit = async () => {
+    try {
+      const apiCreateCamp = 'http://localhost:3000/api/createCamp';
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+  
+      if (!jwtToken) {
+        throw new Error('JWT token not found');
+      }
+  
+      const response = await fetch(apiCreateCamp, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({ 
+          location, 
+          price,
+          startDate,
+          startTime,
+          endDate,
+          endTime,
+        }),
+      });
+  
+      if (response.ok) {
+        const jsonResponse = await response.json();
+        console.log('Camp Created', jsonResponse);
+      } else {
+        console.log('Error Status:', response.status);
+        console.log('Error Message:', response.statusText);
+        let errorMessage = 'Unknown error occurred.';
+        try {
+          const jsonResponse = await response.json();
+          errorMessage = jsonResponse.message || jsonResponse.error || jsonResponse.errorMessage || errorMessage;
+        } catch (error) {
+          errorMessage = response.statusText || errorMessage;
+        }
+        console.log('Error Message from JSON:', errorMessage);
+      }
+    } catch (error) {
+      console.error('Network Error:', error.message);
+      // Handle the error here. For example, set an error message state
+      setErrorMessage(error.message);
     }
-    // Add your logic here to handle the form submission
   };
+
+  
 
   return (
     <View style = {styles.container}>
-      <View style= {styles.topContainer}>
+
 
 
       <View style={styles.fieldRow}>
         <Text>Location:</Text>
         <TextInput
-        styles={styles.input}
           placeholder=" Enter the Location here"
           value={location}
           onChangeText={setLocation} />
       </View>
 
       <View style={styles.fieldRow}>
-          <Text>Enter a price:</Text>
+          <Text>Enter a price * Per person:</Text>
           <TextInput
-            placeholder=" Enter the Price"
-            value={price}/>
+            placeholder="£0.00"
+            value={price}
+            onChangeText={setPrice} />
       </View>
 
 
-    <View style={styles.fieldRow}>
       {/* Web  */}
 
           {Platform.OS === 'web' && 
@@ -173,12 +228,14 @@ const onEndChange = (event, selectedTime) => {
             }
 
             {/* ios */}
-                        
+        
             {Platform.OS === 'ios' && 
-                <SafeAreaView>
-                  <View style={{ padding: 16 }}>
-                      <Button onPress={showStartPicker} title="Select Start Date" />
-                      <Button onPress={showTimepicker} title="Select Start Time" />
+                <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
+                  <Text>Select a start date:</Text>
+                 
+                  <View style={styles.fieldRow}>
+                   
+                      
                       {startPickerVisible && (
                         <DateTimePicker
                           testID="dateTimePickerStart"
@@ -188,7 +245,31 @@ const onEndChange = (event, selectedTime) => {
                           onChange={handleStartChange}
                         />
                       )}
-                      {show && (
+                   </View>
+
+                  <Text>Select a end date:</Text>
+                  <View style={styles.fieldRow}>
+                    {endPickerVisible && (
+                      <DateTimePicker
+                        testID="dateTimePickerEnd"
+                        value={endDate}
+                        mode={'date'}
+                        display="default"
+                        onChange={handleEndChange}
+                      />
+                    )}
+                  </View>
+
+
+
+
+
+
+
+           <Text>Select a start time:</Text>
+
+           <View style={styles.fieldRow}>
+                    {show && (
                     <DateTimePicker
                     testID="dateTimePicker"
                     value={startTime}
@@ -198,13 +279,65 @@ const onEndChange = (event, selectedTime) => {
                     onChange={onStartChange}
                   />
                 )}
-                </View>
+                
+           </View>
+           <Text>Select an end time:</Text>
+          <View style={styles.fieldRow}>
+
+              {show && (
+              <DateTimePicker
+              testID="dateTimePicker"
+              value={endTime}
+              mode="time"
+              is24Hour={true}
+              display="default"
+              onChange={onEndChange}
+            />
+            )}
+
+          </View>
+
+    
+
+  
+
+<View style = {styles.container}>
+      <View style= {styles.DateSelectionContainer}>
+
+         
+      <Text>Summary Event Details </Text>
+      <Text>Start Date : {startDate.toLocaleDateString('en-GB')}</Text>
+      <Text>End Date : {endDate.toLocaleDateString('en-GB')}</Text>
+      <Text> Time : {new Date(startTime).toLocaleTimeString()} to {new Date(endTime).toLocaleTimeString()}</Text>
+      <Text>Location: {location}</Text>
+      <Text>Price per person: £{price}</Text>
+    
+
+
+    <View style={styles.fieldRow}>
+            {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
+            <Button
+              title="Create Camp"
+              onPress={handleSubmit} />
+    </View>
+
+
+    
+
+    </View>
+
+ 
+
+    
+</View>
+     
+          
               </SafeAreaView>
             }
 
             {/* Andriod */}
             {Platform.OS === 'android' &&
-            <SafeAreaView>
+            <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
             <Button onPress={showDatepicker} title="Show date picker!" />
             <Button onPress={showTimepicker} title="Show time picker!" />
             <Text>selected: {date.toLocaleString()}</Text>
@@ -219,92 +352,6 @@ const onEndChange = (event, selectedTime) => {
             )}
             </SafeAreaView>
             }
-
-
-
-
-
-    </View>
-      
-
-
-<View style={styles.fieldRow}>
-
-<Button onPress={showEndPicker} title="Select End Date" />
-
-</View>
-
-<View style={styles.fieldRow}>
-      <Button onPress={showTimepicker} title="Select End Time" />
-</View>
-
-<View style={styles.fieldRow}>
-
-
-      {endPickerVisible && (
-        <DateTimePicker
-          testID="dateTimePickerEnd"
-          value={endDate}
-          mode={'date'}
-          display="default"
-          onChange={handleEndChange}
-        />
-      )}
-      {show && (
-      <DateTimePicker
-      testID="dateTimePicker"
-      value={endTime}
-      mode="time"
-      is24Hour={true}
-      display="default"
-      onChange={onEndChange}
-    />
-    )}
-</View>
-
-    
-
-  
-
-<View style = {styles.container}>
-      <View style= {styles.DateSelectionContainer}>
-
-      
-    
-
-    </View>
-
-    
-
-      <Text>Selected Start Date: {startDate.toLocaleDateString('en-GB')}</Text>
-      <Text>Selected End Date: {endDate.toLocaleDateString('en-GB')}</Text>
-    
-    <Text> Start Time : {new Date(startTime).toLocaleTimeString()}</Text>
-    <Text> End Time : {new Date(endTime).toLocaleTimeString()}</Text>
-
-    
-    </View>
-  
-
-
-
-    </View>
-
-    <View style={styles.fieldRow}>
-            
-            {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
-            <Button
-              title="Create Camp"
-              onPress={handleSubmit} />
-    </View>
-
-
-    
-    
-    
-    
-    
-    
     </View>
 
 
@@ -317,17 +364,11 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width:'100%'
-  },
-
-  topContainer:{
-    flex: 1,
    
-
     width:'100%'
   },
+
+  
   DateSelectionContainer:{
     flex: 1,
     justifyContent: 'center',
@@ -350,7 +391,3 @@ const styles = StyleSheet.create({
 });
 
 export default CreateCamp;
-
-
-
-

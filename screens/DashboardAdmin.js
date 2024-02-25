@@ -17,6 +17,7 @@ const DashboardAdmin = ({navigation}) => {
       try {
         const jwtToken = await AsyncStorage.getItem('jwtToken');
         setIsLoggedIn(!!jwtToken);
+    
       
       } catch (error) {
         console.error('Error fetching JWT token:', error);
@@ -38,14 +39,14 @@ const DashboardAdmin = ({navigation}) => {
 
   
   const handleCreateAnEventBtn = async () => {
-    await AsyncStorage.removeItem('jwtToken');
+
     setIsLoggedIn(false);
     navigation.navigate('CreateAnEvent');
   };
 
 
   const handleCreateACampBtn = async () => {
-    await AsyncStorage.removeItem('jwtToken');
+
     setIsLoggedIn(false);
     navigation.navigate('CreateCamp');
   };

@@ -26,7 +26,13 @@ Manage bookings
 
 Test needed on Andriod to confirm that all modules work on Andriod/ ios / web - mainly the date picker
 Andriod date time not sure if working or coded right , will need to test
+Handlesubmit within createcamp is only tested in ios unsure about Andriod yet 
 ------
+
+
+
+put MongoDB URL in .env file 
+
 
 
 ----
@@ -37,3 +43,8 @@ Book into an event
 Enquiry about a birthday / This is not a guareented commitment just suggest / notify The ADMin that the user would like to book a bday party etc 
 Notifications when Event/Camp is created , different alerts to device 
 -----
+
+
+Terms and conditions 
+
+refunds
