@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
  
   const CampSchema = new mongoose.Schema({
     createdByUserID:String,
+    campName: String,
     location: String,
     price: String,
     startDate: String,
@@ -15,6 +16,6 @@ const mongoose = require('mongoose');
   });
   
   //Define Model
-  const User = mongoose.model('camp', CampSchema);
+  const Camp = mongoose.model('camp', CampSchema);
   
-  module.exports = User;
+  module.exports = Camp;

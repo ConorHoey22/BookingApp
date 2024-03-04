@@ -126,13 +126,15 @@ router.get('/api/user/:userId', verifyToken, async (req, res) => {
 
 
 
-// API endpoint for SignUp
+
+
+// API endpoint for Create Camp 
 router.post('/api/createCamp', verifyToken, async (req, res) => {
 
   try {
     
 
-        const { location, price, startDate,startTime, endDate, endTime   } = req.body;
+        const { campName, location, price, startDate,startTime, endDate, endTime   } = req.body;
    
 
 
@@ -142,7 +144,7 @@ router.post('/api/createCamp', verifyToken, async (req, res) => {
         //Camp model 
 
         // Save data to MongoDB
-        const newCamp = new Camp({createdByUserID,location, price, startDate,startTime,endDate,endTime});
+        const newCamp = new Camp({createdByUserID,campName,location, price, startDate,startTime,endDate,endTime});
         await newCamp.save();
        
       
@@ -150,18 +152,53 @@ router.post('/api/createCamp', verifyToken, async (req, res) => {
 
     } catch (error) {
         
-        console.error('Error1:', error.message);
+        console.error('Error:', error.message);
         res.status(500).json({ error: 'Internal Server Error' });
     }
   
 });
 
+//GET CAMPS 
+router.get('/api/camps', verifyToken, async (req, res) => {
+  try {
+   
+    const camps = await Camp.find();
+    res.status(200).json(camps);
+    console.log(camps);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 
+// DELETE route to remove a camp by its ID
+router.delete('/api/camps/:id',verifyToken, async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Camp.findByIdAndDelete(id);
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error removing camp:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
- 
 
+router.put('/api/updateCamp/:id', verifyToken, async (req, res) => {
+  try {
+      const id = req.params.id;
+      const updatedCamp = req.body; // Contains updated camp data
+      const result = await Camp.findByIdAndUpdate(id, updatedCamp, { new: true });
 
+      if (!result) {
+          return res.status(404).json({ message: 'Camp not found' });
+      }
 
-  
+      res.status(200).json(result); // Return updated camp
+  } catch (error) {
+      console.error('Error updating camp:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

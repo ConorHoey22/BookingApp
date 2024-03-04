@@ -8,11 +8,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Home from './screens/Home';
 import DashboardCRM from './screens/DashboardCRM';
+import CreateBooking from './screens/CreateBooking';
+
+
+
+
+
 import DashboardAdmin from './screens/DashboardAdmin';
+import ManageBookings from './screens/ManageBookings';
+
 import SignUp from './screens/SignUp';
 import Login from './screens/Login';
 import CreateCamp from './Views/CreateCamp';
 import CreateAnEvent from './Views/CreateAnEvent';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -40,7 +49,9 @@ const App = () => {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="DashboardCRM" component={DashboardCRM} />
+        <Stack.Screen name="CreateBooking" component={CreateBooking} />
         <Stack.Screen name="DashboardAdmin" component={DashboardAdmin} />
+        <Stack.Screen name="ManageBookings" component={ManageBookings} />
         <Stack.Screen name="CreateAnEvent" component={CreateAnEvent} />
         <Stack.Screen name="CreateCamp" component={CreateCamp} />
       </Stack.Navigator>

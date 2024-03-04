@@ -2,26 +2,44 @@ import React, { useEffect, useState } from 'react';
 
 import { StyleSheet, View, Button, Text, Platform ,TextInput , SafeAreaView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useNavigation } from '@react-navigation/native';
 import { DatePickerModal } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 
-const CreateCamp = () => {
 
-  
+
+//Stripe imports
+import { CardField, useStripe, StripeProvider, InitPaymentSheet , usePaymentSheet} from '@stripe/stripe-react-native';
+
+const CreateCamp = ({navigation}) => {
+
+
   useEffect(() => {
     setStartPickerVisible(true);
     setEndPickerVisible(true);
     setShow(true);
+
+ 
+  
+
+    
+
   }, []);
 
+
+  const [campName, setCampName] = useState('');
   const [location, setLocation] = useState('');
   const [price, setPrice] = useState('');
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+
+  //Error Messages 
+  const [campNameErrorMessage, setCampNameErrorMessage] = useState('');
+  const [locationErrorMessage, setLocationErrorMessage] = useState('');
+  const [priceErrorMessage, setPriceErrorMessage] = useState('');
 
 
 // ------------- iOS Date Picker functions ---------------
@@ -140,52 +158,92 @@ useEffect(() => {
       if (!jwtToken) {
         throw new Error('JWT token not found');
       }
-  
-      const response = await fetch(apiCreateCamp, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify({ 
-          location, 
-          price,
-          startDate,
-          startTime,
-          endDate,
-          endTime,
-        }),
-      });
-  
-      if (response.ok) {
-        const jsonResponse = await response.json();
-        console.log('Camp Created', jsonResponse);
-      } else {
-        console.log('Error Status:', response.status);
-        console.log('Error Message:', response.statusText);
-        let errorMessage = 'Unknown error occurred.';
-        try {
-          const jsonResponse = await response.json();
-          errorMessage = jsonResponse.message || jsonResponse.error || jsonResponse.errorMessage || errorMessage;
-        } catch (error) {
-          errorMessage = response.statusText || errorMessage;
-        }
-        console.log('Error Message from JSON:', errorMessage);
+
+      // Reset error messages
+      setCampNameErrorMessage("");
+      setLocationErrorMessage("");
+      setPriceErrorMessage("");
+
+      //Form Validation before User can Handle Submition
+      
+      //If CampName is blank
+      if(campName == "")
+      {
+        const errorMessage1 = "Please enter a camp name";
+        setCampNameErrorMessage(errorMessage1);
       }
-    } catch (error) {
-      console.error('Network Error:', error.message);
-      // Handle the error here. For example, set an error message state
-      setErrorMessage(error.message);
-    }
+      else if(location == "")
+      {
+        const errorMessage2 = "Please enter a location";
+        setLocationErrorMessage(errorMessage2);
+      }
+      else if(price == "") 
+      {
+        const errorMessage3 = "Please enter a price";
+        setPriceErrorMessage(errorMessage3);
+      }
+      else {
+
+  
+        const response = await fetch(apiCreateCamp, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify({ 
+            campName,
+            location, 
+            price,
+            startDate,
+            startTime,
+            endDate,
+            endTime,
+          }),
+        });
+    
+        if (response.ok) {
+          const jsonResponse = await response.json();
+          console.log('Camp Created', jsonResponse);
+          navigation.navigate('DashboardAdmin');
+        } else {
+          console.log('Error Status:', response.status);
+          console.log('Error Message:', response.statusText);
+          let errorMessage = 'Unknown error occurred.';
+          try {
+            const jsonResponse = await response.json();
+            errorMessage = jsonResponse.message || jsonResponse.error || jsonResponse.errorMessage || errorMessage;
+          } catch (error) {
+            errorMessage = response.statusText || errorMessage;
+          }
+          console.log('Error Message from JSON:', errorMessage);
+        }
+      } 
+    }catch (error) {
+        console.error('Network Error:', error.message);
+        // Handle the error here. For example, set an error message state
+        setErrorMessage(error.message);
+      }
+
+      
   };
 
+ 
   
 
   return (
+
+
+    
     <View style = {styles.container}>
-
-
-
+      <View style={styles.fieldRow}>
+        <Text>Camp Name:</Text>
+        <TextInput
+          placeholder=" Enter the Camp name here"
+          value={campName}
+          onChangeText={setCampName} />
+      </View>
+      <Text style={styles.validationText}>{campNameErrorMessage}</Text>
       <View style={styles.fieldRow}>
         <Text>Location:</Text>
         <TextInput
@@ -193,6 +251,7 @@ useEffect(() => {
           value={location}
           onChangeText={setLocation} />
       </View>
+      <Text style={styles.validationText}>{locationErrorMessage}</Text>
 
       <View style={styles.fieldRow}>
           <Text>Enter a price * Per person:</Text>
@@ -201,6 +260,7 @@ useEffect(() => {
             value={price}
             onChangeText={setPrice} />
       </View>
+      <Text style={styles.validationText}>{priceErrorMessage}</Text>
 
 
       {/* Web  */}
@@ -298,20 +358,27 @@ useEffect(() => {
           </View>
 
     
+          <View style={styles.fieldRow}>
+            {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
+            <Button
+              title="Create Camp"
+              onPress={handleSubmit} />
+    </View>
 
   
 
 <View style = {styles.container}>
-      <View style= {styles.DateSelectionContainer}>
+      {/* <View style= {styles.DateSelectionContainer}>
 
          
       <Text>Summary Event Details </Text>
+      <Text>Camp Name: {campName}</Text>
       <Text>Start Date : {startDate.toLocaleDateString('en-GB')}</Text>
       <Text>End Date : {endDate.toLocaleDateString('en-GB')}</Text>
-      <Text> Time : {new Date(startTime).toLocaleTimeString()} to {new Date(endTime).toLocaleTimeString()}</Text>
+      <Text>Time : {new Date(startTime).toLocaleTimeString()} to {new Date(endTime).toLocaleTimeString()}</Text>
       <Text>Location: {location}</Text>
       <Text>Price per person: £{price}</Text>
-    
+     */}
 
 
     <View style={styles.fieldRow}>
@@ -324,7 +391,7 @@ useEffect(() => {
 
     
 
-    </View>
+    {/* </View> */}
 
  
 
@@ -352,8 +419,10 @@ useEffect(() => {
             )}
             </SafeAreaView>
             }
+            
     </View>
 
+ 
 
     
   );
@@ -367,6 +436,11 @@ const styles = StyleSheet.create({
    
     width:'100%'
   },
+  validationText: {
+    fontSize: 20,
+    marginBottom: 10,
+    color: 'red',
+  },
 
   
   DateSelectionContainer:{
@@ -378,10 +452,10 @@ const styles = StyleSheet.create({
   },
 
   fieldRow:{
-    flexDirection: 'row', // Display items in a row
+    flexDirection: 'column', // Display items in a row
     alignItems: 'center', // Align items in the center of the row
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 20,
 
     borderColor:"black",
     borderWidth:0.5

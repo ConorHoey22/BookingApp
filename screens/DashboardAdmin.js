@@ -51,6 +51,13 @@ const DashboardAdmin = ({navigation}) => {
     navigation.navigate('CreateCamp');
   };
 
+  const handleManageBookings = async () => {
+
+    setIsLoggedIn(false);
+    navigation.navigate('ManageBookings');
+  };
+
+
 
 
   return (
@@ -67,7 +74,7 @@ const DashboardAdmin = ({navigation}) => {
 
 
 
-    <Button title='Manage Bookings '/>
+    <Button title='Manage Bookings' onPress={handleManageBookings} />
      
 
 

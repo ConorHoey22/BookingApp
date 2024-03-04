@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity } from 'react-native';
+import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DashboardCRM = ({navigation}) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [campData, setCampData] = useState([]);
 
 
   useEffect(() => {
@@ -13,7 +14,7 @@ const DashboardCRM = ({navigation}) => {
       try {
         const jwtToken = await AsyncStorage.getItem('jwtToken');
         setIsLoggedIn(!!jwtToken);
-        console.log(jwtToken+ 'yep');
+
       
       } catch (error) {
         console.error('Error fetching JWT token:', error);
@@ -21,9 +22,47 @@ const DashboardCRM = ({navigation}) => {
     };
 
     checkAuthentication(); // Call the function to check authentication status when component mounts
+  
+  handleCamps();
+  
+  
   }, []); // Empty dependency array ensures the effect runs only once when component mounts
 
+  const handleCamps = async () => {
 
+    // Fetch all camps 
+
+    const apiGetCamps = 'http://localhost:3000/api/camps';
+    const jwtToken = await AsyncStorage.getItem('jwtToken');
+    
+    try {
+      const response = await fetch(apiGetCamps, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+      });
+
+
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      // Parse the response as JSON
+      const data = await response.json();
+
+      // Set the campData state with the fetched data
+      setCampData(data);
+
+
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+  }
+
+
+  };
 
   
 
@@ -34,31 +73,26 @@ const DashboardCRM = ({navigation}) => {
   };
 
   return (
-    // <View style={styles.container}>
-
-    //       <Text>Events Upcoming</Text>
-
-    //       <Text>Test Camp - Date {testdate} - Time {time} </Text>
-
-    //       <Text>Book a 1 to 1 Training Session - Date {testdate} - Time {time} </Text>
-        
-
-
+ 
+  <ScrollView>
+    {campData.map((camp, index) => (
+      <View key={index} style={styles.container}>  
+        <Text>{camp.campName} </Text>
+        <Text>Location: {camp.location}</Text> 
+  
+        <Text>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
 
 
-    //       <Button title='Book a Birthday'/>
+        <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
+        <Text>Price: £{camp.price} </Text>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText} onPress={() => navigation.navigate('CreateBooking', { camp })}>Book now</Text>
+        </TouchableOpacity>
+      </View>
+    ))}
 
-    //       <Button onPress={handleLogOut} title='Logout' />
+  </ScrollView>
 
-    // </View>
-
-
-    <View style={styles.container}>
-      <Text>Event Name : </Text>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>More Details</Text>
-      </TouchableOpacity>
-    </View>
   );
 };
 
@@ -80,12 +114,43 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
   },
-  button: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#007bff',
-    borderRadius: 5,
-    marginTop: 10,
-
-  },
+   modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+      backgroundColor: '#fff',
+      padding: 20,
+      borderRadius: 10,
+      width: '80%',
+    },
+    fieldRow: {
+      flexDirection: 'row',
+       marginTop: 15,
+       marginBottom: 10,
+    },
+    label: {
+      // marginBottom: 5,
+      fontWeight: 'bold',
+    },
+    textInput: {
+      borderWidth: 1,
+      borderColor: 'gray',
+      padding: 10,
+      marginTop: 10,
+      marginBottom: 10,
+    },
+    button: {
+      backgroundColor: '#4CAF50',
+      borderRadius: 4,
+      padding: 10,
+      marginBottom: 10,
+    },
+    buttonText: {
+      color: 'white',
+      fontSize: 16,
+      textAlign: 'center',
+    },
 });

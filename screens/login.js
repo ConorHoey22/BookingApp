@@ -97,52 +97,6 @@ const handleLogin = async () => {
   }
 };
 
-
-        // // Fetch user details after successful login
-        // const userResponse = await fetch(apiUrlUser, {
-        //   method: 'GET',
-        //   headers: {
-        //     'Authorization': `Bearer ${token}`, // Pass the JWT token for authentication
-        //   },
-        // });
-  
-        // if (userResponse.ok) {
-        //   const userJsonResponse = await userResponse.json();
-        //   console.log('User Details:', userJsonResponse);
-  
-        //   // Now you can access user details like userType
-        //   const userId = userJsonResponse._id; // Assuming the user's _id is available in the response
-        //   console.log('User ID:', userId);
-  
-        //   // Perform actions based on user ID
-        //   // For example, you can navigate to a specific page based on the user ID
-        //   navigation.navigate('UserProfile', { userId });
-        // } else {
-        //   console.error('Failed to fetch user details:', userResponse.statusText);
-        //   // Handle error appropriately
-        // }
-  //     } else {
-  //       let errorMessage = 'Invalid email or password. Please try again.';
-  //       console.log(errorMessage);
-  
-  //       try {
-  //         const errorResponse = await response.json();
-  //         if (errorResponse && errorResponse.error) {
-  //           errorMessage = errorResponse.error;
-  //         }
-  //       } catch (jsonError) {
-  //         console.error('JSON Parsing Error:', jsonError);
-  //       }
-  
-  //       console.error('Login Error:', errorMessage);
-  //       setErrorMessage(errorMessage);
-  //     }
-  //   } catch (error) {
-  //     console.error('Network Error:', error.message);
-  //     setErrorMessage('Network error occurred. Please check your internet connection.');
-  //   }
-  // };
-  
   return (
     <View style={styles.container}>
       <View style={styles.innerContainer}>

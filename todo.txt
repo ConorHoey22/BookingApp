@@ -1,14 +1,52 @@
+Working on - CreateBooking.js 
+Add a particants , Edit (Modal) , Delete
+
+
+------------
+
+NOTES of things todo / research 
+
+
+, CRM Book / PaymentStripe
+
+
+
+Fix Create camp Front end 
+
+CRM - Previous booking - Request refund button - send Notification to Admin 
+
+Any REQUIRED FIeLDS ON CREATEBOOKING  - Contact number?
+
+booking Detials -
+
+
+
+Ability to view all particants in that CAMp that have booked and click on their profile to see contact detials if needed.
+
 Auth routes 
 unauth Routes 
 
 CLear console logs of JWT token 
 
-Unauthenicated Nav
-Authentication Nav
- unAuth Nav = Nav bar wiht unauth screens 
-Auth Nav = Nav bar  with auth screens
+----
+SIGN UP - CUSTOMER
 
-Check Auth on App.js so on load
+
+
+----
+Make BOOKING   / Checkout questions  - (CRM ONLY)
+Has your child have any disablities or alergies ** State 
+we do not store allegies / disablities only until the event / camp is over.
+
+-----
+
+Manage bookings (ADMIN ONLY)
+
+Edit Camp / Event - Need to maintain Time and date and price all values and the user has the option to edit whatever so i think we will be PUT all 
+Delete Camp / Event - DONE
+
+------
+
 
 
 
@@ -21,7 +59,7 @@ Admin View  --
 
 This where they will be able to add / Delete upcoming events and add Payment links with Stripe
 Create event
-Create a Camp  -- Fix frontend of Date time picker looks like its appearing end time twice , also make it more user friendly
+Create a Camp  
 Manage bookings 
 
 Test needed on Andriod to confirm that all modules work on Andriod/ ios / web - mainly the date picker
@@ -47,4 +85,50 @@ Notifications when Event/Camp is created , different alerts to device
 
 Terms and conditions 
 
+Knowledge of the app / Workings 
+
+Stripe
+NEED TO PUT KEYS IN ENV file , cant get it working at the min
+
+
+Refunds can be processed on the Stripe Application - To be tested
+We can implement refunds on the app but that could be a future feature / Release 
+For now i think we could have it that the User can see previous Camps / Events within the last X days 
+and then request a refund then the business would log in and see the nofication and go on the Stripe application and process
+how do we tell the outcome - Notifications ?  
+
+
 refunds
+
+
+APPLE PAY SETUP - SO THIS WILL ONLY BE ABLE TO ACCESSed when we get a merchantID , We will first do card only as this is main form and also Dev Program is £99 and i was having issues getting this setup we will fix this in the future 
+
+Merchant ID 
+If your app is being built for a specific client and they will take over the app once it's live, you have a couple of options regarding the Apple Merchant ID:
+
+You Keep Ownership, But Integrate with Their Stripe Account: If you continue to own and maintain the app on behalf of the client, you can keep your Apple Merchant ID and integrate with the client's Stripe account. In this scenario, the client provides you with their Stripe publishable key and other necessary credentials, and you update the Stripe configuration in your app accordingly.
+Client Assumes Full Ownership: If the client will assume full ownership of the app, including the Apple Developer account and any related credentials, they will need to create their own Apple Merchant ID and integrate with their own Stripe account. Once they have their own credentials, they will need to update the Stripe configuration in the app before taking it live.
+The approach you choose depends on the agreement with your client and how ownership and maintenance of the app are being structured. It's essential to clarify this with your client and determine the best course of action before deploying the app live.
+
+
+publishableKey: This is your Stripe publishable key, which you get from your Stripe Dashboard. It's used to identify your account with Stripe and authenticate API requests from your app. This is required for integrating with Stripe.
+merchantIdentifier: This is an identifier provided by Apple when you set up Apple Pay in your Stripe account. It's used to configure Apple Pay for your app. If you're not setting up Apple Pay, you can omit this property or set it to undefined.
+urlScheme: This is a custom URL scheme for your app, which is used for deep linking and handling redirects. You can set this to a unique value for your app (e.g., your-app-name://), but it's optional unless you're setting up Apple Pay.
+
+
+
+---
+CREATE A CAMP - Admin ONLY
+
+
+
+---
+
+TESTING PAYMENTS 
+
+PAYMENT METHOD	SCENARIO	HOW TO TEST
+
+Credit card	The card payment succeeds and doesn’t require authentication.	Fill out the credit card form using the credit card number 4242 4242 4242 4242 with any expiration, CVC, and postal code.
+Credit card	The card payment requires authentication.	Fill out the credit card form using the credit card number 4000 0025 0000 3155 with any expiration, CVC, and postal code.
+Credit card	The card is declined with a decline code like insufficient_funds.	Fill out the credit card form using the credit card number 4000 0000 0000 9995 with any expiration, CVC, and postal code.
+Credit card	The UnionPay card has a variable length of 13-19 digits.	Fill out the credit card form using the credit card number 6205 500 0000 0000 0004 with any expiry date, CVC, and postal code.
