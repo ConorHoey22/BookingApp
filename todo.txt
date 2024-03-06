@@ -6,6 +6,7 @@ Add a particants , Edit (Modal) , Delete
 
 NOTES of things todo / research 
 
+FIX form validaiton on CreateBooking - copy Signup
 
 , CRM Book / PaymentStripe
 
@@ -37,6 +38,7 @@ SIGN UP - CUSTOMER
 Make BOOKING   / Checkout questions  - (CRM ONLY)
 Has your child have any disablities or alergies ** State 
 we do not store allegies / disablities only until the event / camp is over.
+      //Update Array with record  - We will not be updating the DB until after the payment?? 
 
 -----
 
