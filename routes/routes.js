@@ -12,7 +12,8 @@ const AsyncStorage = require('@react-native-async-storage/async-storage');
 
 
 const router = express.Router();
-
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 router.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
@@ -201,4 +202,34 @@ router.put('/api/updateCamp/:id', verifyToken, async (req, res) => {
   }
 });
 
+
+
+// Stripe API Requests 
+
+router.post("/api/campPayment", verifyToken ,async (req, res) => {
+  try {
+    // Getting data from client
+    let { amount, bookingName } = req.body;
+    // Simple validation
+    if (!amount || !bookingName)
+      return res.status(400).json({ message: "All fields are required" });
+    amount = parseInt(amount);
+    // Initiate payment
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount,
+      currency: "GBP",
+      payment_method_types: ["card"],
+      metadata: { bookingName },
+    });
+    // Extracting the client secret 
+    const clientSecret = paymentIntent.client_secret;
+    // Sending the client secret as response
+    res.json({ message: "Payment initiated", clientSecret });
+
+  } catch (err) {
+    // Catch any error and send error 500 to client
+    console.error(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 module.exports = router;

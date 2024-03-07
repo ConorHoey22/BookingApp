@@ -6,10 +6,12 @@ Add a particants , Edit (Modal) , Delete
 
 NOTES of things todo / research 
 
-FIX form validaiton on CreateBooking - copy Signup
-
-, CRM Book / PaymentStripe
-
+ CRM Book / PaymentStripe
+ -- Price is coming back correctly to API 
+ -- We need to calculate the amount based on the number of particants
+ -- ReturnURL for IOS only supports this what do we do for Andriod?
+ -- GO live CheckList - Research 
+---------------------
 
 
 Fix Create camp Front end 
@@ -49,6 +51,8 @@ Delete Camp / Event - DONE
 
 ------
 
+
+Add to BASKET and return back later or just have it for now just have to reenter?
 
 
 
@@ -127,6 +131,8 @@ CREATE A CAMP - Admin ONLY
 ---
 
 TESTING PAYMENTS 
+GO LIVE CHECKLIST
+https://docs.stripe.com/development/checklist
 
 PAYMENT METHOD	SCENARIO	HOW TO TEST
 

@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute } from '@react-navigation/native';
 
+import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
+
 const CreateBooking = ({navigation}) => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -15,8 +17,11 @@ const CreateBooking = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
 
+  const [bookingName, setBookingName] = useState('');
+  const stripe = useStripe();
 
   //Form Validation
+  const [bookingNameValidationMessage, setBookingNameValidation] = useState('');
   const [nameValidationMessage, setNameValidationMessage] = useState('');
   const [phoneNumberValidation, setPhoneNumberValidationMessage] = useState('');
 
@@ -102,7 +107,15 @@ const CreateBooking = ({navigation}) => {
    
         //Form Validation
 
-        if ((!name || /^\s*$/.test(name)) || (!phoneNumber || /^\s*$/.test(phoneNumber))) {
+        if ((!name || /^\s*$/.test(name)) || (!phoneNumber || /^\s*$/.test(phoneNumber)) || (!bookingName || /^\s*$/.test(bookingName)) ) {
+          
+          if (!bookingName || /^\s*$/.test(bookingName)) {
+            setBookingNameValidation('Enter your name');
+          } else {
+            setBookingNameValidation('');
+          }
+          
+          
           // If any field is blank, show respective validation messages
           if (!name || /^\s*$/.test(name)) {
             setNameValidationMessage('Enter their name');
@@ -193,16 +206,62 @@ const CreateBooking = ({navigation}) => {
     };
 
     const handleBookingCheckout = async() => {
-
+      const apiCreateBooking = 'http://localhost:3000/api/campPayment';
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+  
         // Handle Stripe API and payment once the payment is confirm / made , then we will then Participant array and push the data to the DB 
+        try {
+         
+          const finalAmount = parseInt(receivedPrice);
 
+          if (finalAmount < 1) return Alert.alert("You cannot donate below 1 GBP");
+          const response = await fetch(apiCreateBooking, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              'Authorization': `Bearer ${jwtToken}`,
+            },
+            body: JSON.stringify({ amount: finalAmount, bookingName: bookingName }),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            return Alert.alert(data.message);
+          }
+          const initSheet = await stripe.initPaymentSheet({
+            paymentIntentClientSecret: data.clientSecret,
+          });
+          if (initSheet.error) {
+            console.error(initSheet.error);
+            return Alert.alert(initSheet.error.message);
+          }
+          const presentSheet = await stripe.presentPaymentSheet({
+            clientSecret: data.clientSecret,
+          });
+          if (presentSheet.error) {
+            console.error(presentSheet.error);
+            return Alert.alert(presentSheet.error.message);
+          }
+          Alert.alert("Payment Successful! Thank You!");
+        } catch (err) {
+          console.error(err);
+          Alert.alert("Payment failed!");
+        }
     };
 
 
   return (
  
   <ScrollView>
-   
+
+   <StripeProvider publishableKey='pk_test_51OnkfED7nseNwvj8Zgtfn4YbMAQbVl2Y3yWn56QAF6rLJmAn6ez4Wyp24aLIEtzLLEs15N06P0FxI5w9I8jnTvaf00DjYAqVWL'>
+    <Text style={styles.label}>Enter your name *: </Text>
+        <Text>{bookingNameValidationMessage}</Text>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Enter here"
+          value={bookingName}
+          onChangeText={(text) => setBookingName(text)}
+        />
     {/* Get Booking details */}
     <View style={styles.container}>
         <Text style={styles.label}>Enter the name of the participant *: </Text>
@@ -254,8 +313,14 @@ const CreateBooking = ({navigation}) => {
     {participantCount >= 1 ? (
       
       <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={addParticipant}>Submit Booking </Text>
+              <Text style={styles.buttonText} onPress={handleBookingCheckout}>Make Booking / Payment </Text>
       </TouchableOpacity>
+
+
+
+
+
+
 
     ) : (
       <View>
@@ -274,7 +339,8 @@ const CreateBooking = ({navigation}) => {
    
    <View style={styles.container}>
 
-     
+   
+ 
     <Text style={styles.label}>Participant Booking List:</Text>
     {/* Display Participant , Be able to Edit / Delete from booking  */}
 
@@ -396,8 +462,9 @@ const CreateBooking = ({navigation}) => {
 
 
     </Modal>
-
+    </StripeProvider>
   </ScrollView>
+  
 
   );
 };
