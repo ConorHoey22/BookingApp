@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const Camp = require('../models/Camp');
 
+const Booking = require('../models/Booking');
 
 const jwt = require('jsonwebtoken');
 
@@ -206,25 +207,33 @@ router.put('/api/updateCamp/:id', verifyToken, async (req, res) => {
 
 // Stripe API Requests 
 
-router.post("/api/campPayment", verifyToken ,async (req, res) => {
+router.post('/api/campPayment', verifyToken ,async (req, res) => {
   try {
     // Getting data from client
-    let { amount, bookingName } = req.body;
+    let { amount, bookingName , email , fullname } = req.body;
     // Simple validation
     if (!amount || !bookingName)
       return res.status(400).json({ message: "All fields are required" });
-    amount = parseInt(amount);
-    // Initiate payment
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount,
-      currency: "GBP",
-      payment_method_types: ["card"],
-      metadata: { bookingName },
-    });
-    // Extracting the client secret 
-    const clientSecret = paymentIntent.client_secret;
-    // Sending the client secret as response
-    res.json({ message: "Payment initiated", clientSecret });
+      const amountInPence = Math.round(amount * 100);
+
+
+      // Initiate payment
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amountInPence,
+        currency: "GBP",
+        payment_method_types: ["card"],
+        metadata: { bookingName , email , fullname},
+      });
+
+      // Extracting the client secret 
+      const clientSecret = paymentIntent.client_secret;
+      // Sending the client secret as response
+      res.json({ message: "Payment initiated", clientSecret });
+    // }
+    // else {
+    //   // If the record is not found, send a 404 response
+    //   res.status(404).json({ error: 'Record not found' });
+    // }
 
   } catch (err) {
     // Catch any error and send error 500 to client
@@ -232,4 +241,112 @@ router.post("/api/campPayment", verifyToken ,async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+    
+// Create Camp Booking Record
+router.post('/api/createBookingCampRecord', verifyToken, async (req, res) => {
+
+  try {
+    
+
+        const { email, fullName , location , eventName , price , participantsBooked  , campID , participantArray} = req.body;
+        
+        // What camp is this they booked for ,. need the Camp ID 
+        //Is there a way to obtain the UserID and Ass
+        const createdByUserID = req.user.userId; 
+
+
+       const totalPrice = price * participantsBooked;
+
+
+        // Save data to MongoDB
+        const newCampBooking = new Booking({bookingStatus: 'Booked' , createdByUserID, email, fullName , totalPrice ,campID, participantsBooked, bookingType: 'Camp' ,  participantArray: participantArray });
+       
+        await newCampBooking.save();
+
+   
+      
+        newCampBooking.save();
+    
+      
+        res.status(200).json({ message: 'Camp Booking Record Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
+
+// Get Booking Records assinged to User 
+router.get('/api/getBookingRecords', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Assuming the userId is passed as a parameter
+
+    // Find bookings where createdBy === userId && CampType  == Camp 
+    const existingBookings = await Booking.find({ createdByUserID: userId });
+
+    if (existingBookings.length > 0) {
+      // If there are existing bookings for the user, return them
+      return res.status(200).json(existingBookings);
+    } else {
+      // If there are no bookings for the user, return an appropriate message
+      return res.status(404).json({ message: 'No bookings found for this user' });
+    }
+  } catch (error) {
+    // Handle any errors that occur during the process
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get Camp Booking Records assigned to User 
+router.get('/api/getBookingCampRecords', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Assuming the userId is passed as a parameter
+
+    // Find bookings where createdBy === userId && CampType  == Camp 
+    const existingBookings = await Booking.find({ createdByUserID: userId });
+
+    if (existingBookings.length > 0) {
+      // If there are existing bookings for the user, return them
+      return res.status(200).json(existingBookings);
+    } else {
+      // If there are no bookings for the user, return an appropriate message
+      return res.status(404).json({ message: 'No bookings found for this user' });
+    }
+  } catch (error) {
+    // Handle any errors that occur during the process
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get Event Booking Records assigned to User 
+router.get('/api/getBookingEventRecords', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.userId; // Assuming the userId is passed as a parameter
+
+    // Find bookings where createdBy === userId && CampType  == Camp 
+    const existingBookings = await Booking.find({ createdByUserID: userId });
+
+    if (existingBookings.length > 0) {
+      // If there are existing bookings for the user, return them
+      return res.status(200).json(existingBookings);
+    } else {
+      // If there are no bookings for the user, return an appropriate message
+      return res.status(404).json({ message: 'No bookings found for this user' });
+    }
+  } catch (error) {
+    // Handle any errors that occur during the process
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+
 module.exports = router;

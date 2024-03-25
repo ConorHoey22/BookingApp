@@ -1,18 +1,80 @@
-Working on - CreateBooking.js 
-Add a particants , Edit (Modal) , Delete
+Working on -
+
+Dropdown  - NOT Save selected + function is beeing ran??
 
 
+
+
+
+
+------------
+
+
+
+Enquiry about an Event 
+
+Camp - how many days are you going to be attending? Out of X number of days 
+
+Which days are you going? - calendar or a check box? 
+
+
+
+
+Upcoming Booking Screen - 
+MODAL - CANCEL / Refund request-  Reason input and info say its sent to admin could take up to 7 days to refund if accepted we will update you. Please Contact us for further info 
+--- Notify ADMIN USER -- SAVE Record of Request and reason + we need a date and time of when the request was sent 
+-- notify the user with the outcome / Status 
+We would need to use the date time so that dont see past event Bookings
+
+
+Create Display so that ADMIN can see all who has made Booking  
+
+Dashboard -We would need to use the date time so that dont see past event Bookings
+
+Log out btn
+
+
+Event bookings need tied into MyBookings 
 ------------
 
 NOTES of things todo / research 
 
  CRM Book / PaymentStripe
- -- Price is coming back correctly to API 
- -- We need to calculate the amount based on the number of particants
- -- ReturnURL for IOS only supports this what do we do for Andriod?
  -- GO live CheckList - Research 
----------------------
 
+--------
+
+Questions
+
+REFUND 
+Do we want partial refund  ? - Dropdown is a pain , should we do select the number of particpants to refund? 
+
+
+Offers - 
+Admin - Set offer 
+
+Add to names = Special offer (boolean)
+Calendar 
+
+
+
+
+
+
+Dropdown option - Choose a person then we delete that record as with the above option we cant determine which particpants record. 
+
+Full refund Button -> Send a Notification Record to the ADMIN -> ADMIN Then logs in and can see the requests and 
+then they must go onto Stripe to refund. 
+
+---
+
+
+
+
+
+---------------------
+ADD STRIPE API KEY TO PROCESS ENV UPDATE CODE 
+CRM - Manage Booking / Cancel / refund
 
 Fix Create camp Front end 
 
@@ -22,6 +84,7 @@ Any REQUIRED FIeLDS ON CREATEBOOKING  - Contact number?
 
 booking Detials -
 
+Notifications
 
 
 Ability to view all particants in that CAMp that have booked and click on their profile to see contact detials if needed.

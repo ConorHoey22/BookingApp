@@ -73,16 +73,17 @@ const DashboardCRM = ({navigation}) => {
   };
 
   return (
- 
-  <ScrollView>
+    <ScrollView>
+
+    <TouchableOpacity style={styles.button}>
+      <Text style={styles.buttonText} onPress={() => navigation.navigate('MyBookings')}>My Bookings</Text>
+    </TouchableOpacity>
+
     {campData.map((camp, index) => (
       <View key={index} style={styles.container}>  
         <Text>{camp.campName} </Text>
         <Text>Location: {camp.location}</Text> 
-  
         <Text>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
-
-
         <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
         <Text>Price: £{camp.price} </Text>
         <TouchableOpacity style={styles.button}>
@@ -90,6 +91,8 @@ const DashboardCRM = ({navigation}) => {
         </TouchableOpacity>
       </View>
     ))}
+
+
 
   </ScrollView>
 

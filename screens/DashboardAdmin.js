@@ -5,9 +5,6 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-//View 
-import UpcomingBooking from '../Views/UpcomingBookings';
-
 const DashboardAdmin = ({navigation}) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -66,8 +63,7 @@ const DashboardAdmin = ({navigation}) => {
     <View>
       <Text>Dashboard Admin: </Text>
 
-        {/* Grid will appear here with Events - number of attendies , Date+Time */}
-        <UpcomingBooking/>
+
 
         <Button title='Create an Event' onPress={handleCreateAnEventBtn}/>
         <Button title='Create a Camp' onPress={handleCreateACampBtn} />

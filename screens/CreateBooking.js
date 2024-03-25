@@ -10,6 +10,7 @@ import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 const CreateBooking = ({navigation}) => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState([]);
   const [campData, setCampData] = useState([]);
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
@@ -19,7 +20,7 @@ const CreateBooking = ({navigation}) => {
 
   const [bookingName, setBookingName] = useState('');
   const stripe = useStripe();
-
+ 
   //Form Validation
   const [bookingNameValidationMessage, setBookingNameValidation] = useState('');
   const [nameValidationMessage, setNameValidationMessage] = useState('');
@@ -48,10 +49,51 @@ const CreateBooking = ({navigation}) => {
         const jwtToken = await AsyncStorage.getItem('jwtToken');
         setIsLoggedIn(!!jwtToken);
 
+
+
+          // Fetch all camps 
+      
+          const apiGetUsers = 'http://localhost:3000/api/user/:userId';
+          
+          try {
+            const response = await fetch(apiGetUsers, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtToken}`,
+              },
+            });
+      
+      
+      
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+      
+            // Parse the response as JSON
+            const data = await response.json();
+      
+            // Set the userData state with the fetched data
+            setUserData(data);
+
+            console.log(userData);
+
+      
+      
+        } catch (error) {
+          console.error('There has been a problem with your fetch operation:', error);
+        }
+      
+      
+      
       
       } catch (error) {
         console.error('Error fetching JWT token:', error);
       }
+
+
+
+
     };
 
     checkAuthentication(); // Call the function to check authentication status when component mounts
@@ -60,7 +102,10 @@ const CreateBooking = ({navigation}) => {
   
   }, []); // Empty dependency array ensures the effect runs only once when component mounts
 
+
  
+
+
   
 
     const handleLogOut = async () => {
@@ -74,6 +119,9 @@ const CreateBooking = ({navigation}) => {
       setEditModalVisible(false);
 
     };
+
+
+
 
 
 
@@ -142,7 +190,12 @@ const CreateBooking = ({navigation}) => {
         
           };
 
-          setParticipantArray(prevArray => prevArray.concat(newParticpant));
+          setParticipantArray(prevArray => {
+            const newArray = prevArray.concat(newParticpant);
+            console.log(newArray); // Check the updated array
+            return newArray;
+          });
+
           setParticipantCount(participantCount + 1);
 
 
@@ -205,23 +258,28 @@ const CreateBooking = ({navigation}) => {
 
     };
 
+//Handle payment 
     const handleBookingCheckout = async() => {
+
       const apiCreateBooking = 'http://localhost:3000/api/campPayment';
       const jwtToken = await AsyncStorage.getItem('jwtToken');
-  
+
+
         // Handle Stripe API and payment once the payment is confirm / made , then we will then Participant array and push the data to the DB 
         try {
          
-          const finalAmount = parseInt(receivedPrice);
+          const finalAmount = receivedPrice * participantCount;
+   
 
-          if (finalAmount < 1) return Alert.alert("You cannot donate below 1 GBP");
+
+          if (finalAmount < 1) return Alert.alert("You cannot make a payment below 1 GBP");
           const response = await fetch(apiCreateBooking, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               'Authorization': `Bearer ${jwtToken}`,
             },
-            body: JSON.stringify({ amount: finalAmount, bookingName: bookingName }),
+            body: JSON.stringify({ amount: finalAmount, bookingName: bookingName , email: userData.email , fullname : userData.fullName , campID: receivedCampID , eventName: receivedCampName}),
           });
           const data = await response.json();
           if (!response.ok) {
@@ -242,6 +300,48 @@ const CreateBooking = ({navigation}) => {
             return Alert.alert(presentSheet.error.message);
           }
           Alert.alert("Payment Successful! Thank You!");
+
+          //Create Booking on DB 
+          try{
+
+            const apiBookingCampRecord = 'http://localhost:3000/api/createBookingCampRecord';
+            const responseRecord = await fetch(apiBookingCampRecord, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtToken}`,
+              },
+              body: JSON.stringify({ 
+                email: userData.email , fullname : userData.fullName , campID: receivedCampID , location: receivedLocation , price: receivedPrice , startDate: receivedStartDate, endDate: receivedEndDate, startTime: receivedStartTime,endTime:receivedEndTime , participantsBooked: participantCount , participantArray
+              }),
+            });
+
+
+
+            if (responseRecord.ok) {
+              const jsonResponse2 = await responseRecord.json();
+              console.log('Camp Booking record Created', jsonResponse2);
+              navigation.navigate('DashboardCRM');
+            } else {
+              console.log('Error Status:', responseRecord.status);
+              console.log('Error Message:', responseRecord.statusText);
+              let errorMessage2 = 'Unknown error occurred.';
+              try {
+                const jsonResponse2 = await responseRecord.json();
+                errorMessage2 = jsonResponse2.message || jsonResponse2.error || jsonResponse2.errorMessage2 || errorMessage;
+              } catch (error) {
+                errorMessage2 = response.statusText || errorMessage2;
+              }
+              console.log('Error Message from JSON:', errorMessage2);
+            }
+
+          }
+          catch (error) {
+            console.error('Network Error:', error.message);
+            // Handle the error here. For example, set an error message state
+            setErrorMessage(error.message);
+          }
+
         } catch (err) {
           console.error(err);
           Alert.alert("Payment failed!");
