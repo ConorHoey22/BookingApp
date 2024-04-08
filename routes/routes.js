@@ -166,7 +166,7 @@ router.get('/api/camps', verifyToken, async (req, res) => {
    
     const camps = await Camp.find();
     res.status(200).json(camps);
-    console.log(camps);
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -180,7 +180,7 @@ router.delete('/api/camps/:id',verifyToken, async (req, res) => {
     await Camp.findByIdAndDelete(id);
     res.status(204).send();
   } catch (error) {
-    console.error('Error removing camp:', error);
+
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -198,7 +198,7 @@ router.put('/api/updateCamp/:id', verifyToken, async (req, res) => {
 
       res.status(200).json(result); // Return updated camp
   } catch (error) {
-      console.error('Error updating camp:', error);
+
       res.status(500).json({ message: 'Server error' });
   }
 });
@@ -237,7 +237,7 @@ router.post('/api/campPayment', verifyToken ,async (req, res) => {
 
   } catch (err) {
     // Catch any error and send error 500 to client
-    console.error(err);
+
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
@@ -271,8 +271,7 @@ router.post('/api/createBookingCampRecord', verifyToken, async (req, res) => {
         res.status(200).json({ message: 'Camp Booking Record Data saved successfully' });
 
     } catch (error) {
-        
-        console.error('Error:', error.message);
+
         res.status(500).json({ error: 'Internal Server Error' });
     }
   
@@ -323,6 +322,48 @@ router.get('/api/getBookingCampRecords', verifyToken, async (req, res) => {
   }
 });
 
+
+router.put('/api/updateBookingRecord/:id', verifyToken, async (req, res) => {
+ try {
+    
+      const receivedBookingID = req.params.id; // Access the ID from request params
+
+    //Participants Selected 
+      const participantsSelected = req.body.participantID;
+
+      const updateBookingStatus = 'Requested Partial Refund'
+
+    const result = await Booking.findOneAndUpdate(
+      { 
+        _id: receivedBookingID, 
+        'participantArray._id': { $in: participantsSelected } // Filter by booking ID and multiple participant IDs
+      },
+      { 
+        $set: { 
+          'participantArray.$[elem].attendanceStatus': updateBookingStatus, // Update the attendance status of the matched participants
+          bookingStatus: updateBookingStatus // Update the booking status
+        } 
+      },
+      { 
+        new: true,
+        arrayFilters: [{ 'elem._id': { $in: participantsSelected } }] // Array filters to match the participant IDs
+      }
+    );
+
+
+
+      // UPdate participant record 
+       res.status(200).json(result); // Return updated camp
+
+      
+   } catch (error) {
+            console.error('Error updating Booking:', error);
+            res.status(500).json({ message: 'Server error' });
+   }
+
+});
+   
+
 // Get Event Booking Records assigned to User 
 router.get('/api/getBookingEventRecords', verifyToken, async (req, res) => {
   try {
@@ -339,6 +380,30 @@ router.get('/api/getBookingEventRecords', verifyToken, async (req, res) => {
       return res.status(404).json({ message: 'No bookings found for this user' });
     }
   } catch (error) {
+    // Handle any errors that occur during the process
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+// Get Event Booking Records assigned to User 
+router.get('/api/getCampAttendance/:id', verifyToken, async (req, res) => {
+  try {
+
+    const campID = req.params.id; // Extract the camp ID from the URL parameter
+
+    // Find bookings where createdBy === userId && CampType  == Camp 
+    const existingBookings = await Booking.find({ campID: campID, bookingType:'Camp' });
+
+
+     // Send the existing bookings in the response
+     res.json(existingBookings);
+  
+
+   
+    } catch (error) {
     // Handle any errors that occur during the process
     console.error(error);
     return res.status(500).json({ error: 'Internal server error' });

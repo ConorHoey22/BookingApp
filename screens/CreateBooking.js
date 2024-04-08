@@ -17,6 +17,7 @@ const CreateBooking = ({navigation}) => {
   const [allergies, setAllergies] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
+  const [attendanceStatus, setAttendanceStatus] = useState('');
 
   const [bookingName, setBookingName] = useState('');
   const stripe = useStripe();
@@ -136,7 +137,8 @@ const CreateBooking = ({navigation}) => {
         age: editedAgeText,
         allergies: editedAllergiesText,
         emergencyContactNumber: editedPhoneNumberText,
-        additionalInfo: editedAdditionalInfoText
+        additionalInfo: editedAdditionalInfoText,
+        attendanceStatus: "Booked"
 
       };
     
@@ -185,14 +187,15 @@ const CreateBooking = ({navigation}) => {
             age: age,
             allergies: allergies,
             emergencyContactNumber: phoneNumber,
-            additionalInfo: additionalInfo
+            additionalInfo: additionalInfo,
+            attendanceStatus: 'Booked',
                     
         
           };
 
           setParticipantArray(prevArray => {
             const newArray = prevArray.concat(newParticpant);
-            console.log(newArray); // Check the updated array
+    
             return newArray;
           });
 

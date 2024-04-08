@@ -24,6 +24,9 @@ const MyBookings = ({ navigation }) => {
     
       const [refundReasonErrorMessage , setRefundReasonErrorMessage] = useState('');
       const [refundModalVisible, setRefundModalVisible] = useState(false);
+
+
+      const [refundConfirmationModalVisible, setRefundConfirmationModalVisible] = useState(false);
      
 
       useEffect(() => {
@@ -85,13 +88,21 @@ const MyBookings = ({ navigation }) => {
       }, []);
     
       const processBookings = (bookingData, campData) => {
-        const bookingCampData = bookingData
-          .filter(item => item.bookingType === 'Camp')
-          .map(item => {
-            const foundCamp = campData.find(camp => camp._id === item.campID);
+         // Extract unique camp IDs from bookingData
+          const uniqueCampIDs = Array.from(new Set(bookingData
+            .filter(item => item.bookingType === 'Camp') // Filter bookingData to include only bookings of type 'Camp'
+            .map(item => item.campID))); // Map to get an array of campIDs and then create a set to get unique IDs
+
+          // Map over unique camp IDs to find corresponding camp objects
+          const bookingCampData = uniqueCampIDs.map(campID => {
+            // Find the camp object with the current campID
+            const foundCamp = campData.find(camp => camp._id === campID);
+            // If a camp is found, return it; otherwise, return null
             return foundCamp ? foundCamp : null;
           });
-        setBookingCampData(bookingCampData);
+
+          // Set the state with the processed bookingCampData
+          setBookingCampData(bookingCampData);
       };
 
     // Function to close the modal 
@@ -100,8 +111,17 @@ const MyBookings = ({ navigation }) => {
 
     };
 
+     // Function to close the modal 
+     const closeRefundConfirmationModal = () => {
+      setRefundConfirmationModalVisible(false);
 
-      const RequestRefundCancellationModalVisible  = async() => {
+    };
+
+
+
+    const RequestRefundCancellationModalVisible = async(booking) => {
+       
+        setSelectedBookingRecord(booking);
         setRefundModalVisible(true);
       };
 
@@ -110,30 +130,131 @@ const MyBookings = ({ navigation }) => {
 
         //Validation Check - Reason is a required Entry
         if(refundReason == "")
+
+
         {
           //Validation message 
           const reasonValidationMessage = "Please enter a reason"
           setRefundReasonErrorMessage(reasonValidationMessage);
         }
         else{
+
+       
+
+
           if(value == [])
           {
             const reasonValidationMessage = "Please select at least 1 particant"
             setRefundReasonErrorMessage(reasonValidationMessage);
           } 
           else{
-            console.log("Selected Items:", value);
-          }
-          console.log("Selected Items:", value);
 
-              // Using a for lo
+
+         
+
+            setSelectedParticipantsArray(selectedBookingRecord.participantArray);
+
+            
+
+            const participantIDs = [];
+              // Loop through selectedParticipantsArray and store _id values in participantIDs array
+              selectedParticipants.forEach(participant => {
+                participantIDs.push(participant._id);
+              });
+
+
+
+
+
+            // Update Status so that it changes on the Record from Booked to Partial Refund Request Sent 
+            // Update Person AttendanceStatus value 
+  
+              const jwtToken = await AsyncStorage.getItem('jwtToken');
+
+          
+                    try {
+                        const response = await fetch(`http://localhost:3000/api/updateBookingRecord/${selectedBookingRecord._id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${jwtToken}`,
+                            },
+                            body: JSON.stringify({
+                              // Include the data you want to send in the body
+                              // For example:
+                              _id: selectedBookingRecord._id,
+                              participantID: participantIDs
+                              // Other properties...
+                          })
+                           
+                        });
+
+
+                        
+                    
+                        const updatedRecord = await response.json();
+                        console.log('Updated booking record:', updatedRecord);
+
+                        // IT WIll Return NULL but what we will do to over come this is have a Are you sure Modal then rerun the function ( it will be a dup function but it wont have validation or like rerun again as we would have a loop )
+ 
+ 
+                        setRefundModalVisible(false);
+
+                        setRefundConfirmationModalVisible(true);
+
+                        if(updatedRecord == null)
+                        {
+                          setRefundConfirmationModalVisible(true);
+                        }
+                        else{
+                          setRefundConfirmationModalVisible(false);
+                          navigation.navigate('DashboardCRM');
+                        }
+
+                        if (!response.ok) {
+                          throw new Error('Failed to update booking record');
+                        }
+                        // Handle successful update
+                      } catch (error) {
+                        console.error('Error updating booking record:', error);
+                        // Handle error
+                      }
+    
+                      
+          
+                   
+                }
+                  }
+            }
+
+
+
+          
+
+
+            // Notify Admin 
+
+
+
+              // How do we update list of attendance and have a (Partial Refund Request sent)
+
+            // PUT 
+
+
+            // obtain index if the the array booking 
+
+
+
+            
+            // Where will we update ParticipantsBooked Array? as they shouldnt update until after refund is confirmed by ADMIN 
+          
+
+            // Create a Provisional Record which will then become the Primary record if the Partial Record is successful? 
               
-              // Remove selected Participants from the Array 
-
-              // Reduce
-
-              // Where will we update ParticipantsBooked Array? as they shouldnt update until after refund is confirmed by ADMIN 
-
+          
+         // }
+    
+           
               // Create a Provisional Record which will then become the Primary record if the Partial Record is successful? 
               
               // Send Message to Admin
@@ -154,9 +275,9 @@ const MyBookings = ({ navigation }) => {
 
         // Update Status : Partial Refund Requested
 
-        }
+      //  }
 
-      };
+     // };
 
      
 
@@ -207,6 +328,14 @@ const [open, setOpen] = useState(false);
 const [value, setValue] = useState(initialValue);
 const [items, setItems] = useState(initialItems);
 
+const [selectedBookingRecord, setSelectedBookingRecord]= useState();
+const [selectedParticipantID, setSelectedParticipantID] = useState(initialValue);
+
+
+
+
+
+
 // Usage example of setValue
 const updateValue = (newValue) => {
   setValue(newValue);
@@ -221,8 +350,8 @@ const updateItems = (newItems) => {
 
 
 
-return (
 
+return (
 
 
 
@@ -243,13 +372,29 @@ return (
           <Text>Booking ID: {booking._id}</Text>
           <Text>Participants: {booking.participantsBooked}</Text>
           <Text>Price: £{booking.totalPrice}</Text>
-          {/* Add other booking details as needed */}
 
+
+                                <View>
+                                  {/* Render other camp details */}
+                                  <TouchableOpacity style={styles.button1} onPress={() => RequestRefundCancellationModalVisible(booking)}>
+                                    <Text style={styles.buttonText}>View Refund Options</Text>
+                                  </TouchableOpacity>
+                               </View>
+          {/* Add other booking details as needed */}
+          </View>
+          ))}
+          </View>
+
+          ))}
+
+
+          {/* Modal  */}
           <Modal
             animationType="slide"
             transparent={true}
             visible={refundModalVisible}
             onRequestClose={closeRefundModal}
+
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
@@ -270,22 +415,28 @@ return (
                 {/* Participant selection */}
                 <View style={styles.dropdownContainer}>
                   <Text style={styles.label}>Participant lists</Text>
-                     <View key={index} >
-                          <DropDownPicker
-                            open={open}
-                            value={value}
-                            items={booking.participantArray.map(participant => ({ label: participant.name, value: participant.name }))}
-                            setOpen={setOpen}
-                            setValue={updateValue}
-                            setItems={updateItems}
-                            placeholder={'Choose a participant'}
-                            multiple={true}
-                            mode="BADGE"
-                            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
-                            containerStyle={styles.dropdown}
-                          />
-                        
-                     </View>
+                   {/* Dropdown for selecting participant */}
+                  <View style={styles.dropdownContainer}>
+                    <DropDownPicker
+                      open={open}
+                      value={value}
+
+                      setOpen={setOpen}
+                      setValue={updateValue}
+                      setItems={updateItems}
+                      placeholder={'Choose a participant'}
+                      multiple={true}
+                      mode="BADGE"
+                      badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+
+
+                      items={selectedBookingRecord?.participantArray.map(participant => ({ 
+                        label: participant.name, 
+                        value: participant._id 
+                      })) || []}
+                      containerStyle={styles.dropdown}
+                    />
+                  </View>
                   
                  </View>
 
@@ -314,7 +465,7 @@ return (
 
               )}
 
-{value.length <=0 && (
+                {value.length <=0 && (
              
 
                           <View>
@@ -329,28 +480,60 @@ return (
                                     <Text style={styles.buttonText} onPress={closeRefundModal}>Exit</Text>
                                   </TouchableOpacity>
                                </View>
-                          </View>
+                          </View> 
 
 
-                )}
+               )} 
 
-                </View>
+               </View>
 
-                              </View>
-                            </View>
+                             </View> 
+                      </View>
                                               
-                          </Modal>
-                        </View>
-                      ))}
-                              <View>
-                                 {/* Render other camp details */}
-                                <TouchableOpacity style={styles.button1}>
-                                  <Text style={styles.buttonText} onPress={RequestRefundCancellationModalVisible}>View Refund Options</Text>
-                                </TouchableOpacity>
+                     </Modal> 
+                      
+  
+
+
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={refundConfirmationModalVisible}
+            onRequestClose={closeRefundModal}
+
+          >
+   <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <View>
+                               <View style={styles.buttonContainer}>
+
+                               <Text style={styles.buttonText}> Are you sure you want to request a refund?</Text>
+                                  <TouchableOpacity style={styles.button1}>
+                                    <Text style={styles.buttonText} onPress={RequestPartialRefund}>Yes</Text>
+                                  </TouchableOpacity>
                                </View>
-                        </View>
-                      ))}
-                    </ScrollView>
+                            
+                               <View style={styles.buttonContainer}>
+                                  <TouchableOpacity style={styles.button1}>
+                                    <Text style={styles.buttonText} onPress={closeRefundConfirmationModal}>No</Text>
+                                  </TouchableOpacity>
+                               </View>
+                </View> 
+
+              </View>
+        </View>
+                          
+
+
+          </Modal>
+                            
+        
+
+
+          </ScrollView>
+
+                   
+        
       );
     };
     

@@ -18,7 +18,8 @@ const mongoose = require('mongoose');
       age: String,
       allergies: String,
       emergencyContactNumber: String,
-      additionalInfo: String
+      additionalInfo: String,
+      attendanceStatus: String
     }]
   });
 

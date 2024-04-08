@@ -1,7 +1,6 @@
-Working on -
-
-Dropdown  - NOT Save selected + function is beeing ran??
-
+Working on - 
+Attendance DB List  - So we will get all particants from Booking and then each person will have a status so Booked / Requested Refund / Requested Parial Refund in Booking 
+THIS WILL THEN BE USED BY THE ADMIN TO SEE WHO IS GOING SO WE NEED A VIEW FOR THIS NOW 
 
 
 
@@ -9,7 +8,7 @@ Dropdown  - NOT Save selected + function is beeing ran??
 
 ------------
 
-
+Things to tidy up , replace all buttons so that onPress is on the TouchableOpacity not the text
 
 Enquiry about an Event 
 
@@ -18,7 +17,10 @@ Camp - how many days are you going to be attending? Out of X number of days
 Which days are you going? - calendar or a check box? 
 
 
+Camps in the past should not be able to BOOK ,
 
+
+// NEED CHeCKS around deleting camps in case of user error. Recycle them ? 
 
 Upcoming Booking Screen - 
 MODAL - CANCEL / Refund request-  Reason input and info say its sent to admin could take up to 7 days to refund if accepted we will update you. Please Contact us for further info 

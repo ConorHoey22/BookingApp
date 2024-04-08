@@ -15,14 +15,19 @@ const ManageBookings = ({ navigation }) => {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [campData, setCampData] = useState([]);
+    const [bookingData, setBookingData] = useState([]);
     const [editModalVisible, setEditModalVisible] = useState(false);
     
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
 
+    const [campAttendanceModalVisible, setCampAttendanceModalVisible] = useState(false);
+    const [eventAttendanceModalVisible, setEventAttendanceModalVisible] = useState(false);
 
 
-  const [date, setDate] = useState(new Date(1598051730000));
+
+
+const [date, setDate] = useState(new Date(1598051730000));
 const [mode, setMode] = useState('date');
 const [show, setShow] = useState(false);
 
@@ -185,6 +190,103 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
 
     };
 
+
+    // Function to close the modal
+    const closeCampAttendanceModal = () => {
+          setCampAttendanceModalVisible(false);
+    
+    };
+
+      // Function to close the modal
+      const closeEventAttendanceModal = () => {
+        setEventAttendanceModalVisible(false);
+  
+      };
+
+
+  const ViewCampAttendance = async (index) => {
+
+    setCampAttendanceModalVisible(true);
+
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+      const id = campData[index]._id; // Assuming each camp has an '_id' property
+
+
+
+      try {
+
+        const response = await fetch(`http://localhost:3000/api/getCampAttendance/${id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`,
+          }
+        });
+    
+        const data = await response.json();
+      
+
+        data.forEach(booking => {
+
+          // Access participant array
+          const participantArray = booking.participantArray;
+        
+          // Iterate over participant array
+          participantArray.forEach(participant => {
+            // Access participant details
+            const participantName = participant.name;
+            const participantAge = participant.age;
+            const participantAttendanceStatus = participant.attendanceStatus
+            // Access other participant details as needed
+
+          // Create an object with participant details and push it to the bookingData array
+          bookingData.push({
+            name: participantName,
+            age: participantAge,
+            attendanceStatus: participantAttendanceStatus
+       
+          });
+
+          console.log(bookingData);
+
+
+          });
+        });
+    
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        // Handle successful response
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle error
+      }
+        // Obtain Camp ID 
+     
+       // Obtain Booking ID 
+    
+      
+  };
+
+    
+
+
+    
+  const ViewEventAttendance = async (index) => {
+
+      // const jwtToken = await AsyncStorage.getItem('jwtToken');
+      // const id = campData[index]._id; // Assuming each camp has an '_id' property
+  
+      // try {
+      //   // Obtain Camp ID 
+      //   // Obtain Event ID 
+      //  // Obtain Booking ID 
+    
+      
+      // } catch (error) {
+      //   console.error('Error finding attendance:', error);
+      // }
+  };
   
 
 
@@ -286,6 +388,7 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
 return (
 
     <ScrollView>
+      <Text>Camps</Text>
         {campData.map((camp, index) => (
         <View key={index} style={styles.container}>  
             <Text>{camp.campName} </Text>
@@ -296,15 +399,45 @@ return (
 
             <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
             <Text>Price: £{camp.price} </Text>
+
             <TouchableOpacity style={styles.button}>
             <Text style={styles.buttonText} onPress={() => openEditModal(index)}>Edit</Text>
             </TouchableOpacity>
 
+            <TouchableOpacity style={styles.button}  onPress={() => ViewCampAttendance(index)}>
+            <Text style={styles.buttonText}>View Attendance</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.button}  onPress={() => removeCamp(index)}>
-            <Text style={styles.buttonText}>Delete</Text>
+            <Text style={styles.buttonText}>Delete Camp</Text>
             </TouchableOpacity>
         </View>
         ))}
+
+        <Text>Events</Text>
+        <View style={styles.container}>  
+            <Text> EventName</Text>
+            <Text>Location: </Text> 
+    
+            <Text>Date: </Text>
+
+
+            <Text>Start Time: </Text>
+            <Text>Price: £  </Text>
+
+            <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText} onPress={() => openEditModal(index)}>Edit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}  onPress={() => ViewEventAttendance(index)}>
+            <Text style={styles.buttonText}>View Attendance</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}  onPress={() => removeCamp(index)}>
+            <Text style={styles.buttonText}>Delete Event</Text>
+            </TouchableOpacity>
+        </View>
+    
 
 {/* Modal  */}
 
@@ -448,6 +581,49 @@ return (
    
     </Modal>
 
+
+
+
+
+
+
+  {/* Attendance Event View Modal */}
+
+
+
+  {/* Attendance Camp View Modal  */}
+
+  <Modal
+      animationType="slide"
+      transparent={true}
+      visible={campAttendanceModalVisible}
+      onRequestClose={closeCampAttendanceModal}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+
+          {/* Iterate over all participants  */}
+ 
+          {bookingData.map((booking, index) => (
+            <View key={index} style={{ flexDirection: 'column' }}>
+                <Text>Name: {booking.name}</Text>
+                <Text>Attendance Status: {booking.attendanceStatus}</Text>
+                {/* <Text>Special requests: {booking.additionalInfo}</Text> */}
+                {/* <Text>Contact Number: {booking.emergencyContactNumber}</Text> */}
+              </View>
+
+          ))}
+
+                
+ <View>
+                <TouchableOpacity style={styles.button}  onPress={closeCampAttendanceModal}>
+              <Text style={styles.buttonText}>Exit</Text>
+            </TouchableOpacity>
+</View> 
+          </View>
+        </View>
+      
+    </Modal>
     </ScrollView>
 
 
