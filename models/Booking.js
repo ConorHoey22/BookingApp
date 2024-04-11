@@ -19,7 +19,8 @@ const mongoose = require('mongoose');
       allergies: String,
       emergencyContactNumber: String,
       additionalInfo: String,
-      attendanceStatus: String
+      attendanceStatus: String,
+      daysSelectedArray:[String]
     }]
   });
 

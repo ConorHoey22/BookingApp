@@ -1,23 +1,43 @@
 Working on - 
-Attendance DB List  - So we will get all particants from Booking and then each person will have a status so Booked / Requested Refund / Requested Parial Refund in Booking 
-THIS WILL THEN BE USED BY THE ADMIN TO SEE WHO IS GOING SO WE NEED A VIEW FOR THIS NOW 
 
 
+Camp - how many days are you going to be attending? Out of X number of days 
+Which days are you going? - calendar or a check box?
+
+
+
+-- So we have a nested scrollview error and we have the scrollview around the entire page , how about we have an edit button which will make modal appear with the participant list 
+-- Then we will have a button which will say choose specific dates and this will appear a modal which will have a DDL for the DAys   
+
+
+
+Create a Camp 
+
+We need a date picker for specific days so individual days 
+
+
+
+FULL REFUND logic needs added 
+
+EVENTS Singluar
 
 
 
 ------------
 
+ADMIN settings- Set Camp price per day
+ANDROID FULL TEST - Date TIME picker and dropdown CHecks , some componets might not work .
+
 Things to tidy up , replace all buttons so that onPress is on the TouchableOpacity not the text
 
 Enquiry about an Event 
 
-Camp - how many days are you going to be attending? Out of X number of days 
-
-Which days are you going? - calendar or a check box? 
 
 
-Camps in the past should not be able to BOOK ,
+
+
+
+Camps in the past should not be able to BOOK 
 
 
 // NEED CHeCKS around deleting camps in case of user error. Recycle them ? 
@@ -48,8 +68,7 @@ NOTES of things todo / research
 
 Questions
 
-REFUND 
-Do we want partial refund  ? - Dropdown is a pain , should we do select the number of particpants to refund? 
+
 
 
 Offers - 
@@ -87,7 +106,7 @@ Any REQUIRED FIeLDS ON CREATEBOOKING  - Contact number?
 booking Detials -
 
 Notifications
-
+API keys and MongoDB needs protected in env 
 
 Ability to view all particants in that CAMp that have booked and click on their profile to see contact detials if needed.
 

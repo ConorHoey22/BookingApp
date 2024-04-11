@@ -1,5 +1,5 @@
 import React, { useEffect,useState } from 'react';
-import {ScrollView, StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal } from 'react-native';
+import {ScrollView, StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal,FlatList } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,6 +23,7 @@ const ManageBookings = ({ navigation }) => {
 
     const [campAttendanceModalVisible, setCampAttendanceModalVisible] = useState(false);
     const [eventAttendanceModalVisible, setEventAttendanceModalVisible] = useState(false);
+    const [campAttendanceMoreInfoModalVisible, setCampAttendanceMoreInfoModalVisible] = useState(false);
 
 
 
@@ -197,11 +198,18 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
     
     };
 
+
+    // Function to close the modal
+    const closeCampAttendanceMoreInfoModal = () => {
+      setAttendanceMoreInfoModalVisible(false);
+
+};
+
       // Function to close the modal
-      const closeEventAttendanceModal = () => {
+    const closeEventAttendanceModal = () => {
         setEventAttendanceModalVisible(false);
   
-      };
+    };
 
 
   const ViewCampAttendance = async (index) => {
@@ -211,7 +219,7 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
       const jwtToken = await AsyncStorage.getItem('jwtToken');
       const id = campData[index]._id; // Assuming each camp has an '_id' property
 
-
+      bookingData.length = 0;
 
       try {
 
@@ -237,17 +245,19 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
             const participantName = participant.name;
             const participantAge = participant.age;
             const participantAttendanceStatus = participant.attendanceStatus
+            const participantEmergencyContactNumber = participant.emergencyContactNumber
             // Access other participant details as needed
 
           // Create an object with participant details and push it to the bookingData array
           bookingData.push({
             name: participantName,
             age: participantAge,
-            attendanceStatus: participantAttendanceStatus
+            attendanceStatus: participantAttendanceStatus,
+            emergencyContactNumber: participantEmergencyContactNumber
        
           });
 
-          console.log(bookingData);
+
 
 
           });
@@ -261,14 +271,17 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
         console.error('Error fetching data:', error);
         // Handle error
       }
-        // Obtain Camp ID 
-     
-       // Obtain Booking ID 
     
       
   };
 
-    
+  const viewMoreParticipantInfo = async (index) => {
+      //Open new Modal 
+      setCampAttendanceMoreInfoModalVisible(true);
+      //Close Previois modal ? 
+
+      setCampAttendanceModalVisible(false);
+  }
 
 
     
@@ -416,7 +429,7 @@ return (
 
         <Text>Events</Text>
         <View style={styles.container}>  
-            <Text> EventName</Text>
+            <Text>EventName</Text>
             <Text>Location: </Text> 
     
             <Text>Date: </Text>
@@ -426,20 +439,20 @@ return (
             <Text>Price: £  </Text>
 
             <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText} onPress={() => openEditModal(index)}>Edit</Text>
+              <Text style={styles.buttonText} onPress={() => openEditModal(index)}>Edit</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}  onPress={() => ViewEventAttendance(index)}>
-            <Text style={styles.buttonText}>View Attendance</Text>
+              <Text style={styles.buttonText}>View Attendance</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}  onPress={() => removeCamp(index)}>
-            <Text style={styles.buttonText}>Delete Event</Text>
+              <Text style={styles.buttonText}>Event Camp</Text>
             </TouchableOpacity>
         </View>
     
 
-{/* Modal  */}
+{/* Modal - Edit Camp Modal */}
 
 
 <Modal
@@ -604,26 +617,46 @@ return (
 
           {/* Iterate over all participants  */}
  
-          {bookingData.map((booking, index) => (
-            <View key={index} style={{ flexDirection: 'column' }}>
-                <Text>Name: {booking.name}</Text>
-                <Text>Attendance Status: {booking.attendanceStatus}</Text>
-                {/* <Text>Special requests: {booking.additionalInfo}</Text> */}
-                {/* <Text>Contact Number: {booking.emergencyContactNumber}</Text> */}
-              </View>
+          <View>
+            <Text>Attendance</Text>
+          </View>
+      
 
-          ))}
+
+            <FlatList
+            data={bookingData}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <View style={{ flexDirection: 'column' }}>
+                <Text>Name: {item.name}</Text>
+                <Text>Attendance Status: {item.attendanceStatus}</Text>
+                <Text>Contact Number: {item.emergencyContactNumber}</Text>
+                {/* Other participant details */}
+          
+                
+          </View>
+        )}
+      />
 
                 
- <View>
-                <TouchableOpacity style={styles.button}  onPress={closeCampAttendanceModal}>
+          <View>
+            <TouchableOpacity style={styles.button}  onPress={closeCampAttendanceModal}>
               <Text style={styles.buttonText}>Exit</Text>
             </TouchableOpacity>
-</View> 
+          </View> 
           </View>
         </View>
       
     </Modal>
+
+
+
+
+
+
+
+
+
     </ScrollView>
 
 

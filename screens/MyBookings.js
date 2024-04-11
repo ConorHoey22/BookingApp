@@ -302,23 +302,7 @@ const MyBookings = ({ navigation }) => {
 
 
     
-     
-
-      
-      // // Function to set items dynamically
-      // const updateDropdownItems = (newItems) => {
-      //   // You can update the items dynamically here
-      //   setSelectedParticipantsArray(newItems);
-      // };
-
-//       // Function to add items to the existing array
-// const updateDropdownItems = (newItems) => {
-//   // Use spread operator to add items to the existing array without mutating it
-//   const updatedItems = [...selectedParticipants, ...newItems];
-//   setSelectedParticipantsArray(updatedItems);
-//   console.log('Selected participants have been added:', selectedParticipants);
-// };
-
+   
 
 // Define initial values
 const initialValue = []; // Provide an initial value for 'value' state

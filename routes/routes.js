@@ -397,12 +397,9 @@ router.get('/api/getCampAttendance/:id', verifyToken, async (req, res) => {
     // Find bookings where createdBy === userId && CampType  == Camp 
     const existingBookings = await Booking.find({ campID: campID, bookingType:'Camp' });
 
-
      // Send the existing bookings in the response
      res.json(existingBookings);
   
-
-   
     } catch (error) {
     // Handle any errors that occur during the process
     console.error(error);

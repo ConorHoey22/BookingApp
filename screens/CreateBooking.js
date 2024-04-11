@@ -4,8 +4,11 @@ import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
+
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const CreateBooking = ({navigation}) => {
 
@@ -26,22 +29,26 @@ const CreateBooking = ({navigation}) => {
   const [bookingNameValidationMessage, setBookingNameValidation] = useState('');
   const [nameValidationMessage, setNameValidationMessage] = useState('');
   const [phoneNumberValidation, setPhoneNumberValidationMessage] = useState('');
+  const [reasonValidationMessage, setSelectDateErrorMessage] = useState('');
 
   //Modal 
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [displayEditParticipantModal, setDisplayEditParticipantModal] = useState(false);
+  const [displaySelectDaysOfCampModal, setDisplaySelectDaysOfCampModalVisible] = useState(false);
   const [editedBookingRecordArray, setEditedBookingRecordArray] = useState(-1);
 
 
 
   const route = useRoute();
-  const receivedCampID = route.params?.camp._id;
-  const receivedCampName = route.params?.camp.campName;
-  const receivedLocation = route.params?.camp.location;
-  const receivedPrice = route.params?.camp.price;
-  const receivedStartDate = route.params?.camp.startDate;
-  const receivedStartTime = route.params?.camp.startTime;
-  const receivedEndDate = route.params?.camp.endDate;
-  const receivedEndTime = route.params?.camp.endTime;
+
+  const [receivedCampID, setReceivedCampID] = useState('');
+  const [receivedCampName, setReceivedCampName] = useState('');
+  const [receivedLocation, setReceivedLocation] = useState('');
+  const [receivedPrice, setReceivedPrice] = useState('');
+  const [receivedStartDate, setReceivedStartDate] = useState('');
+  const [receivedStartTime, setReceivedStartTime] = useState('');
+  const [receivedEndDate, setReceivedEndDate] = useState('');
+  const [receivedEndTime, setReceivedEndTime] = useState('');
 
 
   useEffect(() => {
@@ -51,9 +58,6 @@ const CreateBooking = ({navigation}) => {
         setIsLoggedIn(!!jwtToken);
 
 
-
-          // Fetch all camps 
-      
           const apiGetUsers = 'http://localhost:3000/api/user/:userId';
           
           try {
@@ -77,7 +81,27 @@ const CreateBooking = ({navigation}) => {
             // Set the userData state with the fetched data
             setUserData(data);
 
-            console.log(userData);
+            if (route.params && route.params.camp) {
+              const { camp } = route.params;
+        
+  
+        
+              // Ensure camp object has startDate property before accessing it
+              if (camp.startDate) {
+                setReceivedCampID(camp._id);
+                setReceivedCampName(camp.campName);
+                setReceivedLocation(camp.location);
+                setReceivedPrice(camp.price);
+                setReceivedStartDate(new Date(camp.startDate));
+                setReceivedStartTime(camp.startTime);
+                setReceivedEndDate(new Date(camp.endDate));
+                setReceivedEndTime(camp.endTime);
+              } else {
+                console.error("Start date is missing in camp object");
+              }
+            } else {
+              console.error("Camp object is missing in route params:");
+            }
 
       
       
@@ -101,7 +125,7 @@ const CreateBooking = ({navigation}) => {
 
   
   
-  }, []); // Empty dependency array ensures the effect runs only once when component mounts
+  }, [route.params]); // Empty dependency array ensures the effect runs only once when component mounts
 
 
  
@@ -122,8 +146,22 @@ const CreateBooking = ({navigation}) => {
     };
 
 
+        // Function to close the modal 
+        const closeSelectEditParticipantModal = () => {
+          setDisplayEditParticipantModal(false);
+    
+        };
 
 
+         // Function to close the modal 
+         const closeDaysOfCampsModal = () => {
+          setDisplaySelectDaysOfCampModalVisible(false);
+    
+        };
+    
+    
+
+  
 
 
     const updateBookingRecord = async(index) => { 
@@ -153,6 +191,60 @@ const CreateBooking = ({navigation}) => {
     const [participantArray, setParticipantArray] = useState([]);
     const [participantCount, setParticipantCount] = useState(0);
 
+    const SelectEditParticipantModal = async() => {
+
+      setDisplayEditParticipantModal(true);
+
+
+
+    };
+
+    const ModalOpenDisplaySelectDaysOfCamp = async() => {
+    
+
+      // Check Values 
+    
+
+      // IF there is no values enter in all required then kick in Validation 
+  //Form Validation
+
+  if ((!name || /^\s*$/.test(name)) || (!phoneNumber || /^\s*$/.test(phoneNumber)) || (!bookingName || /^\s*$/.test(bookingName)) ) {
+          
+    if (!bookingName || /^\s*$/.test(bookingName)) {
+      setBookingNameValidation('Enter your name');
+    } else {
+      setBookingNameValidation('');
+    }
+    
+    
+    // If any field is blank, show respective validation messages
+    if (!name || /^\s*$/.test(name)) {
+      setNameValidationMessage('Enter their name');
+    } else {
+      setNameValidationMessage('');
+    }
+  
+    if (!phoneNumber || /^\s*$/.test(phoneNumber)) {
+      setPhoneNumberValidationMessage('Enter their contact number');
+    } else {
+      setPhoneNumberValidationMessage('');
+    }
+  } else {
+      // Modal appears
+      setDisplaySelectDaysOfCampModalVisible(true);
+
+
+
+
+    
+
+  }
+
+      
+    };
+
+
+
     const addParticipant = async() => {
    
         //Form Validation
@@ -180,6 +272,20 @@ const CreateBooking = ({navigation}) => {
           }
         } else {
         
+
+
+// IF DATES ARE NOT SELECTED THEY CANNOT PROGRESS
+console.log(value);
+
+if (value.length === 0) 
+{
+  const reasonValidationMessage = "Please select at least 1 date"
+  setSelectDateErrorMessage(reasonValidationMessage);
+} 
+else {
+
+
+
           // This to add the participant to the array as we dont want to send the data to the DB until CHECKOUT 
           const newParticpant = { 
                 
@@ -189,7 +295,8 @@ const CreateBooking = ({navigation}) => {
             emergencyContactNumber: phoneNumber,
             additionalInfo: additionalInfo,
             attendanceStatus: 'Booked',
-                    
+            daysSelectedArray: value
+               
         
           };
 
@@ -203,13 +310,24 @@ const CreateBooking = ({navigation}) => {
 
 
 
+    // Modal appears
+    setDisplaySelectDaysOfCampModalVisible(false);
+
+    
+
           setName(''); // Clearing the text input by updating the state
           setAge(''); // Clearing the text input by updating the state
           setAllergies(''); // Clearing the text input by updating the state
           setPhoneNumber(''); // Clearing the text input by updating the state
           setAdditionalInfo(''); // Clearing the text input by updating the state
+ 
     
+
+
+
+
       }
+    }
 
 
     };
@@ -226,9 +344,14 @@ const CreateBooking = ({navigation}) => {
     const editParticipantModal = async(index) => {
         // This to edit the participant to the array as we dont want to send the data to the DB until CHECKOUT 
         
+
+        setDisplayEditParticipantModal(false);
+
         // Modal appears
         setEditModalVisible(true);
 
+        setDisplayEditParticipantModal(false);
+        
         // Get index of Array 
         setEditedBookingRecordArray(index);
 
@@ -351,12 +474,54 @@ const CreateBooking = ({navigation}) => {
         }
     };
 
+    // Get day name for a given date
+    const getDayName = (date) => {
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return dayNames[date.getDay()];
+    };
+
+    // Get array of day names between minDate and maxDate
+    // Get array of day names between startDate and endDate
+    const getDayNamesInRange = () => {
+      const dayNames = [];
+      const currentDate = new Date(receivedStartDate);
+      while (currentDate <= receivedEndDate) {
+        dayNames.push(getDayName(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      return dayNames;
+    };
+
+// Define initial values
+const initialValue = []; // Provide an initial value for 'value' state
+const initialItems = []; // Provide an initial value for 'items' state
+
+const [open, setOpen] = useState(false);
+const [value, setValue] = useState(initialValue);
+const [items, setItems] = useState(initialItems);
+
+
+
+// Usage example of setValue
+const updateValue = (newValue) => {
+  setValue(newValue);
+};
+
+// Usage example of setItems
+const updateItems = (newItems) => {
+  setItems(newItems);
+};
+
+
+
 
   return (
  
   <ScrollView>
 
    <StripeProvider publishableKey='pk_test_51OnkfED7nseNwvj8Zgtfn4YbMAQbVl2Y3yWn56QAF6rLJmAn6ez4Wyp24aLIEtzLLEs15N06P0FxI5w9I8jnTvaf00DjYAqVWL'>
+    
+    <ScrollView>
     <Text style={styles.label}>Enter your name *: </Text>
         <Text>{bookingNameValidationMessage}</Text>
         <TextInput
@@ -404,23 +569,105 @@ const CreateBooking = ({navigation}) => {
           value={additionalInfo}
           onChangeText={(text) => setAdditionalInfo(text)}
         />
+      </View>
+
+        <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText} onPress={ModalOpenDisplaySelectDaysOfCamp}>Submit Participant</Text>
+        </TouchableOpacity>
+    </ScrollView>
+
+   {/* Modal - Select Days of Camps  */}
 
 
-    <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={addParticipant}>Submit Participant</Text>
-    </TouchableOpacity>
+   <Modal
+      animationType="slide"
+      transparent={true}
+      visible={displaySelectDaysOfCampModal}
+      onRequestClose={closeDaysOfCampsModal}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+        <View style={{ flexDirection: 'column' }}>
+          <View>
+
+    {/* DDL list Multi select */}
+
+    <View style={styles.dropdownContainer}>
+      <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
+      <Text>{reasonValidationMessage}</Text>
+        {/* Dropdown for selecting participant */}
+      <View style={styles.dropdownContainer}>
+
+
+
+  {/* Dropdown for selecting participant */}
+          <DropDownPicker
+            open={open}
+            value={value}
+            setOpen={setOpen}
+            setValue={updateValue}
+            setItems={updateItems}
+            placeholder={'Choose a Dates'}
+            multiple={true}
+            mode="BADGE"
+            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+            items={getDayNamesInRange().map((dayName, index) => ({
+              label: dayName,
+              value: dayName,
+            }))}
+            containerStyle={styles.dropdown}
+          />
+        </View>
+     
+      </View>
+
+          
+        <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button1}>
+              <Text style={styles.buttonText} onPress={addParticipant}>Submit</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button1}>
+              <Text style={styles.buttonText} onPress={closeDaysOfCampsModal}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      
+    </View>
+</View>
+
+</View>
+</Modal>
+     
+
+
 
 {/* This should only appear if user enter at least on particpant */}
   <View>
     {/* Conditional rendering using a ternary operator */}
     {participantCount >= 1 ? (
-      
-      <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={handleBookingCheckout}>Make Booking / Payment </Text>
-      </TouchableOpacity>
+
+  <View>
+     
+    {/*  */}
+      <View>
+        <TouchableOpacity style={styles.button} onPress={SelectEditParticipantModal}>
+                  <Text style={styles.buttonText}>Edit Participant Details</Text>
+        </TouchableOpacity>
+      </View>
 
 
+     
+      <View>
+        <TouchableOpacity style={styles.button} onPress={handleBookingCheckout}>
+                <Text style={styles.buttonText}>Make Booking / Payment</Text>
+        </TouchableOpacity>
+      </View>
 
+  </View>
 
 
 
@@ -435,12 +682,23 @@ const CreateBooking = ({navigation}) => {
   
 
    
-    </View>
+    {/* </View> */}
 
     {/* This will only appear when 1 particpant is added to the array count  */}
    
-   
-   <View style={styles.container}>
+   <Modal
+      animationType="slide"
+      transparent={true}
+      visible={displayEditParticipantModal}
+      onRequestClose={closeSelectEditParticipantModal}
+    >
+      <View style={styles.modalContainer}>
+
+      <ScrollView style={styles.modalContent}>
+          
+      
+         
+
 
    
  
@@ -460,20 +718,29 @@ const CreateBooking = ({navigation}) => {
    
 
           <View>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText} onPress={() => editParticipantModal(index)}>Edit</Text>
+            <TouchableOpacity style={styles.button} onPress={() => editParticipantModal(index)}>
+                <Text style={styles.buttonText}>Edit</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText} onPress={() => removeParticipant(index)}>Remove</Text>
+            <TouchableOpacity style={styles.button} onPress={() => removeParticipant(index)}>
+                <Text style={styles.buttonText}>Remove</Text>
             </TouchableOpacity>
           </View>
           </View>
 
       ))}
 
-      </View>
+<TouchableOpacity style={styles.button} onPress={closeSelectEditParticipantModal}>
+                <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
 
+  
+      </ScrollView>
+      </View>
+  
+      
+     
+</Modal>
    
 
 
@@ -582,6 +849,11 @@ const styles = StyleSheet.create({
     margin: 20,
     width: 'auto',
   },
+  validationText: {
+    fontSize: 20,
+    marginBottom: 10,
+    color: 'red',
+  },
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -618,15 +890,44 @@ const styles = StyleSheet.create({
       marginTop: 10,
       marginBottom: 10,
     },
+    buttonContainer:{
+      marginTop:30
+    },
     button: {
       backgroundColor: '#4CAF50',
       borderRadius: 4,
       padding: 10,
-      marginBottom: 10,
+      marginBottom: 5,
+      
+    },
+    button1: {
+      backgroundColor: '#4CAF50',
+      borderRadius: 4,
+      padding: 10,
+      zIndex: 2, // Ensure dropdown is above other elements
+      marginBottom: 5,
+     
     },
     buttonText: {
       color: 'white',
       fontSize: 16,
       textAlign: 'center',
     },
+    containerd: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+
+    dropdownContainer: {
+      position: 'relative',
+      marginBottom: 30, // Adjust this value as needed to prevent overlap
+      zIndex: 1, // Ensure dropdown is above other elements
+    },
+    dropdown: {
+       position: 'absolute',
+      zIndex: 1, // Ensure dropdown is above other elements
+      width: '100%',
+    },
+    
 });
