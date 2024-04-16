@@ -20,7 +20,9 @@ const mongoose = require('mongoose');
       emergencyContactNumber: String,
       additionalInfo: String,
       attendanceStatus: String,
+      reasonForRefund: String,
       daysSelectedArray:[String]
+
     }]
   });
 

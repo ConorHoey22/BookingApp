@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal } from 'react-native';
+import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal,FlatList } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -61,6 +61,7 @@ const MyBookings = ({ navigation }) => {
             }
             const bookingData = await bookingsResponse.json();
             setBookingData(bookingData);
+          
     
             // Fetch and process camp data
             const apiGetCamps = 'http://localhost:3000/api/camps';
@@ -76,7 +77,7 @@ const MyBookings = ({ navigation }) => {
             }
             const campsData = await campsResponse.json();
             setCampData(campsData);
-            console.log('Selected participants have been added:', selectedParticipants);
+          
             // Process booking data
             processBookings(bookingData, campsData);
           } catch (error) {
@@ -103,6 +104,8 @@ const MyBookings = ({ navigation }) => {
 
           // Set the state with the processed bookingCampData
           setBookingCampData(bookingCampData);
+
+         
       };
 
     // Function to close the modal 
@@ -117,21 +120,55 @@ const MyBookings = ({ navigation }) => {
 
     };
 
+    const openRefundConfirmationModal = async() => {
+
+      //Validation Check - Reason is a required Entry
+      if(refundReason == "")
+      {
+        //Validation message 
+        const reasonValidationMessage = "Please enter a reason"
+        setRefundReasonErrorMessage(reasonValidationMessage);
+      }
+      else{
+
+        if(value == [])
+        {
+          const reasonValidationMessage = "Please select at least 1 particant"
+          setRefundReasonErrorMessage(reasonValidationMessage);
+        } 
+        else{
+
+
+       
+
+          setSelectedParticipantsArray(selectedBookingRecord.participantArray);
+
+          setRefundModalVisible(false);
+          setRefundConfirmationModalVisible(true); 
+
+        }
+
+      }
+
+ 
+    };
+
 
 
     const RequestRefundCancellationModalVisible = async(booking) => {
        
         setSelectedBookingRecord(booking);
         setRefundModalVisible(true);
-      };
+    };
+
+
 
 
       const RequestPartialRefund = async() => {
 
+        setRefundConfirmationModalVisible(false);
         //Validation Check - Reason is a required Entry
         if(refundReason == "")
-
-
         {
           //Validation message 
           const reasonValidationMessage = "Please enter a reason"
@@ -139,32 +176,12 @@ const MyBookings = ({ navigation }) => {
         }
         else{
 
-       
-
-
           if(value == [])
           {
             const reasonValidationMessage = "Please select at least 1 particant"
             setRefundReasonErrorMessage(reasonValidationMessage);
           } 
           else{
-
-
-         
-
-            setSelectedParticipantsArray(selectedBookingRecord.participantArray);
-
-            
-
-            const participantIDs = [];
-              // Loop through selectedParticipantsArray and store _id values in participantIDs array
-              selectedParticipants.forEach(participant => {
-                participantIDs.push(participant._id);
-              });
-
-
-
-
 
             // Update Status so that it changes on the Record from Booked to Partial Refund Request Sent 
             // Update Person AttendanceStatus value 
@@ -183,31 +200,28 @@ const MyBookings = ({ navigation }) => {
                               // Include the data you want to send in the body
                               // For example:
                               _id: selectedBookingRecord._id,
-                              participantID: participantIDs
+                              participantID: value,
+                              reasonForRefund: refundReason
                               // Other properties...
+
                           })
                            
                         });
 
 
-                        
+       // Notify Admin  HERE WHEN WE GET THE notifacatins ? ? 
+      
                     
                         const updatedRecord = await response.json();
-                        console.log('Updated booking record:', updatedRecord);
-
-                        // IT WIll Return NULL but what we will do to over come this is have a Are you sure Modal then rerun the function ( it will be a dup function but it wont have validation or like rerun again as we would have a loop )
- 
- 
-                        setRefundModalVisible(false);
-
-                        setRefundConfirmationModalVisible(true);
-
+                      
                         if(updatedRecord == null)
                         {
-                          setRefundConfirmationModalVisible(true);
+                          setRefundModalVisible(true);
                         }
                         else{
-                          setRefundConfirmationModalVisible(false);
+                          
+       
+                          setRefundModalVisible(false);
                           navigation.navigate('DashboardCRM');
                         }
 
@@ -232,7 +246,7 @@ const MyBookings = ({ navigation }) => {
           
 
 
-            // Notify Admin 
+     
 
 
 
@@ -330,6 +344,29 @@ const updateItems = (newItems) => {
   setItems(newItems);
 };
 
+const renderParticipantItem = ({ item: participant }) => (
+  <View style={{ marginTop: 10 }}>
+    <Text>Participant Name: {participant.name}</Text>
+    <Text>Participant Age: {participant.age}</Text>
+    <Text>Participant Allergies: {participant.allergies || 'None'}</Text>
+    {participant.daysSelectedArray.length > 0 ? (
+      <View>
+        <Text>Selected Days:</Text>
+        <FlatList
+          data={participant.daysSelectedArray}
+          keyExtractor={(day, index) => index.toString()}
+          renderItem={({ item: day }) => (
+            <Text key={day}>{day}</Text>
+          )}
+        />
+      </View>
+    ) : (
+      <Text>No selected days</Text>
+    )}
+  </View>
+);
+
+
 
 
 
@@ -342,6 +379,7 @@ return (
 
 
 <ScrollView>
+  
   {bookingCampData.map((camp, index) => (
     <View key={index} style={styles.container}>  
       <Text>{camp.campName} </Text>
@@ -357,15 +395,25 @@ return (
           <Text>Participants: {booking.participantsBooked}</Text>
           <Text>Price: £{booking.totalPrice}</Text>
 
-
-                                <View>
-                                  {/* Render other camp details */}
-                                  <TouchableOpacity style={styles.button1} onPress={() => RequestRefundCancellationModalVisible(booking)}>
-                                    <Text style={styles.buttonText}>View Refund Options</Text>
-                                  </TouchableOpacity>
-                               </View>
-          {/* Add other booking details as needed */}
+          <View style={{ flex: 1, padding: 20 }}>
+              {/* Render participant details for each booking */}
+              {/* <FlatList
+                  data={booking.participantArray}
+                  keyExtractor={(participant, index) => index.toString()}
+                  renderItem={renderParticipantItem}
+              /> */}
           </View>
+
+   
+  
+            {/* Render other camp details */}
+            <TouchableOpacity style={styles.button1} onPress={() => RequestRefundCancellationModalVisible(booking)}>
+              <Text style={styles.buttonText}>View Refund Options</Text>
+            </TouchableOpacity>
+
+
+          </View>
+         
           ))}
           </View>
 
@@ -404,7 +452,6 @@ return (
                     <DropDownPicker
                       open={open}
                       value={value}
-
                       setOpen={setOpen}
                       setValue={updateValue}
                       setItems={updateItems}
@@ -428,20 +475,20 @@ return (
               {value.length > 0 && (
                   <View>
                               <View style={styles.buttonContainer}>
-                                    <TouchableOpacity style={styles.button1}>
-                                      <Text style={styles.buttonText} onPress={RequestPartialRefund}>Request Partial Refund</Text>
+                                    <TouchableOpacity style={styles.button1} onPress={openRefundConfirmationModal}>
+                                      <Text style={styles.buttonText}>Request Partial Refund</Text>
                                     </TouchableOpacity>
                                 </View>
 
                                 <View style={styles.buttonContainer}>
-                                  <TouchableOpacity style={styles.button1}>
-                                    <Text style={styles.buttonText} onPress={RequestedFullRefund}>Request Full Refund</Text>
+                                  <TouchableOpacity style={styles.button1} onPress={RequestedFullRefund}>
+                                    <Text style={styles.buttonText}>Request Full Refund</Text>
                                   </TouchableOpacity>
                                 </View>
 
                                 <View style={styles.buttonContainer}>
-                                  <TouchableOpacity style={styles.button1}>
-                                    <Text style={styles.buttonText} onPress={closeRefundModal}>Exit</Text>
+                                  <TouchableOpacity style={styles.button1} onPress={closeRefundModal}>
+                                    <Text style={styles.buttonText}> Exit</Text>
                                   </TouchableOpacity>
                                 </View>
 
@@ -454,14 +501,14 @@ return (
 
                           <View>
                                <View style={styles.buttonContainer}>
-                                  <TouchableOpacity style={styles.button1}>
-                                    <Text style={styles.buttonText} onPress={RequestedFullRefund}>Request Full Refund</Text>
+                                  <TouchableOpacity style={styles.button1} onPress={RequestedFullRefund}>
+                                    <Text style={styles.buttonText}>Request Full Refund</Text>
                                   </TouchableOpacity>
                                </View>
                             
                                <View style={styles.buttonContainer}>
-                                  <TouchableOpacity style={styles.button1}>
-                                    <Text style={styles.buttonText} onPress={closeRefundModal}>Exit</Text>
+                                  <TouchableOpacity style={styles.button1} onPress={closeRefundModal}>
+                                    <Text style={styles.buttonText}>Exit</Text>
                                   </TouchableOpacity>
                                </View>
                           </View> 
@@ -469,7 +516,7 @@ return (
 
                )} 
 
-               </View>
+                              </View>
 
                              </View> 
                       </View>
@@ -479,33 +526,33 @@ return (
   
 
 
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={refundConfirmationModalVisible}
-            onRequestClose={closeRefundModal}
+                        <Modal
+                          animationType="slide"
+                          transparent={true}
+                          visible={refundConfirmationModalVisible}
+                          onRequestClose={closeRefundModal}
 
-          >
-   <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <View>
-                               <View style={styles.buttonContainer}>
+                        >
+                        <View style={styles.modalContainer}>
+                                    <View style={styles.modalContent}>
+                                      <View>
+                                      <View style={styles.buttonContainer}>
 
-                               <Text style={styles.buttonText}> Are you sure you want to request a refund?</Text>
-                                  <TouchableOpacity style={styles.button1}>
-                                    <Text style={styles.buttonText} onPress={RequestPartialRefund}>Yes</Text>
-                                  </TouchableOpacity>
-                               </View>
-                            
-                               <View style={styles.buttonContainer}>
-                                  <TouchableOpacity style={styles.button1}>
-                                    <Text style={styles.buttonText} onPress={closeRefundConfirmationModal}>No</Text>
-                                  </TouchableOpacity>
-                               </View>
-                </View> 
+                                      <Text style={styles.label}> Are you sure you want to request a refund?</Text>
+                                          <TouchableOpacity style={styles.button1} onPress={RequestPartialRefund}>
+                                            <Text style={styles.buttonText}>Yes</Text>
+                                          </TouchableOpacity>
+                                      </View>
+                                    
+                                      <View style={styles.buttonContainer}>
+                                          <TouchableOpacity style={styles.button1} onPress={closeRefundConfirmationModal}>
+                                            <Text style={styles.buttonText}>No</Text>
+                                          </TouchableOpacity>
+                                      </View>
+                        </View> 
 
-              </View>
-        </View>
+                      </View>
+                </View>
                           
 
 

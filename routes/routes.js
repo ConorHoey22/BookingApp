@@ -136,7 +136,7 @@ router.post('/api/createCamp', verifyToken, async (req, res) => {
   try {
     
 
-        const { campName, location, price, startDate,startTime, endDate, endTime   } = req.body;
+        const { campName, location, price1Day, price2Day, price3Day, price4Day, price5Day,startDate,startTime, endDate, endTime   } = req.body;
    
 
 
@@ -146,7 +146,7 @@ router.post('/api/createCamp', verifyToken, async (req, res) => {
         //Camp model 
 
         // Save data to MongoDB
-        const newCamp = new Camp({createdByUserID,campName,location, price, startDate,startTime,endDate,endTime});
+        const newCamp = new Camp({createdByUserID,campName,location, price1Day,price2Day,price3Day,price4Day,price5Day,startDate,startTime,endDate,endTime});
         await newCamp.save();
        
       
@@ -229,12 +229,7 @@ router.post('/api/campPayment', verifyToken ,async (req, res) => {
       const clientSecret = paymentIntent.client_secret;
       // Sending the client secret as response
       res.json({ message: "Payment initiated", clientSecret });
-    // }
-    // else {
-    //   // If the record is not found, send a 404 response
-    //   res.status(404).json({ error: 'Record not found' });
-    // }
-
+ 
   } catch (err) {
     // Catch any error and send error 500 to client
 
@@ -328,8 +323,13 @@ router.put('/api/updateBookingRecord/:id', verifyToken, async (req, res) => {
     
       const receivedBookingID = req.params.id; // Access the ID from request params
 
+
+
     //Participants Selected 
       const participantsSelected = req.body.participantID;
+      
+   
+      const reasonForRefund = req.body.reasonForRefund;
 
       const updateBookingStatus = 'Requested Partial Refund'
 
@@ -340,15 +340,19 @@ router.put('/api/updateBookingRecord/:id', verifyToken, async (req, res) => {
       },
       { 
         $set: { 
-          'participantArray.$[elem].attendanceStatus': updateBookingStatus, // Update the attendance status of the matched participants
-          bookingStatus: updateBookingStatus // Update the booking status
-        } 
+          'participantArray.$[elem].reasonForRefund': reasonForRefund,
+          'participantArray.$[elem].attendanceStatus': updateBookingStatus,
+          bookingStatus: updateBookingStatus,
+        }
       },
       { 
         new: true,
         arrayFilters: [{ 'elem._id': { $in: participantsSelected } }] // Array filters to match the participant IDs
       }
     );
+
+
+    
 
 
 

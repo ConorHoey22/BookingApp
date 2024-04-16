@@ -29,7 +29,13 @@ const CreateBooking = ({navigation}) => {
   const [bookingNameValidationMessage, setBookingNameValidation] = useState('');
   const [nameValidationMessage, setNameValidationMessage] = useState('');
   const [phoneNumberValidation, setPhoneNumberValidationMessage] = useState('');
-  const [reasonValidationMessage, setSelectDateErrorMessage] = useState('');
+  const [dateValidationMessage, setSelectDateErrorMessage] = useState('');
+
+
+  const [editNameValidationMessage, setEditNameValidationMessage] = useState('');
+  const [editPhoneNumberValidation, setEditPhoneNumberValidationMessage] = useState('');
+  const [editDateValidationMessage, setEditSelectDateErrorMessage] = useState('');
+
 
   //Modal 
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -103,6 +109,8 @@ const CreateBooking = ({navigation}) => {
               console.error("Camp object is missing in route params:");
             }
 
+
+          
       
       
         } catch (error) {
@@ -116,7 +124,10 @@ const CreateBooking = ({navigation}) => {
         console.error('Error fetching JWT token:', error);
       }
 
-
+      if(displayEditParticipantModal == true)
+      {
+        setValue(editedDaysSelected);
+      }
 
 
     };
@@ -168,6 +179,38 @@ const CreateBooking = ({navigation}) => {
 
       //Check that Name and Phone number is still present 
 
+    //  Validation Check
+    if ((!editedNameText || /^\s*$/.test(editedNameText)) || (!editedPhoneNumberText || /^\s*$/.test(editedPhoneNumberText)) || (!editDateValidationMessage || /^\s*$/.test(editDateValidationMessage)) ) {
+          
+      
+      // If any field is blank, show respective validation messages
+      if (!editedNameText || /^\s*$/.test(editedNameText)) {
+        setEditNameValidationMessage('Enter their name');
+      } else {
+        setEditNameValidationMessage('');
+      }
+    
+      if (!editedPhoneNumberText || /^\s*$/.test(editedPhoneNumberText)) {
+        setEditPhoneNumberValidationMessage('Enter their contact number');
+      } else {
+        setEditPhoneNumberValidationMessage('');
+      }
+
+      if (!editDateValidationMessage || /^\s*$/.test(editDateValidationMessage)) {
+        setEditSelectDateErrorMessage('Please select at least 1 day');
+      } else {
+        setEditSelectDateErrorMessage('');
+      }
+
+    }
+    else{
+
+    
+
+
+
+
+
       //Update Array with record  - We will not be updating the DB until after the payment 
 
       const updatedBookingRecord = {
@@ -176,7 +219,9 @@ const CreateBooking = ({navigation}) => {
         allergies: editedAllergiesText,
         emergencyContactNumber: editedPhoneNumberText,
         additionalInfo: editedAdditionalInfoText,
-        attendanceStatus: "Booked"
+        attendanceStatus: "Booked",
+        daysSelectedArray: editedDaysSelected
+
 
       };
     
@@ -185,14 +230,15 @@ const CreateBooking = ({navigation}) => {
 
       // Close the modal
       closeEditModal();
-
+    }
   }
 
     const [participantArray, setParticipantArray] = useState([]);
     const [participantCount, setParticipantCount] = useState(0);
 
     const SelectEditParticipantModal = async() => {
-
+      // Set the value state with previously selected dates when component mounts
+  
       setDisplayEditParticipantModal(true);
 
 
@@ -275,12 +321,10 @@ const CreateBooking = ({navigation}) => {
 
 
 // IF DATES ARE NOT SELECTED THEY CANNOT PROGRESS
-console.log(value);
-
 if (value.length === 0) 
 {
-  const reasonValidationMessage = "Please select at least 1 date"
-  setSelectDateErrorMessage(reasonValidationMessage);
+  const dateValidationMessage = "Please select at least 1 day"
+  setSelectDateErrorMessage(dateValidationMessage);
 } 
 else {
 
@@ -295,6 +339,7 @@ else {
             emergencyContactNumber: phoneNumber,
             additionalInfo: additionalInfo,
             attendanceStatus: 'Booked',
+            reasonForRefund: 'N/A',
             daysSelectedArray: value
                
         
@@ -340,6 +385,7 @@ else {
     const [editedAllergiesText, setEditedAllergiesText] = useState(''); // Edited text for the camp being edited
     const [editedPhoneNumberText, setEditedPhoneNumberText] = useState(''); // Edited text for the camp being edited
     const [editedAdditionalInfoText, setEditedAdditionalInfoText] = useState(''); // Edited text for the camp being edited
+    const [editedDaysSelected, setEditedDaysSelected ] = useState(''); 
     
     const editParticipantModal = async(index) => {
         // This to edit the participant to the array as we dont want to send the data to the DB until CHECKOUT 
@@ -361,6 +407,7 @@ else {
         setEditedAllergiesText(participantArray[index].allergies);
         setEditedPhoneNumberText(participantArray[index].emergencyContactNumber);
         setEditedAdditionalInfoText(participantArray[index].additionalInfo);
+        setEditedDaysSelected(participantArray[index].daysSelectedArray);
 
 
     };
@@ -393,6 +440,9 @@ else {
 
         // Handle Stripe API and payment once the payment is confirm / made , then we will then Participant array and push the data to the DB 
         try {
+
+        
+          
          
           const finalAmount = receivedPrice * participantCount;
    
@@ -479,6 +529,7 @@ else {
       const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       return dayNames[date.getDay()];
     };
+    
 
     // Get array of day names between minDate and maxDate
     // Get array of day names between startDate and endDate
@@ -499,7 +550,6 @@ const initialItems = []; // Provide an initial value for 'items' state
 const [open, setOpen] = useState(false);
 const [value, setValue] = useState(initialValue);
 const [items, setItems] = useState(initialItems);
-
 
 
 // Usage example of setValue
@@ -594,7 +644,7 @@ const updateItems = (newItems) => {
 
     <View style={styles.dropdownContainer}>
       <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
-      <Text>{reasonValidationMessage}</Text>
+      <Text>{dateValidationMessage}</Text>
         {/* Dropdown for selecting participant */}
       <View style={styles.dropdownContainer}>
 
@@ -758,6 +808,7 @@ const updateItems = (newItems) => {
         <View style={{ flexDirection: 'column' }}>
           <View>
             <Text style={styles.label}>Name</Text>
+            <Text>{editNameValidationMessage}</Text>
             <TextInput
               style={styles.textInput}
               value={editedNameText}
@@ -788,6 +839,7 @@ const updateItems = (newItems) => {
 
           <View>
             <Text style={styles.label}>Emergency Contact Number</Text>
+            <Text>{editPhoneNumberValidation}</Text>
             <TextInput
               style={styles.textInput}
               value={editedPhoneNumberText}
@@ -806,22 +858,60 @@ const updateItems = (newItems) => {
               placeholder='Enter here..'
             />
           </View>
-          <View style={styles.fieldRow}>
 
-            <TouchableOpacity style={styles.button}  onPress={() => updateBookingRecord(editedBookingRecordArray)}>
+          <View>
+            <Text style={styles.label}>Days selected</Text>
+           {/* DDL list Multi select */}
+
+            <View style={styles.dropdownContainer}>
+              <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
+              <Text>{editDateValidationMessage}</Text>
+                {/* Dropdown for selecting participant */}
+              <View style={styles.dropdownContainer}>
+
+
+
+        {/* Dropdown for selecting participant */}
+                <DropDownPicker
+                        open={open}
+                        value={editedDaysSelected}
+                        setOpen={setOpen}
+                        setValue={updateValue}
+                        setItems={updateItems}
+                        placeholder={'Choose a Dates'}
+                        multiple={true}
+                        mode="BADGE"
+                        badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                        items={getDayNamesInRange().map((dayName, index) => ({
+                          label: dayName,
+                          value: dayName,
+                        }))}
+                        containerStyle={styles.dropdown}
+                      />
+                    </View>
+                
+                  </View>
+         
+
+
+
+
+          <View style={styles.buttonContainer}>
+
+            <TouchableOpacity style={styles.button2} onPress={() => updateBookingRecord(editedBookingRecordArray)}>
               <Text style={styles.buttonText}>Update Booking</Text>
             </TouchableOpacity>
 
           </View>
 
-          <View style={styles.fieldRow}>
+          <View style={styles.buttonContainer}>
 
-            <TouchableOpacity style={styles.button}  onPress={closeEditModal}>
+            <TouchableOpacity style={styles.button2} onPress={closeEditModal}>
               <Text style={styles.buttonText}>Exit</Text>
             </TouchableOpacity>
 
           </View>
-
+</View>
         </View>
 
         </View>  
@@ -901,6 +991,14 @@ const styles = StyleSheet.create({
       
     },
     button1: {
+      backgroundColor: '#4CAF50',
+      borderRadius: 4,
+      padding: 10,
+      zIndex: 2, // Ensure dropdown is above other elements
+      marginBottom: 5,
+     
+    },
+    button2: {
       backgroundColor: '#4CAF50',
       borderRadius: 4,
       padding: 10,

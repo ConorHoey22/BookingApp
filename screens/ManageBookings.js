@@ -177,6 +177,8 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
 
         setStartTime(new Date(campData[index].startTime));
         setEndTime(new Date(campData[index].endTime));
+
+
       }
 
       setStartPickerVisible(true);
@@ -413,8 +415,8 @@ return (
             <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
             <Text>Price: £{camp.price} </Text>
 
-            <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText} onPress={() => openEditModal(index)}>Edit</Text>
+            <TouchableOpacity style={styles.button} onPress={() => openEditModal(index)}>
+            <Text style={styles.buttonText} >Edit</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}  onPress={() => ViewCampAttendance(index)}>
@@ -624,14 +626,14 @@ return (
 
 
             <FlatList
-            data={bookingData}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => (
-              <View style={{ flexDirection: 'column' }}>
-                <Text>Name: {item.name}</Text>
-                <Text>Attendance Status: {item.attendanceStatus}</Text>
-                <Text>Contact Number: {item.emergencyContactNumber}</Text>
-                {/* Other participant details */}
+              data={bookingData}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View style={{ flexDirection: 'column' }}>
+                  <Text>Name: {item.name}</Text>
+                  <Text>Attendance Status: {item.attendanceStatus}</Text>
+                  <Text>Contact Number: {item.emergencyContactNumber}</Text>
+                  {/* Other participant details */}
           
                 
           </View>
