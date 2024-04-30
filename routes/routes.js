@@ -4,7 +4,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const Camp = require('../models/Camp');
-
+const Event = require('../models/Event');
 const Booking = require('../models/Booking');
 
 const jwt = require('jsonwebtoken');
@@ -128,6 +128,50 @@ router.get('/api/user/:userId', verifyToken, async (req, res) => {
 
 
 
+// API endpoint for Create Event 
+router.post('/api/createEvent', verifyToken, async (req, res) => {
+
+  try {
+    
+
+        const { eventName, location, price, startDate,startTime, endTime } = req.body;
+   
+
+
+        //Is there a way to obtain the UserID 
+        const createdByUserID = req.user.userId; // Corrected parameter name
+
+        //Event model 
+
+        // Save data to MongoDB
+        const newEvent = new Event({createdByUserID,eventName,location, price,startDate,startTime,endTime});
+        await newEvent.save();
+       
+      
+        res.status(200).json({ message: 'Event Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
+//GET EVENTS 
+router.get('/api/events', verifyToken, async (req, res) => {
+  try {
+   
+    const events = await Event.find();
+    res.status(200).json(events);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+
 
 
 // API endpoint for Create Camp 
@@ -140,7 +184,7 @@ router.post('/api/createCamp', verifyToken, async (req, res) => {
    
 
 
-        //Is there a way to obtain the UserID and Ass
+        //Is there a way to obtain the UserID 
         const createdByUserID = req.user.userId; // Corrected parameter name
 
         //Camp model 
@@ -159,6 +203,7 @@ router.post('/api/createCamp', verifyToken, async (req, res) => {
     }
   
 });
+
 
 //GET CAMPS 
 router.get('/api/camps', verifyToken, async (req, res) => {
@@ -236,6 +281,68 @@ router.post('/api/campPayment', verifyToken ,async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+
+
+router.post('/api/eventPayment', verifyToken ,async (req, res) => {
+  try {
+    // Getting data from client
+    let { amount, bookingName , email , fullname } = req.body;
+    // Simple validation
+    if (!amount || !bookingName)
+      return res.status(400).json({ message: "All fields are required" });
+      const amountInPence = Math.round(amount * 100);
+
+
+      // Initiate payment
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amountInPence,
+        currency: "GBP",
+        payment_method_types: ["card"],
+        metadata: { bookingName , email , fullname},
+      });
+
+      // Extracting the client secret 
+      const clientSecret = paymentIntent.client_secret;
+      // Sending the client secret as response
+      res.json({ message: "Payment initiated", clientSecret });
+ 
+  } catch (err) {
+    // Catch any error and send error 500 to client
+
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+  
+// Create Event Booking Record
+router.post('/api/createBookingEventRecord', verifyToken, async (req, res) => {
+
+  try {
+    
+
+        const { email, fullName , location , eventName , price , participantsBooked  , eventID , participantArray} = req.body;
+        
+        // What camp is this they booked for ,. need the Camp ID 
+        //Is there a way to obtain the UserID and Ass
+        const createdByUserID = req.user.userId; 
+
+
+        // Save data to MongoDB
+        const newEventBooking = new Booking({bookingStatus: 'Booked' , createdByUserID, email, fullName , price ,eventID, participantsBooked, bookingType: 'Event' ,  participantArray: participantArray });
+       
+        await newEventBooking.save();
+
+
+      
+        res.status(200).json({ message: 'Event Booking Record Data saved successfully' });
+
+    } catch (error) {
+
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
     
 // Create Camp Booking Record
 router.post('/api/createBookingCampRecord', verifyToken, async (req, res) => {
@@ -250,17 +357,14 @@ router.post('/api/createBookingCampRecord', verifyToken, async (req, res) => {
         const createdByUserID = req.user.userId; 
 
 
-       const totalPrice = price * participantsBooked;
-
-
         // Save data to MongoDB
-        const newCampBooking = new Booking({bookingStatus: 'Booked' , createdByUserID, email, fullName , totalPrice ,campID, participantsBooked, bookingType: 'Camp' ,  participantArray: participantArray });
+        const newCampBooking = new Booking({bookingStatus: 'Booked' , createdByUserID, email, fullName , price ,campID, participantsBooked, bookingType: 'Camp' ,  participantArray: participantArray });
        
         await newCampBooking.save();
 
    
       
-        newCampBooking.save();
+       // newCampBooking.save();
     
       
         res.status(200).json({ message: 'Camp Booking Record Data saved successfully' });
@@ -317,7 +421,7 @@ router.get('/api/getBookingCampRecords', verifyToken, async (req, res) => {
   }
 });
 
-
+//Partial Refund Request
 router.put('/api/updateBookingRecord/:id', verifyToken, async (req, res) => {
  try {
     
@@ -366,6 +470,47 @@ router.put('/api/updateBookingRecord/:id', verifyToken, async (req, res) => {
    }
 
 });
+
+//Full Refund Request
+router.put('/api/fullRefundRequest/:id', verifyToken, async (req, res) => {
+  try {
+     
+       const receivedBookingID = req.params.id; // Access the ID from request params
+ 
+    
+       const reasonForRefund = req.body.reasonForRefund;
+ 
+       const updateBookingStatus = 'Requested Full Refund'
+ 
+     const result = await Booking.findOneAndUpdate(
+      { 
+        _id: receivedBookingID,
+      },
+      { 
+        $set: { 
+          'participantArray.$[].reasonForRefund': reasonForRefund, // Set reason for refund for all participants
+          'participantArray.$[].attendanceStatus': updateBookingStatus, // Set attendance status for all participants
+          bookingStatus: updateBookingStatus, // Update booking status
+        }
+      },
+      { new: true }
+    );
+ 
+ 
+     
+ 
+ 
+ 
+       // UPdate participant record 
+        res.status(200).json(result); // Return updated camp
+ 
+       
+    } catch (error) {
+             console.error('Error updating Booking:', error);
+             res.status(500).json({ message: 'Server error' });
+    }
+ 
+ });
    
 
 // Get Event Booking Records assigned to User 
@@ -374,7 +519,7 @@ router.get('/api/getBookingEventRecords', verifyToken, async (req, res) => {
     const userId = req.user.userId; // Assuming the userId is passed as a parameter
 
     // Find bookings where createdBy === userId && CampType  == Camp 
-    const existingBookings = await Booking.find({ createdByUserID: userId });
+    const existingBookings = await Booking.find({ createdByUserID: userId , bookingType: "Event" });
 
     if (existingBookings.length > 0) {
       // If there are existing bookings for the user, return them

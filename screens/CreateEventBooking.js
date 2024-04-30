@@ -10,11 +10,11 @@ import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 
 import DropDownPicker from 'react-native-dropdown-picker';
 
-const CreateBooking = ({navigation}) => {
+const CreateEventBooking = ({navigation}) => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState([]);
-  const [campData, setCampData] = useState([]);
+  const [eventData, setEventData] = useState([]);
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [allergies, setAllergies] = useState('');
@@ -50,17 +50,12 @@ const CreateBooking = ({navigation}) => {
 
   const route = useRoute();
 
-  const [receivedCampID, setReceivedCampID] = useState('');
-  const [receivedCampName, setReceivedCampName] = useState('');
+  const [receivedEventID, setReceivedEventID] = useState('');
+  const [receivedEventName, setReceivedEventName] = useState('');
   const [receivedLocation, setReceivedLocation] = useState('');
-  const [receivedPriceDay1, setReceivedPriceDay1] = useState('');
-  const [receivedPriceDay2, setReceivedPriceDay2] = useState('');
-  const [receivedPriceDay3, setReceivedPriceDay3] = useState('');
-  const [receivedPriceDay4, setReceivedPriceDay4] = useState('');
-  const [receivedPriceDay5, setReceivedPriceDay5] = useState('');
+  const [receivedPrice, setReceivedPrice] = useState('');
   const [receivedStartDate, setReceivedStartDate] = useState('');
   const [receivedStartTime, setReceivedStartTime] = useState('');
-  const [receivedEndDate, setReceivedEndDate] = useState('');
   const [receivedEndTime, setReceivedEndTime] = useState('');
 
 
@@ -98,30 +93,25 @@ const CreateBooking = ({navigation}) => {
             // Set the userData state with the fetched data
             setUserData(data);
 
-            if (route.params && route.params.camp) {
-              const { camp } = route.params;
+            if (route.params && route.params.event) {
+              const { event } = route.params;
         
   
         
               // Ensure camp object has startDate property before accessing it
-              if (camp.startDate) {
-                setReceivedCampID(camp._id);
-                setReceivedCampName(camp.campName);
-                setReceivedLocation(camp.location);
-                setReceivedPriceDay1(camp.price1Day);
-                setReceivedPriceDay2(camp.price2Day);
-                setReceivedPriceDay3(camp.price3Day);
-                setReceivedPriceDay4(camp.price4Day);
-                setReceivedPriceDay5(camp.price5Day);
-                setReceivedStartDate(new Date(camp.startDate));
-                setReceivedStartTime(camp.startTime);
-                setReceivedEndDate(new Date(camp.endDate));
-                setReceivedEndTime(camp.endTime);
+              if (event.startDate) {
+                setReceivedEventID(event._id);
+                setReceivedEventName(event.campName);
+                setReceivedLocation(event.location);
+                setReceivedPrice(event.price);
+                setReceivedStartDate(new Date(event.startDate));
+                setReceivedStartTime(event.startTime);
+                setReceivedEndTime(event.endTime);
               } else {
-                console.error("Start date is missing in camp object");
+                console.error("Start date is missing in event object");
               }
             } else {
-              console.error("Camp object is missing in route params:");
+              console.error("Event object is missing in route params:");
             }
 
 
@@ -202,7 +192,7 @@ const CreateBooking = ({navigation}) => {
       //Check that Name and Phone number is still present 
 
     //  Validation Check
-    if ((!editedNameText || /^\s*$/.test(editedNameText)) || (!editedPhoneNumberText || /^\s*$/.test(editedPhoneNumberText)) || (!editedDaysSelected || /^\s*$/.test(editedDaysSelected)) ) {
+    if ((!editedNameText || /^\s*$/.test(editedNameText)) || (!editedPhoneNumberText || /^\s*$/.test(editedPhoneNumberText)) ) {
           
       
       // If any field is blank, show respective validation messages
@@ -217,13 +207,6 @@ const CreateBooking = ({navigation}) => {
       } else {
         setEditPhoneNumberValidationMessage('');
       }
-
-      if (!editedDaysSelected || /^\s*$/.test(editedDaysSelected)) {
-        setEditSelectDateErrorMessage('Please select at least 1 day');
-      } else {
-        setEditSelectDateErrorMessage('');
-      }
-
     }
     else{
 
@@ -242,7 +225,7 @@ const CreateBooking = ({navigation}) => {
         emergencyContactNumber: editedPhoneNumberText,
         additionalInfo: editedAdditionalInfoText,
         attendanceStatus: "Booked",
-        daysSelectedArray: editedDaysSelected
+
 
 
 
@@ -267,51 +250,6 @@ const CreateBooking = ({navigation}) => {
 
 
     };
-
-    const ModalOpenDisplaySelectDaysOfCamp = async() => {
-    
-
-      // Check Values 
-    
-
-      // IF there is no values enter in all required then kick in Validation 
-  //Form Validation
-
-  if ((!name || /^\s*$/.test(name)) || (!phoneNumber || /^\s*$/.test(phoneNumber)) || (!bookingName || /^\s*$/.test(bookingName)) ) {
-          
-    if (!bookingName || /^\s*$/.test(bookingName)) {
-      setBookingNameValidation('Enter your name');
-    } else {
-      setBookingNameValidation('');
-    }
-    
-    
-    // If any field is blank, show respective validation messages
-    if (!name || /^\s*$/.test(name)) {
-      setNameValidationMessage('Enter their name');
-    } else {
-      setNameValidationMessage('');
-    }
-  
-    if (!phoneNumber || /^\s*$/.test(phoneNumber)) {
-      setPhoneNumberValidationMessage('Enter their contact number');
-    } else {
-      setPhoneNumberValidationMessage('');
-    }
-  } else {
-      // Modal appears
-      setDisplaySelectDaysOfCampModalVisible(true);
-
-
-
-
-    
-
-  }
-
-      
-    };
-
 
 
     const addParticipant = async() => {
@@ -343,14 +281,6 @@ const CreateBooking = ({navigation}) => {
         
 
 
-// IF DATES ARE NOT SELECTED THEY CANNOT PROGRESS
-if (value.length === 0) 
-{
-  const dateValidationMessage = "Please select at least 1 day"
-  setSelectDateErrorMessage(dateValidationMessage);
-} 
-else {
-
 
 
           // This to add the participant to the array as we dont want to send the data to the DB until CHECKOUT 
@@ -363,8 +293,7 @@ else {
             additionalInfo: additionalInfo,
             attendanceStatus: 'Booked',
             reasonForRefund: 'N/A',
-            daysSelectedArray: value,
-            totalParticipantPrice: 0
+            totalParticipantPrice: receivedPrice
                
         
           };
@@ -378,12 +307,6 @@ else {
           setParticipantCount(participantCount + 1);
 
 
-
-    // Modal appears
-    setDisplaySelectDaysOfCampModalVisible(false);
-
-    
-
           setName(''); // Clearing the text input by updating the state
           setAge(''); // Clearing the text input by updating the state
           setAllergies(''); // Clearing the text input by updating the state
@@ -395,7 +318,7 @@ else {
 
 
 
-      }
+      
     }
 
 
@@ -431,7 +354,7 @@ else {
         setEditedAllergiesText(participantArray[index].allergies);
         setEditedPhoneNumberText(participantArray[index].emergencyContactNumber);
         setEditedAdditionalInfoText(participantArray[index].additionalInfo);
-        setValueEdit(participantArray[index].daysSelectedArray);
+
 
 
     };
@@ -464,60 +387,20 @@ else {
 //Handle payment 
     const handleBookingCheckout = async() => {
 
+      let totalParticipantPrice = 0;
+
+      for (let i = 0; i < participantArray.length; i++) {
+        //Add ParticipantPrice 
+        totalParticipantPrice += parseFloat(participantArray[i].totalParticipantPrice);
+      }
+               // Set the total booking price
+               setTotalBookingPrice(totalParticipantPrice);
       
-
-
-
-        
-let totalParticipantPrice = 0;
-
-//  ------------------ Calculate Total Cost of the Camp  -------------------
-               for (let i = 0; i < participantArray.length; i++) {
-     
-                  //Participant Pricing Setting
-                  if (participantArray[i].daysSelectedArray.length === 1)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay1;
-                  }
-                  else if(participantArray[i].daysSelectedArray.length === 2)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay2;            
-                  }
-                  else if(participantArray[i].daysSelectedArray.length === 3)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay3;
-                  }
-                  else if(participantArray[i].daysSelectedArray.length === 4)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay4;
-                  }
-                  else if(participantArray[i].daysSelectedArray.length === 5)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay5;
-                  }
-
-
-               
-                  //Add ParticipantPrice 
-                 totalParticipantPrice += parseFloat(participantArray[i].totalParticipantPrice);
-               }
-           
-              // Set the total booking price
-              setTotalBookingPrice(totalParticipantPrice);
- 
-
               //Display BreakDown Cost Overiew Modal 
               setDisplayBreakdownCostOverviewModal(true);
 
-
-      
-              
-
-
     };
 
-
-          // if (totalBookingPrice < 1) return Alert.alert("You cannot make a payment below 1 GBP");
 
     const processPaymentWithAPI = async() => {
 
@@ -525,16 +408,16 @@ let totalParticipantPrice = 0;
         // Handle Stripe API and payment once the payment is confirm / made , then we will then Participant array and push the data to the DB 
         try {
 
-      const apiCreateBooking = 'http://localhost:3000/api/campPayment';
+      const apiCreateEventBooking = 'http://localhost:3000/api/eventPayment';
       const jwtToken = await AsyncStorage.getItem('jwtToken');
 
-          const response = await fetch(apiCreateBooking, {
+          const response = await fetch(apiCreateEventBooking, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               'Authorization': `Bearer ${jwtToken}`,
             },
-            body: JSON.stringify({ amount: totalBookingPrice, bookingName: bookingName , email: userData.email , fullname : userData.fullName , campID: receivedCampID , eventName: receivedCampName}),
+            body: JSON.stringify({ amount: totalBookingPrice, bookingName: bookingName , email: userData.email , fullname : userData.fullName , eventID: receivedEventID , eventName: receivedEventName}),
           });
           const data = await response.json();
           if (!response.ok) {
@@ -559,15 +442,15 @@ let totalParticipantPrice = 0;
           //Create Booking on DB 
           try{
 
-            const apiBookingCampRecord = 'http://localhost:3000/api/createBookingCampRecord';
-            const responseRecord = await fetch(apiBookingCampRecord, {
+            const apiBookingEventRecord = 'http://localhost:3000/api/createBookingEventRecord';
+            const responseRecord = await fetch(apiBookingEventRecord, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${jwtToken}`,
               },
               body: JSON.stringify({ 
-                email: userData.email , fullname : userData.fullName , campID: receivedCampID , location: receivedLocation , price: totalBookingPrice , startDate: receivedStartDate, endDate: receivedEndDate, startTime: receivedStartTime, endTime:receivedEndTime , participantsBooked: participantCount , participantArray
+                email: userData.email , fullname : userData.fullName , eventID: receivedEventID , location: receivedLocation , price: totalBookingPrice , startDate: receivedStartDate, startTime: receivedStartTime, endTime:receivedEndTime , participantsBooked: participantCount , participantArray
               }),
             });
 
@@ -575,7 +458,7 @@ let totalParticipantPrice = 0;
 
             if (responseRecord.ok) {
               const jsonResponse2 = await responseRecord.json();
-              console.log('Camp Booking record Created', jsonResponse2);
+              console.log('Event Booking record Created', jsonResponse2);
 
 //Send User back to dashboard
               navigation.navigate('DashboardCRM');
@@ -610,63 +493,7 @@ let totalParticipantPrice = 0;
         
     };
 
-    // Get day name for a given date
-    const getDayName = (date) => {
-      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      return dayNames[date.getDay()];
-    };
-    
 
-    // Get array of day names between minDate and maxDate
-    // Get array of day names between startDate and endDate
-    const getDayNamesInRange = () => {
-      const dayNames = [];
-      const currentDate = new Date(receivedStartDate);
-      while (currentDate <= receivedEndDate) {
-        dayNames.push(getDayName(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-      return dayNames;
-    };
-
-// ------ Main - DDL ---- 
-
-// Define initial values
-const initialValue = []; // Provide an initial value for 'value' state
-const initialItems = []; // Provide an initial value for 'items' state
-
-const [open, setOpen] = useState(false);
-const [value, setValue] = useState(initialValue);
-const [items, setItems] = useState(initialItems);
-
-// Usage example of setValue
-const updateValue = (newValue) => {
-  setValue(newValue);
-};
-
-// Usage example of setItems
-const updateItems = (newItems) => {
-  setItems(newItems);
-};
-
-//------------
-
-// Define initial values
-const initialValueEdit = []; // Provide an initial value for 'value' state
-const initialItemsEdit = []; // Provide an initial value for 'items' state
-
-const [openEdit, setOpenEdit] = useState(false);
-const [editedDaysSelected, setValueEdit] = useState(initialValueEdit);
-const [itemsEdit, setItemsEdit] = useState(initialItemsEdit);
-// Usage example of setValue
-const updateValueEdit = (newValue) => {
-  setValueEdit(newValue);
-};
-
-// Usage example of setItems
-const updateItemsEdit = (newItems) => {
-  setItemsEdit(newItems);
-};
 
 
 
@@ -728,75 +555,17 @@ const updateItemsEdit = (newItems) => {
       </View>
 
         <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={ModalOpenDisplaySelectDaysOfCamp}>Submit Participant</Text>
+              <Text style={styles.buttonText} onPress={addParticipant}>Submit Participant</Text>
         </TouchableOpacity>
     </ScrollView>
 
-   {/* Modal - Select Days of Camps  */}
+ 
 
 
-   <Modal
-      animationType="slide"
-      transparent={true}
-      visible={displaySelectDaysOfCampModal}
-      onRequestClose={closeDaysOfCampsModal}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-        <View style={{ flexDirection: 'column' }}>
-          <View>
+   
 
-    {/* DDL list Multi select */}
+         
 
-    <View style={styles.dropdownContainer}>
-      <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
-      <Text>{dateValidationMessage}</Text>
-        {/* Dropdown for selecting participant */}
-      <View style={styles.dropdownContainer}>
-
-
-
-  {/* Dropdown for selecting participant */}
-          <DropDownPicker
-            open={open}
-            value={value}
-            setOpen={setOpen}
-            setValue={updateValue}
-            setItems={updateItems}
-            placeholder={'Choose a Dates'}
-            multiple={true}
-            mode="BADGE"
-            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
-            items={getDayNamesInRange().map((dayName, index) => ({
-              label: dayName,
-              value: dayName,
-            }))}
-            containerStyle={styles.dropdown}
-          />
-        </View>
-     
-      </View>
-
-          
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button1}>
-              <Text style={styles.buttonText} onPress={addParticipant}>Submit</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button1}>
-              <Text style={styles.buttonText} onPress={closeDaysOfCampsModal}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      
-    </View>
-</View>
-
-</View>
-</Modal>
      
 
 
@@ -965,43 +734,7 @@ const updateItemsEdit = (newItems) => {
             />
           </View>
 
-          <View>
-            <Text style={styles.label}>Days selected</Text>
-           {/* DDL list Multi select */}
-
-            <View style={styles.dropdownContainer}>
-              <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
-              <Text>{editDateValidationMessage}</Text>
-                {/* Dropdown for selecting participant */}
-              <View style={styles.dropdownContainer}>
-
-
-
-        {/* Dropdown for selecting participant */}
-                <DropDownPicker
-                        open={openEdit}
-                        value={editedDaysSelected}
-                        setOpen={setOpenEdit}
-                        setValue={updateValueEdit}
-                        setItems={updateItemsEdit}
-                        placeholder={'Choose a Dates'}
-                        multiple={true}
-                        mode="BADGE"
-                        badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
-                        items={getDayNamesInRange().map((dayName, index) => ({
-                          label: dayName,
-                          value: dayName,
-                        }))}
-                        containerStyle={styles.dropdown}
-                      />
-                    </View>
-                
-                  </View>
          
-
-
-
-
           <View style={styles.buttonContainer}>
 
             <TouchableOpacity style={styles.button2} onPress={() => updateBookingRecord(editedBookingRecordArray)}>
@@ -1022,7 +755,7 @@ const updateItemsEdit = (newItems) => {
 
         </View>  
 
-      </View> 
+    
 
 
 
@@ -1045,7 +778,7 @@ const updateItemsEdit = (newItems) => {
  
           <Text style={styles.label}>Name: {item.name}</Text>
           <Text style={styles.label}>Price: £{item.totalParticipantPrice}</Text>
-          <Text style={styles.label}>Selected Day Attending: {item.daysSelectedArray.join(", ")}</Text>
+         
           
           </View>
 
@@ -1080,7 +813,7 @@ const updateItemsEdit = (newItems) => {
   );
 };
 
-export default CreateBooking;
+export default CreateEventBooking;
 
 const styles = StyleSheet.create({
   container: {

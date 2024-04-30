@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Home from './screens/Home';
 import DashboardCRM from './screens/DashboardCRM';
 import CreateBooking from './screens/CreateBooking';
+import CreateEventBooking from './screens/CreateEventBooking';
 import MyBookings from './screens/MyBookings';
 
 
@@ -58,6 +59,7 @@ const App = () => {
         <Stack.Screen name="ManageBookings" component={ManageBookings} />
         <Stack.Screen name="CreateAnEvent" component={CreateAnEvent} />
         <Stack.Screen name="CreateCamp" component={CreateCamp} />
+        <Stack.Screen name="CreateEventBooking" component={CreateEventBooking} />
       </Stack.Navigator>
     </NavigationContainer>
   );

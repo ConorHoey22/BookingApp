@@ -158,7 +158,13 @@ const [endPickerVisible, setEndPickerVisible] = useState(false);
 
 const [editedCampIndex, setEditedCampIndex] = useState(-1);
 const [editedLocationText, setEditedLocationText] = useState(''); // Edited text for the camp being edited
-const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the camp being edited
+const [edited5DayPriceText, setEdited5DayPrice] = useState(''); // Edited text for the camp being edited
+const [edited4DayPriceText, setEdited4DayPrice] = useState(''); // Edited text for the camp being edited
+const [edited3DayPriceText, setEdited3DayPrice] = useState(''); // Edited text for the camp being edited
+const [edited2DayPriceText, setEdited2DayPrice] = useState(''); // Edited text for the camp being edited
+const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text for the camp being edited
+
+
 
 
     // Function to open the modal and set the index of the camp being edited
@@ -170,7 +176,13 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
       if (index !== -1) {
         // Set editedText to the location of the camp being edited
         setEditedLocationText(campData[index].location);
-        setEditedPrice(campData[index].price);
+        setEdited5DayPrice(campData[index].price5Day);
+        setEdited4DayPrice(campData[index].price4Day);
+        setEdited3DayPrice(campData[index].price3Day);
+        setEdited2DayPrice(campData[index].price2Day);
+        setEdited1DayPrice(campData[index].price1Day);
+        
+
         
         setStartDate(new Date(campData[index].startDate));
         setEndDate(new Date(campData[index].endDate));
@@ -352,11 +364,16 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
                   },
                   body: JSON.stringify({
                       location: editedLocationText,
-                      price: editedPriceText,
+                      price5Day: edited5DayPriceText,
+                      price4Day: edited4DayPriceText,
+                      price3Day: edited3DayPriceText,
+                      price2Day: edited2DayPriceText,
+                      price1Day: edited1DayPriceText,
                       startDate: startDate,
                       endDate: endDate,
                       startTime: startTime,
                       endTime: endTime
+
                   })
               });
 
@@ -371,7 +388,11 @@ const [editedPriceText, setEditedPrice] = useState(''); // Edited text for the c
                   newData[index] = {
                       ...newData[index],
                       location: editedLocationText,
-                      price: editedPriceText,
+                      price5Day: edited5DayPriceText,
+                      price4Day: edited4DayPriceText,
+                      price3Day: edited3DayPriceText,
+                      price2Day: edited2DayPriceText,
+                      price1Day: edited1DayPriceText,
                       startDate: startDate,
                       endDate: endDate,
                       startTime: startTime,
@@ -413,7 +434,12 @@ return (
 
 
             <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
-            <Text>Price: £{camp.price} </Text>
+            <Text>Full Camp Price: £{camp.price5Day} </Text>
+            <Text>Booking Options</Text>
+            <Text>4 Days Price: £{camp.price4Day} </Text>
+            <Text>3 Days Price: £{camp.price3Day} </Text>
+            <Text>2 Days Price: £{camp.price2Day} </Text>
+            <Text>1 Day Price: £{camp.price1Day} </Text>
 
             <TouchableOpacity style={styles.button} onPress={() => openEditModal(index)}>
             <Text style={styles.buttonText} >Edit</Text>
@@ -463,11 +489,16 @@ return (
       visible={editModalVisible}
       onRequestClose={closeEditModal}
     >
-      <View style={styles.modalContainer}>
+            <View style={styles.modalContainer}>
+      <ScrollView>
+
       <View style={styles.modalContent}>
       <View style={{ flexDirection: 'column' }}>
-        <View>
+      <View style={styles.fieldRow}>
+       
           <Text style={styles.label}>Location</Text>
+      </View>
+          <View>
           <TextInput
             style={styles.textInput}
             value={editedLocationText}
@@ -548,12 +579,53 @@ return (
           )}
           </View>
 
-          <Text style={styles.label}>Price(£)</Text>
+          <Text style={styles.label}>Full Price(£)</Text>
           <View>
             <TextInput
             style={styles.textInput}
-            value={editedPriceText}
-            onChangeText={setEditedPrice}
+            value={edited5DayPriceText}
+            onChangeText={setEdited5DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+          
+
+          <Text style={styles.label}>4 Day Camp Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited4DayPriceText}
+            onChangeText={setEdited4DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+
+          <Text style={styles.label}>3 Day Camp Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited3DayPriceText}
+            onChangeText={setEdited3DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+
+          <Text style={styles.label}>2 Day Camp Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited2DayPriceText}
+            onChangeText={setEdited2DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+
+          <Text style={styles.label}>1 Day Camp Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited1DayPriceText}
+            onChangeText={setEdited1DayPrice}
             placeholder='Enter here..'
           />
           </View>
@@ -591,9 +663,10 @@ return (
 
       
      
-    </View>
+  
+  </ScrollView>
    
-   
+  </View>
     </Modal>
 
 
@@ -682,15 +755,17 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      // justifyContent: 'center',
+      // alignItems: 'center',
       backgroundColor: 'rgba(0,0,0,0.5)',
+      width: '100%',
+
     },
     modalContent: {
       backgroundColor: '#fff',
       padding: 20,
       borderRadius: 10,
-      width: '80%',
+      width: '100%',
     },
     fieldRow: {
       flexDirection: 'row',

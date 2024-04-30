@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const DashboardCRM = ({navigation}) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [campData, setCampData] = useState([]);
+  const [eventData, setEventData] = useState([]);
 
 
   useEffect(() => {
@@ -24,6 +25,7 @@ const DashboardCRM = ({navigation}) => {
     checkAuthentication(); // Call the function to check authentication status when component mounts
   
   handleCamps();
+  handleEvents();
   
   
   }, []); // Empty dependency array ensures the effect runs only once when component mounts
@@ -64,6 +66,45 @@ const DashboardCRM = ({navigation}) => {
 
   };
 
+
+  const handleEvents = async () => {
+
+    // Fetch all events 
+
+    const apiGetEvents = 'http://localhost:3000/api/events';
+    const jwtToken = await AsyncStorage.getItem('jwtToken');
+    
+    try {
+      const response = await fetch(apiGetEvents, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+      });
+
+
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      // Parse the response as JSON
+      const data = await response.json();
+
+      // Set the campData state with the fetched data
+      setEventData(data);
+
+
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+  }
+
+
+  };
+
+  
+
   
 
   const handleLogOut = async () => {
@@ -81,11 +122,17 @@ const DashboardCRM = ({navigation}) => {
 
     {campData.map((camp, index) => (
       <View key={index} style={styles.container}>  
+        <Text>Weekly Camp</Text>
         <Text>{camp.campName} </Text>
         <Text>Location: {camp.location}</Text> 
         <Text>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
         <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
-        <Text>Price: £{camp.price} </Text>
+        <Text>Full Price: £{camp.price5Day} </Text>
+        <Text>Booking Options</Text>
+        <Text>4 Day Camp Price: £{camp.price4Day} </Text>
+        <Text>3 Day Camp Price: £{camp.price3Day} </Text>
+        <Text>2 Day Camp Price: £{camp.price2Day} </Text>
+        <Text>1 Day Camp Price: £{camp.price1Day} </Text>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText} onPress={() => navigation.navigate('CreateBooking', { camp })}>Book now</Text>
         </TouchableOpacity>
@@ -93,7 +140,22 @@ const DashboardCRM = ({navigation}) => {
     ))}
 
 
+      {eventData.map((event, index) => (
+      <View key={index} style={styles.container}>  
+        <Text>Day Event</Text>
+        <Text>{event.eventName} </Text>
+        <Text>Location: {event.location}</Text> 
+        <Text>Duration: {new Date(event.startDate).toLocaleDateString('en-GB')} </Text>
+        <Text>Start Time: {new Date(event.startTime).toLocaleTimeString()} - End Time: {new Date(event.endTime).toLocaleTimeString()}</Text>
+        <Text>Price: £{event.price} </Text>
 
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CreateEventBooking', { event })}>
+          <Text style={styles.buttonText}>Book now</Text>
+        </TouchableOpacity>
+      </View>
+    ))}
+
+ 
   </ScrollView>
 
   );

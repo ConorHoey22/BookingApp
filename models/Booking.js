@@ -8,9 +8,10 @@ const mongoose = require('mongoose');
     bookingStatus:String,
     createdByUserID: String,
     campID:String,
+    eventID:String,
     email: String,
     fullName: String,
-    totalPrice: String,
+    price: Number,
     participantsBooked: String,
     bookingType: String,
     participantArray: [{
@@ -21,6 +22,7 @@ const mongoose = require('mongoose');
       additionalInfo: String,
       attendanceStatus: String,
       reasonForRefund: String,
+      totalParticipantPrice: Number,
       daysSelectedArray:[String]
 
     }]
