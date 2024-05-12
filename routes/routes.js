@@ -6,6 +6,8 @@ const User = require('../models/User');
 const Camp = require('../models/Camp');
 const Event = require('../models/Event');
 const Booking = require('../models/Booking');
+const CampOffer = require('../models/CampOffer');
+const EventOffer = require('../models/EventOffer');
 
 const jwt = require('jsonwebtoken');
 
@@ -169,6 +171,67 @@ router.get('/api/events', verifyToken, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+
+// API endpoint for Create Event Offer
+router.post('/api/createEventOffer', verifyToken, async (req, res) => {
+
+  try {
+    
+
+        const { offerName, participantsRequired, percentageDiscount, reward } = req.body;
+   
+        //Is there a way to obtain the UserID 
+        const createdByUserID = req.user.userId; // Corrected parameter name
+
+        //Event model 
+
+        // Save data to MongoDB
+        const newEventOffer = new newEventOffer({createdByUserID,offerName, participantsRequired, percentageDiscount, reward, isActive:false});
+        await newEventOffer.save();
+       
+      
+        res.status(200).json({ message: 'Camp Offer Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
+
+
+
+// API endpoint for Create Camp Offer
+router.post('/api/createCampOffer', verifyToken, async (req, res) => {
+
+  try {
+    
+
+        const { offerName, participantsRequired, percentageDiscount, reward } = req.body;
+   
+        //Is there a way to obtain the UserID 
+        const createdByUserID = req.user.userId; // Corrected parameter name
+
+        //Camp model 
+
+        // Save data to MongoDB
+        const newCampOffer = new CampOffer({createdByUserID,offerName, participantsRequired, percentageDiscount, reward, isActive: false});
+        await newCampOffer.save();
+       
+      
+        res.status(200).json({ message: 'Camp Offer Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
 
 
 
@@ -455,12 +518,7 @@ router.put('/api/updateBookingRecord/:id', verifyToken, async (req, res) => {
       }
     );
 
-
-    
-
-
-
-      // UPdate participant record 
+      // Update participant record 
        res.status(200).json(result); // Return updated camp
 
       
@@ -477,7 +535,6 @@ router.put('/api/fullRefundRequest/:id', verifyToken, async (req, res) => {
      
        const receivedBookingID = req.params.id; // Access the ID from request params
  
-    
        const reasonForRefund = req.body.reasonForRefund;
  
        const updateBookingStatus = 'Requested Full Refund'
@@ -496,12 +553,7 @@ router.put('/api/fullRefundRequest/:id', verifyToken, async (req, res) => {
       { new: true }
     );
  
- 
-     
- 
- 
- 
-       // UPdate participant record 
+       // Update participant record 
         res.status(200).json(result); // Return updated camp
  
        

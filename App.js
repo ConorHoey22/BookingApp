@@ -25,11 +25,14 @@ import SignUp from './screens/SignUp';
 import Login from './screens/Login';
 import CreateCamp from './Views/CreateCamp';
 import CreateAnEvent from './Views/CreateAnEvent';
+import CreateAnOffer from './Views/CreateAnOffer';
 
+import { Permissions } from 'expo';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -42,6 +45,8 @@ const App = () => {
         console.error('Error fetching JWT token:', error);
       }
     };
+
+
 
     checkAuthentication(); // Call the function to check authentication status when component mounts
   }, []); // Empty dependency array ensures the effect runs only once when component mounts
@@ -58,6 +63,7 @@ const App = () => {
         <Stack.Screen name="DashboardAdmin" component={DashboardAdmin} />
         <Stack.Screen name="ManageBookings" component={ManageBookings} />
         <Stack.Screen name="CreateAnEvent" component={CreateAnEvent} />
+        <Stack.Screen name="CreateAnOffer" component={CreateAnOffer} />
         <Stack.Screen name="CreateCamp" component={CreateCamp} />
         <Stack.Screen name="CreateEventBooking" component={CreateEventBooking} />
       </Stack.Navigator>

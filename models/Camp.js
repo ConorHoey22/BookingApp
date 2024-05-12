@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 
-  // Define a Mongoose Schema for Users
+  // Define a Mongoose Schema for Camps
  
   const CampSchema = new mongoose.Schema({
     createdByUserID:String,

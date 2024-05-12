@@ -30,30 +30,36 @@ const DashboardAdmin = ({navigation}) => {
 
   const handleLogOut = async () => {
     await AsyncStorage.removeItem('jwtToken');
-    setIsLoggedIn(false);
+
     navigation.navigate('Login');
   };
 
   
   const handleCreateAnEventBtn = async () => {
 
-    setIsLoggedIn(false);
+
     navigation.navigate('CreateAnEvent');
   };
 
 
   const handleCreateACampBtn = async () => {
 
-    setIsLoggedIn(false);
+
+  
     navigation.navigate('CreateCamp');
   };
 
   const handleManageBookings = async () => {
 
-    setIsLoggedIn(false);
+  
     navigation.navigate('ManageBookings');
   };
 
+
+  const handleCreateAnOffer = async () => {
+
+    navigation.navigate('CreateAnOffer');
+  };
 
 
 
@@ -62,16 +68,11 @@ const DashboardAdmin = ({navigation}) => {
 
     <View>
       <Text>Dashboard Admin: </Text>
-
-
-
+      
         <Button title='Create an Event' onPress={handleCreateAnEventBtn}/>
         <Button title='Create a Camp' onPress={handleCreateACampBtn} />
-
-
-
-    <Button title='Manage Bookings' onPress={handleManageBookings} />
-     
+        <Button title='Manage Bookings' onPress={handleManageBookings} />
+        <Button title='Create / View an Offer' onPress={handleCreateAnOffer} />
 
 
      

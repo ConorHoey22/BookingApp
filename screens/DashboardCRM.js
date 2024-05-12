@@ -9,6 +9,8 @@ const DashboardCRM = ({navigation}) => {
   const [campData, setCampData] = useState([]);
   const [eventData, setEventData] = useState([]);
 
+  const [openBookingOptionsModalVisible, setOpenBookingOptionsModalVisible] = useState(false);
+
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -103,6 +105,15 @@ const DashboardCRM = ({navigation}) => {
 
   };
 
+  const OpenBookingOptions = async () => {
+    setOpenBookingOptionsModalVisible(true);
+  };
+
+  const closeOpenBookingOptions = async () => {
+    setOpenBookingOptionsModalVisible(false);
+  };
+
+
   
 
   
@@ -128,15 +139,47 @@ const DashboardCRM = ({navigation}) => {
         <Text>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
         <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
         <Text>Full Price: £{camp.price5Day} </Text>
-        <Text>Booking Options</Text>
-        <Text>4 Day Camp Price: £{camp.price4Day} </Text>
-        <Text>3 Day Camp Price: £{camp.price3Day} </Text>
-        <Text>2 Day Camp Price: £{camp.price2Day} </Text>
-        <Text>1 Day Camp Price: £{camp.price1Day} </Text>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText} onPress={() => navigation.navigate('CreateBooking', { camp })}>Book now</Text>
+     
+
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CreateBooking', { camp })}>
+          <Text style={styles.buttonText} >Book now</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={OpenBookingOptions}>
+          <Text style={styles.buttonText}>Booking Options</Text>
+        </TouchableOpacity>
+    
+
+
+          {/* Modal  */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={openBookingOptionsModalVisible}
+            onRequestClose={setOpenBookingOptionsModalVisible}
+
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <View style={{ flexDirection: 'column' }}>
+                  <Text style={styles.label}>Booking Options</Text>
+                  <Text>1 Day Camp Price: £{camp.price1Day} </Text>
+                  <Text>2 Day Camp Price: £{camp.price2Day} </Text>
+                  <Text>3 Day Camp Price: £{camp.price3Day} </Text>
+                  <Text>4 Day Camp Price: £{camp.price4Day} </Text>
+                </View>
+
+
+              <TouchableOpacity style={styles.button} onPress={closeOpenBookingOptions}>
+                <Text style={styles.buttonText}>Close</Text>
+              </TouchableOpacity>
+              </View> 
+        </View>
+                                
+      </Modal> 
+
       </View>
+
     ))}
 
 
@@ -154,6 +197,9 @@ const DashboardCRM = ({navigation}) => {
         </TouchableOpacity>
       </View>
     ))}
+
+
+
 
  
   </ScrollView>
