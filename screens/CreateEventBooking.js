@@ -1,3 +1,5 @@
+// Create an Event Booking 
+
 import React, { useEffect, useState } from 'react';
 import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal, Alert } from 'react-native';
 import validator from 'validator';
@@ -10,7 +12,7 @@ import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 
 import DropDownPicker from 'react-native-dropdown-picker';
 
-const CreateEventBooking = ({navigation}) => {
+const CreateEventBookings = ({navigation}) => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState([]);
@@ -31,19 +33,16 @@ const CreateEventBooking = ({navigation}) => {
   const [bookingNameValidationMessage, setBookingNameValidation] = useState('');
   const [nameValidationMessage, setNameValidationMessage] = useState('');
   const [phoneNumberValidation, setPhoneNumberValidationMessage] = useState('');
-  const [dateValidationMessage, setSelectDateErrorMessage] = useState('');
 
 
   const [editNameValidationMessage, setEditNameValidationMessage] = useState('');
   const [editPhoneNumberValidation, setEditPhoneNumberValidationMessage] = useState('');
-  const [editDateValidationMessage, setEditSelectDateErrorMessage] = useState('');
 
 
   //Modal 
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [displayEditParticipantModal, setDisplayEditParticipantModal] = useState(false);
   const [displayBreakdownCostOverviewModal, setDisplayBreakdownCostOverviewModal] = useState(false);
-  const [displaySelectDaysOfCampModal, setDisplaySelectDaysOfCampModalVisible] = useState(false);
   const [editedBookingRecordArray, setEditedBookingRecordArray] = useState(-1);
 
 
@@ -54,35 +53,77 @@ const CreateEventBooking = ({navigation}) => {
   const [receivedEventName, setReceivedEventName] = useState('');
   const [receivedLocation, setReceivedLocation] = useState('');
   const [receivedPrice, setReceivedPrice] = useState('');
+
   const [receivedStartDate, setReceivedStartDate] = useState('');
   const [receivedStartTime, setReceivedStartTime] = useState('');
   const [receivedEndTime, setReceivedEndTime] = useState('');
 
 
-
+  //Array for Event Offer data
+  const [eventOfferData, setEventOffersData] = useState([]);
+  const [tempDiscountArray, setTempDiscountArray] = useState([]);
+  const [tempRewardArray, setTempRewardArray] = useState([]);
 
 
 
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
+
         const jwtToken = await AsyncStorage.getItem('jwtToken');
         setIsLoggedIn(!!jwtToken);
 
 
-          const apiGetUsers = 'http://localhost:3000/api/user/:userId';
-          
-          try {
-            const response = await fetch(apiGetUsers, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${jwtToken}`,
-              },
-            });
+
+// Check number of Events the User has booked 
+
+
+
+//-----------------------------
+      //Get API Request - Fetch all events offers 
+      const apiGetEventOffers = 'http://localhost:3000/api/getEventOffers';
+
       
-      
-      
+      try {
+    
+          const response = await fetch(apiGetEventOffers, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jwtToken}`,
+            },
+          });
+    
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+    
+          // Parse the response as JSON
+          const data = await response.json();
+    
+          // Set the eventData state with the fetched data
+          setEventOffersData(data);
+    
+    
+          } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+          }
+
+          // --------------------------------------------------------------------------
+
+            const apiGetUsers = 'http://localhost:3000/api/user/:userId';
+            
+            try {
+              const response = await fetch(apiGetUsers, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${jwtToken}`,
+                },
+              });
+        
+        
+        
             if (!response.ok) {
               throw new Error('Network response was not ok');
             }
@@ -98,10 +139,10 @@ const CreateEventBooking = ({navigation}) => {
         
   
         
-              // Ensure camp object has startDate property before accessing it
+              // Ensure event object has startDate property before accessing it
               if (event.startDate) {
                 setReceivedEventID(event._id);
-                setReceivedEventName(event.campName);
+                setReceivedEventName(event.eventName);
                 setReceivedLocation(event.location);
                 setReceivedPrice(event.price);
                 setReceivedStartDate(new Date(event.startDate));
@@ -114,10 +155,6 @@ const CreateEventBooking = ({navigation}) => {
               console.error("Event object is missing in route params:");
             }
 
-
-          
-      
-      
         } catch (error) {
           console.error('There has been a problem with your fetch operation:', error);
         }
@@ -129,11 +166,7 @@ const CreateEventBooking = ({navigation}) => {
         console.error('Error fetching JWT token:', error);
       }
 
-      if(displayEditParticipantModal == true)
-      {
-        setValueEdit(editedDaysSelected);
-      }
-
+    
 
     };
 
@@ -155,7 +188,7 @@ const CreateEventBooking = ({navigation}) => {
         navigation.navigate('Login');
     };
     
-    // Function to close the modal and reset editedCampIndex
+    // Function to close the modal and reset editedEventIndex
     const closeEditModal = () => {
       setEditModalVisible(false);
 
@@ -170,8 +203,8 @@ const CreateEventBooking = ({navigation}) => {
 
 
          // Function to close the modal 
-         const closeDaysOfCampsModal = () => {
-          setDisplaySelectDaysOfCampModalVisible(false);
+         const closeDaysOfEventsModal = () => {
+          setDisplaySelectDaysOfEventModalVisible(false);
     
         };
         
@@ -207,14 +240,11 @@ const CreateEventBooking = ({navigation}) => {
       } else {
         setEditPhoneNumberValidationMessage('');
       }
-    }
-    else{
 
     
 
-
-
-
+    }
+    else{
 
       //Update Array with record  - We will not be updating the DB until after the payment 
 
@@ -225,7 +255,7 @@ const CreateEventBooking = ({navigation}) => {
         emergencyContactNumber: editedPhoneNumberText,
         additionalInfo: editedAdditionalInfoText,
         attendanceStatus: "Booked",
-
+     
 
 
 
@@ -250,6 +280,51 @@ const CreateEventBooking = ({navigation}) => {
 
 
     };
+
+    const ModalOpenDisplaySelectDaysOfEvent = async() => {
+    
+
+      // Check Values 
+    
+
+      // IF there is no values enter in all required then kick in Validation 
+  //Form Validation
+
+  if ((!name || /^\s*$/.test(name)) || (!phoneNumber || /^\s*$/.test(phoneNumber)) || (!bookingName || /^\s*$/.test(bookingName)) ) {
+          
+    if (!bookingName || /^\s*$/.test(bookingName)) {
+      setBookingNameValidation('Enter your name');
+    } else {
+      setBookingNameValidation('');
+    }
+    
+    
+    // If any field is blank, show respective validation messages
+    if (!name || /^\s*$/.test(name)) {
+      setNameValidationMessage('Enter their name');
+    } else {
+      setNameValidationMessage('');
+    }
+  
+    if (!phoneNumber || /^\s*$/.test(phoneNumber)) {
+      setPhoneNumberValidationMessage('Enter their contact number');
+    } else {
+      setPhoneNumberValidationMessage('');
+    }
+  } else {
+      // Modal appears
+      setDisplaySelectDaysOfEventModalVisible(true);
+
+
+
+
+    
+
+  }
+
+      
+    };
+
 
 
     const addParticipant = async() => {
@@ -280,9 +355,6 @@ const CreateEventBooking = ({navigation}) => {
         } else {
         
 
-
-
-
           // This to add the participant to the array as we dont want to send the data to the DB until CHECKOUT 
           const newParticpant = { 
                 
@@ -293,7 +365,7 @@ const CreateEventBooking = ({navigation}) => {
             additionalInfo: additionalInfo,
             attendanceStatus: 'Booked',
             reasonForRefund: 'N/A',
-            totalParticipantPrice: receivedPrice
+            totalParticipantPrice: 0
                
         
           };
@@ -318,20 +390,17 @@ const CreateEventBooking = ({navigation}) => {
 
 
 
-      
-    }
-
-
+      }
     };
 
 
     // ------------- Modal Edit ------------------------------
 
-    const [editedNameText, setEditedNameText] = useState(''); // Edited text for the camp being edited
-    const [editedAgeText, setEditedAgeText] = useState(''); // Edited text for the camp being edited
-    const [editedAllergiesText, setEditedAllergiesText] = useState(''); // Edited text for the camp being edited
-    const [editedPhoneNumberText, setEditedPhoneNumberText] = useState(''); // Edited text for the camp being edited
-    const [editedAdditionalInfoText, setEditedAdditionalInfoText] = useState(''); // Edited text for the camp being edited
+    const [editedNameText, setEditedNameText] = useState(''); // Edited text for the event being edited
+    const [editedAgeText, setEditedAgeText] = useState(''); // Edited text for the event being edited
+    const [editedAllergiesText, setEditedAllergiesText] = useState(''); // Edited text for the event being edited
+    const [editedPhoneNumberText, setEditedPhoneNumberText] = useState(''); // Edited text for the event being edited
+    const [editedAdditionalInfoText, setEditedAdditionalInfoText] = useState(''); // Edited text for the event being edited
     // const [editedDaysSelected, setEditedDaysSelected ] = useState(''); 
     
     const editParticipantModal = async(index) => {
@@ -354,7 +423,7 @@ const CreateEventBooking = ({navigation}) => {
         setEditedAllergiesText(participantArray[index].allergies);
         setEditedPhoneNumberText(participantArray[index].emergencyContactNumber);
         setEditedAdditionalInfoText(participantArray[index].additionalInfo);
-
+      
 
 
     };
@@ -381,32 +450,173 @@ const CreateEventBooking = ({navigation}) => {
 
 
 
-
-
-
 //Handle payment 
     const handleBookingCheckout = async() => {
 
-      let totalParticipantPrice = 0;
+    let totalParticipantPrice = 0;
 
-      for (let i = 0; i < participantArray.length; i++) {
-        //Add ParticipantPrice 
-        totalParticipantPrice += parseFloat(participantArray[i].totalParticipantPrice);
-      }
-               // Set the total booking price
-               setTotalBookingPrice(totalParticipantPrice);
-      
-              //Display BreakDown Cost Overiew Modal 
-              setDisplayBreakdownCostOverviewModal(true);
+    //  ------------------ Calculate Total Cost of the Event  -------------------
+                  for (let i = 0; i < participantArray.length; i++) {
+        
+                    //Participant Pricing Setting           
+                    participantArray[i].totalParticipantPrice = receivedPrice;
+
+                    //Add ParticipantPrice 
+                    totalParticipantPrice += parseFloat(participantArray[i].totalParticipantPrice);
+                    
+
+                  }
+
+                
+                  //Check if Event Offer isActive , Discount / Reward
+                  let tempEventOfferArray = [];
+
+                  //Loop around eventOfferData
+                  for (let i = 0; i < eventOfferData.length; i++) {
+
+                    //Only if eventOffer isActive is true
+                    if (eventOfferData[i].isActive == true) {
+
+                        //Push to Temp Array which will hold all active arrays 
+                        tempEventOfferArray.push(eventOfferData[i]);
+                    
+                    }
+
+                  }
+
+                  //Set Discount and Rewards 
+                     for (let i = 0; i < tempEventOfferArray.length; i++) {
+
+                      //Only if eventOffer isActive is true
+                      if (tempEventOfferArray[i].reward !== undefined) {
+                        
+                          //Push to Temp Array which will hold all active arrays 
+                          tempRewardArray.push(tempEventOfferArray[i].reward);
+                      
+                      }
+
+                      // Only if eventOffer isActive is true
+                      if (tempEventOfferArray[i].percentageDiscount !== undefined) {
+                      
+                        // Push to Temp Array which will hold all active discounts
+                        tempDiscountArray.push(parseFloat(tempEventOfferArray[i].percentageDiscount));
+                      }
+
+                    }
+
+                
+                let maxDiscount;
+              
+                // Find the maximum discount in tempDiscountArray
+                if (tempDiscountArray.length > 0) {
+
+                  maxDiscount = tempDiscountArray.length > 0 ? Math.max(...tempDiscountArray) : 0;
+
+                    
+                    // Update state with the new tempDiscountArray
+                    setTempDiscountArray([maxDiscount]);
+
+                  // What if there is no offer or discount ??
+                  //Calculate final cost : EventCost Divide by Discount %           
+                  
+                  // Calculate the discounted price
+                  const discountAmount = (totalParticipantPrice * maxDiscount) / 100;
+                  const discountedPrice = totalParticipantPrice - discountAmount;
+
+
+
+                  const formatter = new Intl.NumberFormat('en-GB', {
+                    style: 'currency',
+                    currency: 'GBP', // Change to GBP for British Pound
+                });
+                
+                // Format the total booking price as currency string with currency symbol
+                const formattedTotalBookingPrice = formatter.format(discountedPrice);
+         
+
+                // Remove currency symbol
+                const valueWithoutCurrencySymbol = formattedTotalBookingPrice.replace(/[^\d.-]/g, '');
+
+                // Set the total booking price
+                setTotalBookingPrice(valueWithoutCurrencySymbol);
+
+
+
+
+  
+                    // Wait for Set
+                    await new Promise(resolve => setTimeout(resolve, 0));
+  
+  
+
+
+
+                 
+
+                }
+                else{ // Normal Booking , no Discount
+
+          
+                  const formatter = new Intl.NumberFormat('en-GB', {
+                      style: 'currency',
+                      currency: 'GBP', // Change to GBP for British Pound
+                  });
+                  
+                  // Format the total booking price as currency string with currency symbol
+                  const formattedTotalBookingPrice = formatter.format(totalParticipantPrice);
+           
+  
+                  // Remove currency symbol
+                  const valueWithoutCurrencySymbol = formattedTotalBookingPrice.replace(/[^\d.-]/g, '');
+  
+                  // Set the total booking price
+                  setTotalBookingPrice(valueWithoutCurrencySymbol);
+  
+  
+
+
+
+
+
+                    // Update state with the new tempRewardArray  we dont mind setting this here as its not money
+                    setTempRewardArray(tempRewardArray);
+                }
+
+                  //Display BreakDown Cost Overiew Modal 
+                  setDisplayBreakdownCostOverviewModal(true);
+
+
+          
+                  
+
 
     };
 
+   
 
     const processPaymentWithAPI = async() => {
 
                     
         // Handle Stripe API and payment once the payment is confirm / made , then we will then Participant array and push the data to the DB 
         try {
+
+        // Construct the request payload
+        const requestData = {
+          email: userData.email,
+          fullName: userData.fullName,
+          bookingName: bookingName,
+          eventID: receivedEventID,
+          location: receivedLocation,
+          price: totalBookingPrice,
+          startDate: receivedStartDate,
+          startTime: receivedStartTime,
+          endTime: receivedEndTime,
+          participantsBooked: participantCount,
+          participantArray: participantArray,
+          discount: tempDiscountArray,
+          reward: tempRewardArray
+        };
+          
 
       const apiCreateEventBooking = 'http://localhost:3000/api/eventPayment';
       const jwtToken = await AsyncStorage.getItem('jwtToken');
@@ -417,7 +627,7 @@ const CreateEventBooking = ({navigation}) => {
               "Content-Type": "application/json",
               'Authorization': `Bearer ${jwtToken}`,
             },
-            body: JSON.stringify({ amount: totalBookingPrice, bookingName: bookingName , email: userData.email , fullname : userData.fullName , eventID: receivedEventID , eventName: receivedEventName}),
+            body: JSON.stringify({ amount: totalBookingPrice, bookingName: bookingName , email: userData.email , fullname : userData.fullName , eventID: receivedEventID , eventName: receivedEventName , reward: tempRewardArray , discount: tempDiscountArray}),
           });
           const data = await response.json();
           if (!response.ok) {
@@ -449,18 +659,14 @@ const CreateEventBooking = ({navigation}) => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${jwtToken}`,
               },
-              body: JSON.stringify({ 
-                email: userData.email , fullname : userData.fullName , eventID: receivedEventID , location: receivedLocation , price: totalBookingPrice , startDate: receivedStartDate, startTime: receivedStartTime, endTime:receivedEndTime , participantsBooked: participantCount , participantArray
-              }),
+              body: JSON.stringify(requestData),
             });
-
-
-
+            
             if (responseRecord.ok) {
               const jsonResponse2 = await responseRecord.json();
               console.log('Event Booking record Created', jsonResponse2);
 
-//Send User back to dashboard
+              //Send User back to dashboard
               navigation.navigate('DashboardCRM');
             } else {
               console.log('Error Status:', responseRecord.status);
@@ -490,10 +696,46 @@ const CreateEventBooking = ({navigation}) => {
           Alert.alert("Payment failed!");
         }
 
-        
-    };
+      }
 
+// ------ Main - DDL ---- 
 
+// Define initial values
+const initialValue = []; // Provide an initial value for 'value' state
+const initialItems = []; // Provide an initial value for 'items' state
+
+const [open, setOpen] = useState(false);
+const [value, setValue] = useState(initialValue);
+const [items, setItems] = useState(initialItems);
+
+// Usage example of setValue
+const updateValue = (newValue) => {
+  setValue(newValue);
+};
+
+// Usage example of setItems
+const updateItems = (newItems) => {
+  setItems(newItems);
+};
+
+//------------
+
+// Define initial values
+const initialValueEdit = []; // Provide an initial value for 'value' state
+const initialItemsEdit = []; // Provide an initial value for 'items' state
+
+const [openEdit, setOpenEdit] = useState(false);
+const [itemsEdit, setItemsEdit] = useState(initialItemsEdit);
+
+// Usage example of setValue
+const updateValueEdit = (newValue) => {
+  setValueEdit(newValue);
+};
+
+// Usage example of setItems
+const updateItemsEdit = (newItems) => {
+  setItemsEdit(newItems);
+};
 
 
 
@@ -558,13 +800,6 @@ const CreateEventBooking = ({navigation}) => {
               <Text style={styles.buttonText} onPress={addParticipant}>Submit Participant</Text>
         </TouchableOpacity>
     </ScrollView>
-
- 
-
-
-   
-
-         
 
      
 
@@ -734,7 +969,8 @@ const CreateEventBooking = ({navigation}) => {
             />
           </View>
 
-         
+
+
           <View style={styles.buttonContainer}>
 
             <TouchableOpacity style={styles.button2} onPress={() => updateBookingRecord(editedBookingRecordArray)}>
@@ -759,7 +995,6 @@ const CreateEventBooking = ({navigation}) => {
 
 
 
-
     </Modal>
 
 
@@ -771,21 +1006,38 @@ const CreateEventBooking = ({navigation}) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-        <View style={{ flexDirection: 'column' }}>
-        <Text>Total Cost Breakdown</Text>
-        {participantArray.map((item, index) => (
-         <View key={index} style={styles.container}>
- 
-          <Text style={styles.label}>Name: {item.name}</Text>
-          <Text style={styles.label}>Price: £{item.totalParticipantPrice}</Text>
-         
-          
-          </View>
 
-      ))}
+        <View style={{ flexDirection: 'column' }}>
+          
+          <Text>Total Cost Breakdown</Text>
+
+          {participantArray.map((item, index) => (
+            <View key={index} style={styles.container}>
+    
+              <Text style={styles.label}>Name: {item.name}</Text>
+              <Text style={styles.label}>Price: £{item.totalParticipantPrice}</Text>
+            
+              
+            </View>
+
+          ))}
+
+
+
+        <View style={styles.container}>
+
+          <Text style={styles.label}>Discount:{tempDiscountArray}%</Text>
+          <Text style={styles.label}>Cost: £{totalBookingPrice}</Text>
+          
+        </View>
+
                         
         </View>  
-        <View>
+
+
+
+
+         <View>
             <TouchableOpacity style={styles.button} onPress={processPaymentWithAPI}>
                 <Text style={styles.buttonText}>Make Payment</Text>
             </TouchableOpacity>
@@ -813,7 +1065,7 @@ const CreateEventBooking = ({navigation}) => {
   );
 };
 
-export default CreateEventBooking;
+export default CreateEventBookings;
 
 const styles = StyleSheet.create({
   container: {

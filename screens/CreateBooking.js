@@ -64,30 +64,71 @@ const CreateBooking = ({navigation}) => {
   const [receivedEndTime, setReceivedEndTime] = useState('');
 
 
-
+  //Array for Camp Offer data
+  const [campOfferData, setCampOffersData] = useState([]);
+  const [tempDiscountArray, setTempDiscountArray] = useState([]);
+  const [tempRewardArray, setTempRewardArray] = useState([]);
 
 
 
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
+
         const jwtToken = await AsyncStorage.getItem('jwtToken');
         setIsLoggedIn(!!jwtToken);
 
 
-          const apiGetUsers = 'http://localhost:3000/api/user/:userId';
-          
-          try {
-            const response = await fetch(apiGetUsers, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${jwtToken}`,
-              },
-            });
+
+// Check number of Camps the User has booked 
+
+
+
+//-----------------------------
+      //Get API Request - Fetch all camps offers 
+      const apiGetCampsOffers = 'http://localhost:3000/api/getCampOffers';
+
       
-      
-      
+      try {
+    
+          const response = await fetch(apiGetCampsOffers, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jwtToken}`,
+            },
+          });
+    
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+    
+          // Parse the response as JSON
+          const data = await response.json();
+    
+          // Set the campData state with the fetched data
+          setCampOffersData(data);
+    
+    
+          } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+          }
+
+          // --------------------------------------------------------------------------
+
+            const apiGetUsers = 'http://localhost:3000/api/user/:userId';
+            
+            try {
+              const response = await fetch(apiGetUsers, {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${jwtToken}`,
+                },
+              });
+        
+        
+        
             if (!response.ok) {
               throw new Error('Network response was not ok');
             }
@@ -226,12 +267,6 @@ const CreateBooking = ({navigation}) => {
 
     }
     else{
-
-    
-
-
-
-
 
       //Update Array with record  - We will not be updating the DB until after the payment 
 
@@ -458,72 +493,179 @@ else {
 
 
 
-
-
-
 //Handle payment 
     const handleBookingCheckout = async() => {
 
-      
+    let totalParticipantPrice = 0;
 
-
-
+    //  ------------------ Calculate Total Cost of the Camp  -------------------
+                  for (let i = 0; i < participantArray.length; i++) {
         
-let totalParticipantPrice = 0;
+                      //Participant Pricing Setting
+                      if (participantArray[i].daysSelectedArray.length === 1)
+                      {
+                        participantArray[i].totalParticipantPrice = receivedPriceDay1;
+                      }
+                      else if(participantArray[i].daysSelectedArray.length === 2)
+                      {
+                        participantArray[i].totalParticipantPrice = receivedPriceDay2;            
+                      }
+                      else if(participantArray[i].daysSelectedArray.length === 3)
+                      {
+                        participantArray[i].totalParticipantPrice = receivedPriceDay3;
+                      }
+                      else if(participantArray[i].daysSelectedArray.length === 4)
+                      {
+                        participantArray[i].totalParticipantPrice = receivedPriceDay4;
+                      }
+                      else if(participantArray[i].daysSelectedArray.length === 5)
+                      {
+                        participantArray[i].totalParticipantPrice = receivedPriceDay5;
+                      }
 
-//  ------------------ Calculate Total Cost of the Camp  -------------------
-               for (let i = 0; i < participantArray.length; i++) {
-     
-                  //Participant Pricing Setting
-                  if (participantArray[i].daysSelectedArray.length === 1)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay1;
+
+                  
+                    //Add ParticipantPrice 
+                    totalParticipantPrice += parseFloat(participantArray[i].totalParticipantPrice);
+
+
                   }
-                  else if(participantArray[i].daysSelectedArray.length === 2)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay2;            
+
+                
+                  //Check if Camp Offer isActive , Discount / Reward
+                  let tempCampOfferArray = [];
+
+                  //Loop around campOfferData
+                  for (let i = 0; i < campOfferData.length; i++) {
+
+                    //Only if campOffer isActive is true
+                    if (campOfferData[i].isActive == true) {
+
+                        //Push to Temp Array which will hold all active arrays 
+                        tempCampOfferArray.push(campOfferData[i]);
+                    
+                    }
+
                   }
-                  else if(participantArray[i].daysSelectedArray.length === 3)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay3;
-                  }
-                  else if(participantArray[i].daysSelectedArray.length === 4)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay4;
-                  }
-                  else if(participantArray[i].daysSelectedArray.length === 5)
-                  {
-                    participantArray[i].totalParticipantPrice = receivedPriceDay5;
-                  }
 
+                  //Set Discount and Rewards 
+                     for (let i = 0; i < tempCampOfferArray.length; i++) {
 
-               
-                  //Add ParticipantPrice 
-                 totalParticipantPrice += parseFloat(participantArray[i].totalParticipantPrice);
-               }
-           
-              // Set the total booking price
-              setTotalBookingPrice(totalParticipantPrice);
- 
+                      //Only if campOffer isActive is true
+                      if (tempCampOfferArray[i].reward !== undefined) {
+                        
+                          //Push to Temp Array which will hold all active arrays 
+                          tempRewardArray.push(tempCampOfferArray[i].reward);
+                      
+                      }
 
-              //Display BreakDown Cost Overiew Modal 
-              setDisplayBreakdownCostOverviewModal(true);
+                      // Only if campOffer isActive is true
+                      if (tempCampOfferArray[i].percentageDiscount !== undefined) {
+                      
+                        // Push to Temp Array which will hold all active discounts
+                        tempDiscountArray.push(parseFloat(tempCampOfferArray[i].percentageDiscount));
+                      }
 
+                    }
 
-      
+                
+                let maxDiscount;
               
+                // Find the maximum discount in tempDiscountArray
+                if (tempDiscountArray.length > 0) {
 
+                  maxDiscount = tempDiscountArray.length > 0 ? Math.max(...tempDiscountArray) : 0;
+
+                    
+                    // Update state with the new tempDiscountArray
+                    setTempDiscountArray([maxDiscount]);
+
+                  // What if there is no offer or discount ??
+                  //Calculate final cost : CampCost Divide by Discount %           
+                  
+                  // Calculate the discounted price
+                  const discountAmount = (totalParticipantPrice * maxDiscount) / 100;
+                  const discountedPrice = totalParticipantPrice - discountAmount;
+
+                const formatter = new Intl.NumberFormat('en-GB', {
+                    style: 'currency',
+                    currency: 'GBP', // Change to GBP for British Pound
+                });
+                
+                // Format the total booking price as currency string with currency symbol
+                const formattedTotalBookingPrice = formatter.format(discountedPrice);
+         
+
+                // Remove currency symbol
+                const valueWithoutCurrencySymbol = formattedTotalBookingPrice.replace(/[^\d.-]/g, '');
+
+                // Set the total booking price
+                setTotalBookingPrice(valueWithoutCurrencySymbol);
+
+                  // Wait for Set
+                  await new Promise(resolve => setTimeout(resolve, 0));
+  
+  
+
+
+
+                 
+
+                }
+                else{ // Normal Booking , no Discount
+
+
+                  const formatter = new Intl.NumberFormat('en-GB', {
+                      style: 'currency',
+                      currency: 'GBP', // Change to GBP for British Pound
+                  });
+                  
+                  // Format the total booking price as currency string with currency symbol
+                  const formattedTotalBookingPrice = formatter.format(totalParticipantPrice);
+          
+
+                  // Remove currency symbol
+                  const valueWithoutCurrencySymbol = formattedTotalBookingPrice.replace(/[^\d.-]/g, '');
+
+                  // Set the total booking price
+                  setTotalBookingPrice(valueWithoutCurrencySymbol);
+
+                  // Update state with the new tempRewardArray  we dont mind setting this here as its not money
+                  setTempRewardArray(tempRewardArray);
+
+                }
+
+                  //Display BreakDown Cost Overiew Modal 
+                  setDisplayBreakdownCostOverviewModal(true);
 
     };
 
-
-          // if (totalBookingPrice < 1) return Alert.alert("You cannot make a payment below 1 GBP");
+   
 
     const processPaymentWithAPI = async() => {
 
                     
         // Handle Stripe API and payment once the payment is confirm / made , then we will then Participant array and push the data to the DB 
         try {
+
+        // Construct the request payload
+        const requestData = {
+          email: userData.email,
+          fullName: userData.fullName,
+          bookingName: bookingName,
+          campID: receivedCampID,
+          location: receivedLocation,
+          price: totalBookingPrice,
+          startDate: receivedStartDate,
+          endDate: receivedEndDate,
+          startTime: receivedStartTime,
+          endTime: receivedEndTime,
+          participantsBooked: participantCount,
+          participantArray: participantArray,
+          discount: tempDiscountArray,
+          reward: tempRewardArray
+        };
+          
 
       const apiCreateBooking = 'http://localhost:3000/api/campPayment';
       const jwtToken = await AsyncStorage.getItem('jwtToken');
@@ -534,7 +676,7 @@ let totalParticipantPrice = 0;
               "Content-Type": "application/json",
               'Authorization': `Bearer ${jwtToken}`,
             },
-            body: JSON.stringify({ amount: totalBookingPrice, bookingName: bookingName , email: userData.email , fullname : userData.fullName , campID: receivedCampID , eventName: receivedCampName}),
+            body: JSON.stringify({ amount: totalBookingPrice, bookingName: bookingName , email: userData.email , fullname : userData.fullName , campID: receivedCampID , eventName: receivedCampName , reward: tempRewardArray , discount: tempDiscountArray}),
           });
           const data = await response.json();
           if (!response.ok) {
@@ -566,18 +708,14 @@ let totalParticipantPrice = 0;
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${jwtToken}`,
               },
-              body: JSON.stringify({ 
-                email: userData.email , fullname : userData.fullName , campID: receivedCampID , location: receivedLocation , price: totalBookingPrice , startDate: receivedStartDate, endDate: receivedEndDate, startTime: receivedStartTime, endTime:receivedEndTime , participantsBooked: participantCount , participantArray
-              }),
+              body: JSON.stringify(requestData),
             });
-
-
-
+            
             if (responseRecord.ok) {
               const jsonResponse2 = await responseRecord.json();
               console.log('Camp Booking record Created', jsonResponse2);
 
-//Send User back to dashboard
+              //Send User back to dashboard
               navigation.navigate('DashboardCRM');
             } else {
               console.log('Error Status:', responseRecord.status);
@@ -1038,21 +1176,38 @@ const updateItemsEdit = (newItems) => {
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-        <View style={{ flexDirection: 'column' }}>
-        <Text>Total Cost Breakdown</Text>
-        {participantArray.map((item, index) => (
-         <View key={index} style={styles.container}>
- 
-          <Text style={styles.label}>Name: {item.name}</Text>
-          <Text style={styles.label}>Price: £{item.totalParticipantPrice}</Text>
-          <Text style={styles.label}>Selected Day Attending: {item.daysSelectedArray.join(", ")}</Text>
-          
-          </View>
 
-      ))}
+        <View style={{ flexDirection: 'column' }}>
+          
+          <Text>Total Cost Breakdown</Text>
+
+          {participantArray.map((item, index) => (
+            <View key={index} style={styles.container}>
+    
+              <Text style={styles.label}>Name: {item.name}</Text>
+              <Text style={styles.label}>Price: £{item.totalParticipantPrice}</Text>
+              <Text style={styles.label}>Selected Days' Attending: {item.daysSelectedArray.join(", ")}</Text>
+              
+            </View>
+
+          ))}
+
+
+
+        <View style={styles.container}>
+
+          <Text style={styles.label}>Discount:{tempDiscountArray}%</Text>
+          <Text style={styles.label}>Cost: £{totalBookingPrice}</Text>
+          
+        </View>
+
                         
         </View>  
-        <View>
+
+
+
+
+         <View>
             <TouchableOpacity style={styles.button} onPress={processPaymentWithAPI}>
                 <Text style={styles.buttonText}>Make Payment</Text>
             </TouchableOpacity>

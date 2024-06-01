@@ -2,10 +2,11 @@
 
 const mongoose = require('mongoose');
 
-  // Define a Mongoose Schema for Users
+  // Define a Mongoose Schema for Bookings
  
   const BookingSchema = new mongoose.Schema({
-    bookingStatus:String,
+    bookingStatus: String,
+    bookingName: String,
     createdByUserID: String,
     campID:String,
     eventID:String,
@@ -14,6 +15,8 @@ const mongoose = require('mongoose');
     price: Number,
     participantsBooked: String,
     bookingType: String,
+    discount: [String],
+    reward: [String],
     participantArray: [{
       name: String,
       age: String,

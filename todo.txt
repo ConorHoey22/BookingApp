@@ -1,20 +1,37 @@
-Working on -  
+Working on :  DELETE Camp and Event OFFERS 
+
+- Modal Are you sure yes / cancel
+- How will this affect existing bookings , will they get errors as CAMPID? 
 
 
-OFFERs - 2 For price of 3 - Use a discountCode? or pick it up itself if this camp has that offer , 
-
-Create Camp offer -> Modal = Would you like to create a camp offer or camp attendance offer ? 
-
-IF Camp offer -> 
-IF Camp Attendance -> how many Camps does the user have to book into after today date? -> reward / Discount
 
 
-VIEW OFFERS - Set Active so that this are turned off and not availble offers or Edit OFFERS 
-DELETE OFFERS 
+
+FRONT END - if there is no discount it kust has % so we need it to not appear or 0%
+
+
+
+
+
+Attendance events 
+
+Achieve camps now for Administrative records ,just a active toggle true/false
+
+--------------------------==
+
+
+
+
+Need a redirect if the user cancels Process of payment so doest enter details
+
 
 
 -----------------------------------------------------------------
+Stripe API key needs to be in ENV
 
+Edit offer is a Nice to have for now , coming soon 
+
+Refund ACCEPTANCE / DECLINE -> ADMIN UPDATES STATUS ON REFUND Request > if its a full refund Update NumberOfCampsBooked in user table 
 
 
 IF USER has booked >= 2 CAMPS THEN -> 
@@ -31,6 +48,13 @@ ANDROID FULL TEST - Date TIME picker and dropdown CHecks , some componets might 
 Things to tidy up , replace all buttons so that onPress is on the TouchableOpacity not the text
 
 Enquiry about an Event 
+
+
+
+// CHEAT MODE -  WITH OFFERS - NEED to DISCUSS THIS 
+IF user books 4 camps and then books one camp as its now 50 % off 
+and then decides ok ill request Refund the other 4- I think its up to ADmin to 
+spot this but the odds of this happening 
 
 
 
@@ -220,10 +244,4 @@ Credit card	The card payment succeeds and doesn’t require authentication.	Fill
 Credit card	The card payment requires authentication.	Fill out the credit card form using the credit card number 4000 0025 0000 3155 with any expiration, CVC, and postal code.
 Credit card	The card is declined with a decline code like insufficient_funds.	Fill out the credit card form using the credit card number 4000 0000 0000 9995 with any expiration, CVC, and postal code.
 Credit card	The UnionPay card has a variable length of 13-19 digits.	Fill out the credit card form using the credit card number 6205 500 0000 0000 0004 with any expiry date, CVC, and postal code.
-
-
-
-
-
-
 

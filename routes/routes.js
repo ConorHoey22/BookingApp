@@ -1,4 +1,4 @@
-// routes/auth.js
+// routes - API 
 require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
@@ -187,11 +187,115 @@ router.post('/api/createEventOffer', verifyToken, async (req, res) => {
         //Event model 
 
         // Save data to MongoDB
-        const newEventOffer = new newEventOffer({createdByUserID,offerName, participantsRequired, percentageDiscount, reward, isActive:false});
+        const newEventOffer = new EventOffer({createdByUserID,offerName, participantsRequired, percentageDiscount, reward, isActive:false});
         await newEventOffer.save();
        
       
-        res.status(200).json({ message: 'Camp Offer Data saved successfully' });
+        res.status(200).json({ message: 'Event Offer Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
+
+
+//GET Evemt offers 
+router.get('/api/getEventOffers', verifyToken, async (req, res) => {
+  try {
+   
+    const eventOffer = await EventOffer.find();
+    res.status(200).json(eventOffer);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update Event
+router.put('/api/updateEvent/:id', verifyToken, async (req, res) => {
+  try {
+      const id = req.params.id;
+      const updatedEvent = req.body; // Contains updated camp data
+      const result = await Event.findByIdAndUpdate(id, updatedEvent, { new: true });
+
+      if (!result) {
+          return res.status(404).json({ message: 'Camp not found' });
+      }
+
+      res.status(200).json(result); // Return updated camp
+  } catch (error) {
+
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+
+
+
+// API endpoint for Activate Event Offer
+router.put('/api/ActivateEventOffer/:id', verifyToken, async (req, res) => {
+
+  try {
+    
+    const receivedEventOfferID = req.params.id; // Access the ID from request params
+
+
+        // Updare data to MongoDB
+        const result = await EventOffer.findOneAndUpdate(
+          { 
+            _id: receivedEventOfferID,
+          },
+          { 
+            $set: { 
+          
+              isActive: true, // Update booking status
+            }
+          },
+          { new: true }
+        );
+     
+           // Update Event Offer record
+           res.status(200).json({ message: 'Event Offer Data updated successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
+
+// API endpoint for Deactivate Event Offer
+router.put('/api/DeactivateEventOffer/:id', verifyToken, async (req, res) => {
+
+  try {
+    
+    const receivedEventOfferID = req.params.id; // Access the ID from request params
+
+
+        // Updare data to MongoDB
+        const result = await EventOffer.findOneAndUpdate(
+          { 
+            _id: receivedEventOfferID,
+          },
+          { 
+            $set: { 
+          
+              isActive: false, // Update booking status
+            }
+          },
+          { new: true }
+        );
+     
+           // Update Event Offer record
+           res.status(200).json({ message: 'Event Offer Data updated successfully' });
 
     } catch (error) {
         
@@ -204,25 +308,124 @@ router.post('/api/createEventOffer', verifyToken, async (req, res) => {
 
 
 
+
+
+
 // API endpoint for Create Camp Offer
 router.post('/api/createCampOffer', verifyToken, async (req, res) => {
 
   try {
     
 
-        const { offerName, participantsRequired, percentageDiscount, reward } = req.body;
+        let { offerName, participantsRequired, percentageDiscount, reward } = req.body;
    
         //Is there a way to obtain the UserID 
         const createdByUserID = req.user.userId; // Corrected parameter name
 
         //Camp model 
 
-        // Save data to MongoDB
-        const newCampOffer = new CampOffer({createdByUserID,offerName, participantsRequired, percentageDiscount, reward, isActive: false});
-        await newCampOffer.save();
-       
-      
+
+        //null check reward / discount 
+        if(reward == "")
+        {
+          // Save data to MongoDB
+          const newCampOffer = new CampOffer({createdByUserID,offerName, participantsRequired, percentageDiscount, isActive: false});
+          await newCampOffer.save();
+        }
+        else if(percentageDiscount == "")
+        {
+          // Save data to MongoDB
+          const newCampOffer = new CampOffer({createdByUserID,offerName, participantsRequired, reward, isActive: false});
+          await newCampOffer.save();
+        }
+        else{
+
+          // Save data to MongoDB
+          const newCampOffer = new CampOffer({createdByUserID,offerName, participantsRequired, percentageDiscount, reward, isActive: false});
+          await newCampOffer.save();
+        }
+   
         res.status(200).json({ message: 'Camp Offer Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
+//GET Camp offers 
+router.get('/api/getCampOffers', verifyToken, async (req, res) => {
+  try {
+   
+    const campOffers = await CampOffer.find();
+    res.status(200).json(campOffers);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+// API endpoint for Activate Camp Offer
+router.put('/api/ActivateCampOffer/:id', verifyToken, async (req, res) => {
+
+  try {
+    
+    const receivedCampOfferID = req.params.id; // Access the ID from request params
+
+
+        // Updare data to MongoDB
+        const result = await CampOffer.findOneAndUpdate(
+          { 
+            _id: receivedCampOfferID,
+          },
+          { 
+            $set: { 
+          
+              isActive: true, // Update booking status
+            }
+          },
+          { new: true }
+        );
+     
+           // Update Camp Offer record
+           res.status(200).json({ message: 'Camp Offer Data updated successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
+
+// API endpoint for Deactivate Camp Offer
+router.put('/api/DeactivateCampOffer/:id', verifyToken, async (req, res) => {
+
+  try {
+    
+    const receivedCampOfferID = req.params.id; // Access the ID from request params
+
+
+        // Updare data to MongoDB
+        const result = await CampOffer.findOneAndUpdate(
+          { 
+            _id: receivedCampOfferID,
+          },
+          { 
+            $set: { 
+          
+              isActive: false, // Update booking status
+            }
+          },
+          { new: true }
+        );
+     
+           // Update Camp Offer record
+           res.status(200).json({ message: 'Camp Offer Data updated successfully' });
 
     } catch (error) {
         
@@ -384,7 +587,7 @@ router.post('/api/createBookingEventRecord', verifyToken, async (req, res) => {
   try {
     
 
-        const { email, fullName , location , eventName , price , participantsBooked  , eventID , participantArray} = req.body;
+    const { email, bookingName , fullName , location , eventName , price , participantsBooked  , eventID , participantArray , discount , reward} = req.body;
         
         // What camp is this they booked for ,. need the Camp ID 
         //Is there a way to obtain the UserID and Ass
@@ -392,7 +595,7 @@ router.post('/api/createBookingEventRecord', verifyToken, async (req, res) => {
 
 
         // Save data to MongoDB
-        const newEventBooking = new Booking({bookingStatus: 'Booked' , createdByUserID, email, fullName , price ,eventID, participantsBooked, bookingType: 'Event' ,  participantArray: participantArray });
+        const newEventBooking = new Booking({bookingStatus: 'Booked' , createdByUserID, bookingName:bookingName,eventID: eventID, email, fullName , price ,eventID, participantsBooked, bookingType: 'Event' ,  participantArray: participantArray, discount, reward });
        
         await newEventBooking.save();
 
@@ -413,22 +616,16 @@ router.post('/api/createBookingCampRecord', verifyToken, async (req, res) => {
   try {
     
 
-        const { email, fullName , location , eventName , price , participantsBooked  , campID , participantArray} = req.body;
+        const { email, bookingName , fullName , location , eventName , price , participantsBooked  , campID , participantArray , discount , reward} = req.body;
         
         // What camp is this they booked for ,. need the Camp ID 
         //Is there a way to obtain the UserID and Ass
         const createdByUserID = req.user.userId; 
-
-
-        // Save data to MongoDB
-        const newCampBooking = new Booking({bookingStatus: 'Booked' , createdByUserID, email, fullName , price ,campID, participantsBooked, bookingType: 'Camp' ,  participantArray: participantArray });
+    
+        // Save data to DB
+        const newCampBooking = new Booking({bookingStatus: 'Booked' , campID: campID, createdByUserID, email, bookingName: bookingName , price ,campID, participantsBooked, bookingType: 'Camp' ,  participantArray: participantArray, discount, reward });
        
         await newCampBooking.save();
-
-   
-      
-       // newCampBooking.save();
-    
       
         res.status(200).json({ message: 'Camp Booking Record Data saved successfully' });
 
@@ -589,7 +786,7 @@ router.get('/api/getBookingEventRecords', verifyToken, async (req, res) => {
 
 
 
-// Get Event Booking Records assigned to User 
+// Get Camp Booking Records assigned to User 
 router.get('/api/getCampAttendance/:id', verifyToken, async (req, res) => {
   try {
 
@@ -607,6 +804,29 @@ router.get('/api/getCampAttendance/:id', verifyToken, async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+
+
+// Get Event Booking Records assigned to User 
+router.get('/api/getEventAttendance/:id', verifyToken, async (req, res) => {
+  try {
+
+    const eventID = req.params.id; // Extract the camp ID from the URL parameter
+
+    // Find bookings where createdBy === userId && CampType  == Camp 
+    const existingBookings = await Booking.find({ eventID: eventID, bookingType:'Event' });
+
+     // Send the existing bookings in the response
+     res.json(existingBookings);
+  
+    } catch (error) {
+    // Handle any errors that occur during the process
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 
 

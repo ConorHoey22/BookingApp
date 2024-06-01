@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
     participantsRequired: String,
     percentageDiscount: String,
     reward: String,
-    isActive: String,
+    isActive: Boolean,
    
   });
   

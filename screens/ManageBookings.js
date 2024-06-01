@@ -15,16 +15,20 @@ const ManageBookings = ({ navigation }) => {
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [campData, setCampData] = useState([]);
+    const [eventData, setEventData] = useState([]);
     const [bookingData, setBookingData] = useState([]);
+  
     const [editModalVisible, setEditModalVisible] = useState(false);
-    
+    const [editEventModalVisible, setEditEventModalVisible] = useState(false);
+      
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
 
+ 
+
     const [campAttendanceModalVisible, setCampAttendanceModalVisible] = useState(false);
     const [eventAttendanceModalVisible, setEventAttendanceModalVisible] = useState(false);
-    const [campAttendanceMoreInfoModalVisible, setCampAttendanceMoreInfoModalVisible] = useState(false);
-
+  
 
 
 
@@ -53,6 +57,7 @@ const [showTimePicker, setShowTimePicker] = useState(false);
       checkAuthentication(); // Call the function to check authentication status when component mounts
     
     handleCamps();
+    handleEvents();
     
     
     }, []);
@@ -99,6 +104,45 @@ const handleCamps = async () => {
 
   
   
+const handleEvents = async () => {
+
+  // Fetch all events
+
+  const apiGetEvents = 'http://localhost:3000/api/events';
+  const jwtToken = await AsyncStorage.getItem('jwtToken');
+  
+  try {
+    const response = await fetch(apiGetEvents, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${jwtToken}`,
+      },
+    });
+
+
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    // Parse the response as JSON
+    const data = await response.json();
+
+    // Set the eventData state with the fetched data
+    setEventData(data);
+
+
+} catch (error) {
+  console.error('There has been a problem with your fetch operation:', error);
+}
+
+
+};
+
+
+
+
   
   
   const showMode = (currentMode) => {
@@ -168,7 +212,7 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
 
 
     // Function to open the modal and set the index of the camp being edited
-    const openEditModal = (index) => {
+    const openEditModal = (index) => {  // CAMP Edit
       setEditModalVisible(true);
       setEditedCampIndex(index);
 
@@ -198,6 +242,9 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
       setShow(true);
   
     };
+
+
+
   
     // Function to close the modal and reset editedCampIndex
     const closeEditModal = () => {
@@ -205,10 +252,51 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
 
     };
 
+       // Function to close the modal and reset editedEventIndex
+       const closeEditEventModal = () => {
+        setEditEventModalVisible(false);
+  
+      };
+  
+
+
+
+
+    const [editedEventIndex, setEditedEventIndex] = useState(-1);
+    const [editedEventLocationText, setEditedEventLocationText] = useState(''); // Edited text for the camp being edited
+    const [editedEventPriceText, setEditedEventPrice] = useState(''); // Edited text for the camp being edited
+
+    // Function to open the modal and set the index of the event being edited
+    const openEditEventModal = (index) => {
+      setEditEventModalVisible(true);
+      setEditedEventIndex(index);
+
+     // PREFILL EDIT FORM 
+      if (index !== -1) {
+
+        // Set editedText to the location of the camp being edited
+        setEditedEventLocationText(eventData[index].location);
+        setEditedEventPrice(eventData[index].price);
+       
+        setStartDate(new Date(eventData[index].startDate));
+
+
+        setStartTime(new Date(eventData[index].startTime));
+        setEndTime(new Date(eventData[index].endTime));
+
+
+      }
+
+      setStartPickerVisible(true);
+      setEndPickerVisible(true);
+      setShow(true);
+  
+    };
+
 
     // Function to close the modal
     const closeCampAttendanceModal = () => {
-          setCampAttendanceModalVisible(false);
+      setCampAttendanceModalVisible(false);
     
     };
 
@@ -217,7 +305,7 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
     const closeCampAttendanceMoreInfoModal = () => {
       setAttendanceMoreInfoModalVisible(false);
 
-};
+    };
 
       // Function to close the modal
     const closeEventAttendanceModal = () => {
@@ -289,31 +377,73 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
       
   };
 
-  const viewMoreParticipantInfo = async (index) => {
-      //Open new Modal 
-      setCampAttendanceMoreInfoModalVisible(true);
-      //Close Previois modal ? 
-
-      setCampAttendanceModalVisible(false);
-  }
 
 
     
   const ViewEventAttendance = async (index) => {
 
-      // const jwtToken = await AsyncStorage.getItem('jwtToken');
-      // const id = campData[index]._id; // Assuming each camp has an '_id' property
+      setEventAttendanceModalVisible(true);
   
-      // try {
-      //   // Obtain Camp ID 
-      //   // Obtain Event ID 
-      //  // Obtain Booking ID 
-    
+        const jwtToken = await AsyncStorage.getItem('jwtToken');
+        const id = eventData[index]._id; // Assuming each camp has an '_id' property
+  
+        bookingData.length = 0;
+  
+        try {
+  
+          const response = await fetch(`http://localhost:3000/api/getEventAttendance/${id}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jwtToken}`,
+            }
+          });
       
-      // } catch (error) {
-      //   console.error('Error finding attendance:', error);
-      // }
-  };
+          const data = await response.json();
+        
+  
+          data.forEach(booking => {
+  
+            // Access participant array
+            const participantArray = booking.participantArray;
+          
+            // Iterate over participant array
+            participantArray.forEach(participant => {
+              // Access participant details
+              const participantName = participant.name;
+              const participantAge = participant.age;
+              const participantAttendanceStatus = participant.attendanceStatus
+              const participantEmergencyContactNumber = participant.emergencyContactNumber
+              // Access other participant details as needed
+  
+            // Create an object with participant details and push it to the bookingData array
+            bookingData.push({
+              name: participantName,
+              age: participantAge,
+              attendanceStatus: participantAttendanceStatus,
+              emergencyContactNumber: participantEmergencyContactNumber
+         
+            });
+  
+  
+  
+  
+            });
+          });
+      
+          if (!response.ok) {
+            throw new Error('Failed to fetch data');
+          }
+          // Handle successful response
+        } catch (error) {
+          console.error('Error fetching data:', error);
+          // Handle error
+        }
+      
+        
+    };
+  
+ 
   
 
 
@@ -419,6 +549,75 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
     };
 
 
+
+  const updateEvent = async (index) => {
+    const jwtToken = await AsyncStorage.getItem('jwtToken');
+  
+    if (index !== -1) {
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+      const event = eventData[index]; // get the event object
+
+      if(event)
+      {
+        if (event) {
+          const id = event._id; // get the id of the event object
+
+          try {
+              const response = await fetch(`http://localhost:3000/api/updateEvent/${id}`, {
+                  method: 'PUT',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${jwtToken}`,
+                  },
+                  body: JSON.stringify({
+                      location: editedEventLocationText,
+                      price: editedEventPriceText,
+                      startDate: startDate,
+                      startTime: startTime,
+                      endTime: endTime
+
+                  })
+              });
+
+              // Check if the request was successful
+              if (!response.ok) {
+                  throw new Error('Network response was not ok');
+              }
+
+              // Update the camp in the local state
+              setEventData((prevData) => {
+                  const newData = [...prevData];
+                  newData[index] = {
+                      ...newData[index],
+                      location: editedEventLocationText,
+                      price: editedEventPriceText,
+                      startDate: startDate,
+                      startTime: startTime,
+                      endTime: endTime
+                  };
+                  return newData;
+              });
+
+              // Close the Event modal
+              closeEditEventModal();
+          } catch (error) {
+              console.error('Error updating event:', error);
+              // Display an error message to the user
+              // This could be done with a Toast, Alert, or some other UI component
+              // You could also use state to set an error message that is displayed in the modal
+          }
+      }
+        }
+      }
+
+
+
+
+    };
+
+
+  
+
   
 
 return (
@@ -456,18 +655,22 @@ return (
         ))}
 
         <Text>Events</Text>
-        <View style={styles.container}>  
-            <Text>EventName</Text>
-            <Text>Location: </Text> 
+        {eventData.map((event, index) => (
+        <View key={index} style={styles.container}>  
     
-            <Text>Date: </Text>
+            <Text>Event Name: {event.eventName}</Text>
+            <Text>Location: {event.location} </Text> 
+    
+            <Text>Date: {new Date(event.startDate).toLocaleDateString('en-GB')}  </Text>
 
 
-            <Text>Start Time: </Text>
-            <Text>Price: £  </Text>
+            <Text>Start Time: {new Date(event.startTime).toLocaleTimeString()}</Text>
+
+            <Text>End Time: {new Date(event.endTime).toLocaleTimeString()}</Text>
+            <Text>Price: £{event.price} </Text>
 
             <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={() => openEditModal(index)}>Edit</Text>
+              <Text style={styles.buttonText} onPress={() => openEditEventModal(index)}>Edit</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}  onPress={() => ViewEventAttendance(index)}>
@@ -478,6 +681,7 @@ return (
               <Text style={styles.buttonText}>Event Camp</Text>
             </TouchableOpacity>
         </View>
+        ))}
     
 
 {/* Modal - Edit Camp Modal */}
@@ -489,7 +693,7 @@ return (
       visible={editModalVisible}
       onRequestClose={closeEditModal}
     >
-            <View style={styles.modalContainer}>
+     <View style={styles.modalContainer}>
       <ScrollView>
 
       <View style={styles.modalContent}>
@@ -677,6 +881,49 @@ return (
 
   {/* Attendance Event View Modal */}
 
+  <Modal
+      animationType="slide"
+      transparent={true}
+      visible={eventAttendanceModalVisible}
+      onRequestClose={closeEventAttendanceModal}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+
+          {/* Iterate over all participants  */}
+ 
+          <View>
+            <Text>Event Attendance</Text>
+          </View>
+      
+
+
+            <FlatList
+              data={bookingData}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View style={{ flexDirection: 'column' }}>
+                  <Text>Name: {item.name}</Text>
+                  <Text>Attendance Status: {item.attendanceStatus}</Text>
+                  <Text>Contact Number: {item.emergencyContactNumber}</Text>
+                  {/* Other participant details */}
+          
+                
+          </View>
+        )}
+      />
+
+                
+          <View>
+            <TouchableOpacity style={styles.button}  onPress={closeEventAttendanceModal}>
+              <Text style={styles.buttonText}>Exit</Text>
+            </TouchableOpacity>
+          </View> 
+          </View>
+        </View>
+      
+    </Modal>
+
 
 
   {/* Attendance Camp View Modal  */}
@@ -726,8 +973,131 @@ return (
 
 
 
+    {/* Modal - Edit Event Modal */}
+
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={editEventModalVisible}
+      onRequestClose={closeEditEventModal}
+    >
+    <View style={styles.modalContainer}>
+      <ScrollView>
+
+      <View style={styles.modalContent}>
+      <View style={{ flexDirection: 'column' }}>
+      <View style={styles.fieldRow}>
+       
+      <Text style={styles.label}>Location</Text>
+      </View>
+          <View>
+          <TextInput
+            style={styles.textInput}
+            value={editedEventLocationText}
+            onChangeText={setEditedEventLocationText}
+            placeholder='Enter here..'
+          />
+        </View>
+
+        <View style={styles.fieldRow}>
+          <Text style={styles.label}>Start Date:</Text>
+  
+          {startPickerVisible && (
+            
+            <DateTimePicker
+              testID="dateTimePickerStart"
+              value={startDate}
+              mode={'date'}
+              display="default"
+              onChange={handleStartChange}
+         
+            />
+            
+          )}
+              
+        </View>
 
 
+
+
+        <View style={styles.fieldRow}>
+        <Text style={styles.label}>Select a start time:</Text>
+                  {show && (
+                  <DateTimePicker
+                  testID="dateTimePicker"
+                  value={startTime}
+                  mode="time"
+                  is24Hour={true}
+                  display="default"
+                  onChange={onStartChange}
+                />
+              )}
+              
+          </View>
+
+
+          <View style={styles.fieldRow}>
+            <Text style={styles.label}>Select a end time:</Text>
+              {show && (
+              <DateTimePicker
+              testID="dateTimePicker"
+              value={endTime}
+              mode="time"
+              is24Hour={true}
+              display="default"
+              onChange={onEndChange}
+            />
+          )}
+          </View>
+
+          <Text style={styles.label}>Full Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={editedEventPriceText}
+            onChangeText={setEditedEventPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+          
+
+          <View style={styles.fieldRow}>
+
+            <TouchableOpacity style={styles.button}  onPress={() => updateEvent(editedEventIndex)}>
+              <Text style={styles.buttonText}>Update Event</Text>
+            </TouchableOpacity>
+
+          </View>
+
+
+
+
+          <View style={styles.fieldRow}>
+
+            <TouchableOpacity style={styles.button}  onPress={closeEditModal}>
+              <Text style={styles.buttonText}>Exit</Text>
+            </TouchableOpacity>
+
+          </View>
+
+
+
+      </View>
+
+
+
+     
+</View>
+      
+
+
+      
+     
+  
+  </ScrollView>
+   
+  </View>
+    </Modal>
 
 
 
