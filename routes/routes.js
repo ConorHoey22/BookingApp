@@ -497,6 +497,32 @@ router.delete('/api/camps/:id',verifyToken, async (req, res) => {
 });
 
 
+// DELETE route to remove a campOffer by its ID
+router.delete('/api/campOffers/:id',verifyToken, async (req, res) => {
+  try {
+    const id = req.params.id;
+    await CampOffer.findByIdAndDelete(id);
+    res.status(204).send();
+  } catch (error) {
+
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE route to remove a eventOffer by its ID
+router.delete('/api/eventOffers/:id',verifyToken, async (req, res) => {
+  try {
+    const id = req.params.id;
+    await EventOffer.findByIdAndDelete(id);
+    res.status(204).send();
+  } catch (error) {
+
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
 router.put('/api/updateCamp/:id', verifyToken, async (req, res) => {
   try {
       const id = req.params.id;

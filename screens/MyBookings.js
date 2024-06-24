@@ -132,40 +132,43 @@ const MyBookings = ({ navigation }) => {
       }, []);
     
       const processBookings = (bookingData, campData, eventData) => {
-         // Extract unique camp IDs from bookingData
-          const uniqueCampIDs = Array.from(new Set(bookingData
-            .filter(item => item.bookingType === 'Camp') // Filter bookingData to include only bookings of type 'Camp'
-            .map(item => item.campID))); // Map to get an array of campIDs and then create a set to get unique IDs
-
-          // Map over unique camp IDs to find corresponding camp objects
-          const bookingCampData = uniqueCampIDs.map(campID => {
-            // Find the camp object with the current campID
-            const foundCamp = campData.find(camp => camp._id === campID);
-            // If a camp is found, return it; otherwise, return null
-            return foundCamp ? foundCamp : null;
-          });
-
-          // Set the state with the processed bookingCampData
-          setBookingCampData(bookingCampData);
-
-          // Extract unique event IDs from bookingData
-            const uniqueEventIDs = Array.from(new Set(bookingData
-              .filter(item => item.bookingType === 'Event') // Filter bookingData to include only bookings of type 'Event'
-              .map(item => item.eventID))); // Map to get an array of eventIDs and then create a set to get unique IDs
-
-            // Map over unique event IDs to find corresponding event objects
-            const bookingEventData = uniqueEventIDs.map(eventID => {
-              // Find the event object with the current eventID
-              const foundEvent = eventData.find(event => event._id === eventID);
-              // If an event is found, return it; otherwise, return null
-              return foundEvent ? foundEvent : null;
-            });
-
-            // Set the state with the processed bookingEventData
-            setBookingEventData(bookingEventData);
+        const currentDate = new Date(); // Get current date
     
-      };
+        // Filter and process camp data
+        const futureCamps = campData.filter(camp => {
+            const campStartDate = new Date(camp.startDate);
+            return campStartDate > currentDate;
+        });
+        setCampData(futureCamps);
+    
+        // Filter and process event data
+        const futureEvents = eventData.filter(event => {
+            const eventStartDate = new Date(event.startDate);
+            return eventStartDate > currentDate;
+        });
+        setEventData(futureEvents);
+    
+        // Extract unique camp IDs from bookingData for future camps
+        const uniqueCampIDs = Array.from(new Set(bookingData
+            .filter(item => item.bookingType === 'Camp' && futureCamps.some(camp => camp._id === item.campID))
+            .map(item => item.campID)));
+    
+        // Extract unique event IDs from bookingData for future events
+        const uniqueEventIDs = Array.from(new Set(bookingData
+            .filter(item => item.bookingType === 'Event' && futureEvents.some(event => event._id === item.eventID))
+            .map(item => item.eventID)));
+    
+        // Map over unique camp IDs to find corresponding camp objects
+        const bookingCampData = uniqueCampIDs.map(campID => futureCamps.find(camp => camp._id === campID));
+    
+        // Map over unique event IDs to find corresponding event objects
+        const bookingEventData = uniqueEventIDs.map(eventID => futureEvents.find(event => event._id === eventID));
+    
+        // Set the state with the processed bookingCampData and bookingEventData
+        setBookingCampData(bookingCampData);
+        setBookingEventData(bookingEventData);
 
+    };
 
          // Function to close the modal 
          const openCampBookings = () => {
@@ -871,14 +874,16 @@ return (
 
 
 <View>
-      {/* Check if either bookingCampData or bookingData is undefined */}
+
       {(!bookingCampData || !Array.isArray(bookingData)) ? (
         <Text>No Bookings</Text>
       ) : (
+
+        
         // If both are defined and bookingData is an array, proceed with rendering
         bookingCampData.map((camp, index) => (
           <View key={index} style={styles.container}>
-            <Text>{camp.campName} </Text>
+          <Text>{camp.campName} </Text>
             <Text>Location: {camp.location}</Text>
             <Text>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
             <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>

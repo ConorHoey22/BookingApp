@@ -255,7 +255,7 @@ const ViewEventOffers = async () => {
         // Parse the response as JSON
         const data = await response.json();
 
-        // Set the campData state with the fetched data
+        // Set the eventData state with the fetched data
         setEventOffersData(data);
 
 
@@ -619,20 +619,66 @@ const CreateCampOffer = async () => {
     
   };
 
-  const DeleteCampOffer = async () => {
-
+  const deleteCampOffer = async (index) => {
+   
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+      const id = campOfferData[index]._id; // Assuming each camp has an '_id' property
+  
+      try {
+        await fetch(`http://localhost:3000/api/campOffers/${id}`, {
+          method: 'DELETE',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jwtToken}`,
+          },
+        });
     
-  };
+        // Remove the camp from the local state
+        setCampOffersData((prevData) => {
+          const newData = [...prevData];
+          newData.splice(index, 1);
+          return newData;
+        });
+      } catch (error) {
+        console.error('Error removing camp:', error);
+      }
+    };
+  
+    
+  
 
   const EditEventOffer = async () => {
 
     
   };
 
-  const DeleteEventOffer = async () => {
+  const deleteEventOffer = async (index) => {
+   
+    const jwtToken = await AsyncStorage.getItem('jwtToken');
+    const id = eventOfferData[index]._id; // Assuming each event has an '_id' property
 
-    
+    try {
+      await fetch(`http://localhost:3000/api/eventOffers/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`,
+        },
+      });
+  
+      // Remove the event from the local state
+      setEventOffersData((prevData) => {
+        const newData = [...prevData];
+        newData.splice(index, 1);
+        return newData;
+      });
+    } catch (error) {
+      console.error('Error removing event:', error);
+    }
   };
+
+  
+
 
 
 //   DELETE OFFERS 
@@ -857,6 +903,12 @@ const CreateCampOffer = async () => {
                               />
                             </View>
 
+                            <View style={styles.container}>
+                              <TouchableOpacity style={styles.button} onPress={() => deleteCampOffer(index)}>
+                                <Text style={styles.buttonText}>Delete Offer</Text>
+                              </TouchableOpacity>
+                            </View>
+
                    
 
                           </View>
@@ -888,7 +940,7 @@ const CreateCampOffer = async () => {
         
                 <View style={{ flexDirection: 'column' }}>
                   <Text>Event Offers</Text>
-
+ 
 
                          {eventOfferData.map((eventOffer, index) => (
                           <View key={index} style={styles.container}>  
@@ -907,6 +959,14 @@ const CreateCampOffer = async () => {
                                 onValueChange={() => toggleEventSwitch(eventOffer._id , index)} // Pass a callback function
                                 value={isEnabledEventStates[index]} // Set the value based on isEnabled
                               />
+                            </View>
+
+
+
+                            <View style={styles.container}>
+                              <TouchableOpacity style={styles.button} onPress={() => deleteEventOffer(index)}>
+                                <Text style={styles.buttonText}>Delete Offer</Text>
+                              </TouchableOpacity>
                             </View>
 
                    

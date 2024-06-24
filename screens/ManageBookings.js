@@ -1,7 +1,7 @@
 import React, { useEffect,useState } from 'react';
 import {ScrollView, StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal,FlatList } from 'react-native';
 import validator from 'validator';
-import { useNavigation } from '@react-navigation/native';
+import { PreventRemoveProvider, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { DatePickerModal } from 'react-native-paper-dates';
@@ -23,12 +23,18 @@ const ManageBookings = ({ navigation }) => {
       
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
-
  
 
     const [campAttendanceModalVisible, setCampAttendanceModalVisible] = useState(false);
     const [eventAttendanceModalVisible, setEventAttendanceModalVisible] = useState(false);
   
+    const [openDeleteCampModalVisible, setDeleteCampModal] = useState(false);
+    const [selectedCamp, setSelectedCamp] = useState('');
+
+    const [openDeleteEventModalVisible, setDeleteEventModal] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState('');
+
+
 
 
 
@@ -252,11 +258,11 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
 
     };
 
-       // Function to close the modal and reset editedEventIndex
-       const closeEditEventModal = () => {
-        setEditEventModalVisible(false);
+    // Function to close the modal and reset editedEventIndex
+    const closeEditEventModal = () => {
+      setEditEventModalVisible(false);
   
-      };
+    };
   
 
 
@@ -274,7 +280,7 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
      // PREFILL EDIT FORM 
       if (index !== -1) {
 
-        // Set editedText to the location of the camp being edited
+        // Set editedText to the location of the event being edited
         setEditedEventLocationText(eventData[index].location);
         setEditedEventPrice(eventData[index].price);
        
@@ -385,7 +391,7 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
       setEventAttendanceModalVisible(true);
   
         const jwtToken = await AsyncStorage.getItem('jwtToken');
-        const id = eventData[index]._id; // Assuming each camp has an '_id' property
+        const id = eventData[index]._id; // Assuming each event has an '_id' property
   
         bookingData.length = 0;
   
@@ -445,31 +451,106 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
   
  
   
+  const closeDeleteCampModal = async () => {
 
+    setDeleteCampModal(false);
+
+  };
+
+  const closeDeleteEventModal = async () => {
+
+    setDeleteEventModal(false);
+
+  };
+
+
+  const openDeleteCampModal = async (index) => {
+
+    setDeleteCampModal(true);
+    const id = campData[index]._id; // Assuming each camp has an '_id' property
+    setSelectedCamp(id);
+
+  };
+
+
+  const openDeleteEventModal = async (index) => {
+
+    setDeleteEventModal(true);
+    const id = eventData[index]._id; // Assuming each event has an '_id' property
+    setSelectedEvent(id);
+
+  };
 
 
   const removeCamp = async (index) => {
 
     const jwtToken = await AsyncStorage.getItem('jwtToken');
-    const id = campData[index]._id; // Assuming each camp has an '_id' property
+    const id = selectedCamp; // Assuming each camp has an '_id' property
 
     try {
+
+     
       await fetch(`http://localhost:3000/api/camps/${id}`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${jwtToken}`,
         },
+
+
       });
   
       // Remove the camp from the local state
       setCampData((prevData) => {
         const newData = [...prevData];
         newData.splice(index, 1);
+
+        setDeleteCampModal(false);
         return newData;
       });
+
+
+      
+
+
     } catch (error) {
       console.error('Error removing camp:', error);
+    }
+  };
+
+
+
+  const removeEvent = async (index) => {
+
+    const jwtToken = await AsyncStorage.getItem('jwtToken');
+    const id = selectedEvent; // Assuming each event has an '_id' property
+
+    try {
+
+     
+      await fetch(`http://localhost:3000/api/events/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`,
+        },
+
+
+      });
+  
+      // Remove the event from the local state
+      setEventData((prevData) => {
+        const newData = [...prevData];
+        newData.splice(index, 1);
+        return newData;
+      });
+
+
+      
+
+
+    } catch (error) {
+      console.error('Error removing event:', error);
     }
   };
 
@@ -648,7 +729,7 @@ return (
             <Text style={styles.buttonText}>View Attendance</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}  onPress={() => removeCamp(index)}>
+            <TouchableOpacity style={styles.button}  onPress={() => openDeleteCampModal(index)}>
             <Text style={styles.buttonText}>Delete Camp</Text>
             </TouchableOpacity>
         </View>
@@ -677,8 +758,8 @@ return (
               <Text style={styles.buttonText}>View Attendance</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}  onPress={() => removeCamp(index)}>
-              <Text style={styles.buttonText}>Event Camp</Text>
+            <TouchableOpacity style={styles.button}  onPress={() => openDeleteEventModal(index)}>
+              <Text style={styles.buttonText}>Delete Event</Text>
             </TouchableOpacity>
         </View>
         ))}
@@ -923,6 +1004,69 @@ return (
         </View>
       
     </Modal>
+
+
+
+
+
+          {/* Modal  */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={openDeleteCampModalVisible}
+            onRequestClose={closeDeleteCampModal}
+
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                  <View style={{ flexDirection: 'column' }}>
+                    <Text style={styles.label}>Are you sure you want to delete this Camp? 
+                    Once deleted this is removed from the Database and effect current bookings not advised* Contact HoeyTech for more info </Text>
+                      <TouchableOpacity style={styles.button} onPress={removeCamp}>
+                        <Text style={styles.buttonText}>Yes</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={styles.button} onPress={closeDeleteCampModal}>
+                        <Text style={styles.buttonText}>No</Text>
+                      </TouchableOpacity>
+                  </View>
+
+              </View> 
+        </View>
+                                
+      </Modal> 
+
+
+
+
+          {/* Modal  - Delete Event confirmation  */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={openDeleteEventModalVisible}
+            onRequestClose={closeDeleteEventModal}
+
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                  <View style={{ flexDirection: 'column' }}>
+                    <Text style={styles.label}>Are you sure you want to delete this Camp? 
+                    Once deleted this is removed from the Database and effect current bookings not advised* Contact HoeyTech for more info </Text>
+                      <TouchableOpacity style={styles.button} onPress={removeEvent}>
+                        <Text style={styles.buttonText}>Yes</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={styles.button} onPress={closeDeleteCampModal}>
+                        <Text style={styles.buttonText}>No</Text>
+                      </TouchableOpacity>
+                  </View>
+
+              </View> 
+        </View>
+                                
+      </Modal> 
+
+
 
 
 

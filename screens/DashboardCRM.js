@@ -39,34 +39,48 @@ const DashboardCRM = ({navigation}) => {
     const apiGetCamps = 'http://localhost:3000/api/camps';
     const jwtToken = await AsyncStorage.getItem('jwtToken');
     
-    try {
-      const response = await fetch(apiGetCamps, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${jwtToken}`,
-        },
-      });
+        try {
+          const response = await fetch(apiGetCamps, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jwtToken}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          // Parse the response as JSON
+          const data = await response.json();
+
+          // Get current date and time
+          const now = new Date();
+
+          // Filter out camps with start dates in the past
+            const filteredCampData = data.filter(camp => {
+              const startDate = new Date(camp.startDate);
+              const startTime = new Date(camp.startTime);
+              const startDateTime = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), startTime.getHours(), startTime.getMinutes());
+
+              return startDateTime >= now;
+
+        
+            });
 
 
+          // Set the campData state with the filtered data
+          setCampData(filteredCampData);
+        
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+
+      } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
       }
 
-      // Parse the response as JSON
-      const data = await response.json();
 
-      // Set the campData state with the fetched data
-      setCampData(data);
-
-
-  } catch (error) {
-    console.error('There has been a problem with your fetch operation:', error);
-  }
-
-
-  };
+      };
 
 
   const handleEvents = async () => {
@@ -94,9 +108,24 @@ const DashboardCRM = ({navigation}) => {
       // Parse the response as JSON
       const data = await response.json();
 
-      // Set the campData state with the fetched data
-      setEventData(data);
+        // Get current date and time
+        const now = new Date();
 
+
+          // const filteredCampData = data.filter(camp => new Date(camp.startDate) > new Date());
+          // Filter out camps with start dates in the past
+          const filteredEventData = data.filter(camp => {
+            const startDate = new Date(camp.startDate);
+            const startTime = new Date(camp.startTime);
+            const startDateTime = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate(), startTime.getHours(), startTime.getMinutes());
+
+            return startDateTime >= now;
+
+      
+          });
+
+         // Set the eventData state with the filtered data
+         setEventData(filteredEventData);
 
   } catch (error) {
     console.error('There has been a problem with your fetch operation:', error);
@@ -113,10 +142,6 @@ const DashboardCRM = ({navigation}) => {
     setOpenBookingOptionsModalVisible(false);
   };
 
-
-  
-
-  
 
   const handleLogOut = async () => {
     await AsyncStorage.removeItem('jwtToken');

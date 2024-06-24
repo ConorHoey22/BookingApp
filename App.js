@@ -1,89 +1,84 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Button} from 'react-native';
-
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from './screens/Home';
-import DashboardCRM from './screens/DashboardCRM';
-import CreateBooking from './screens/CreateBooking';
-import CreateEventBooking from './screens/CreateEventBooking';
-import MyBookings from './screens/MyBookings';
-
-
-
-
-
-import DashboardAdmin from './screens/DashboardAdmin';
-import ManageBookings from './screens/ManageBookings';
-
-
-
-import SignUp from './screens/SignUp';
 import Login from './screens/Login';
-import CreateCamp from './Views/CreateCamp';
-import CreateAnEvent from './Views/CreateAnEvent';
-import CreateAnOffer from './Views/CreateAnOffer';
+import SignUp from './screens/SignUp';
+import DashboardCRM from './screens/DashboardCRM';
+import DashboardAdmin from './screens/DashboardAdmin';
+import Logout from './screens/Logout';
+import LogOutAdmin from './screens/LogOutAdmin';
 
-import { Permissions } from 'expo';
-
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const App = () => {
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdminLoggedIn, setAdminIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const checkAuthentication = async () => {
-      try {
-        const jwtToken = await AsyncStorage.getItem('jwtToken');
-        setIsLoggedIn(!!jwtToken);
-        console.log("token");
-      } catch (error) {
-        console.error('Error fetching JWT token:', error);
+  const screenOptions = ({ route }) => ({
+    tabBarIcon: ({ focused, color, size }) => {
+      let iconName;
+
+      if (route.name === 'Home') {
+        iconName = focused ? 'home' : 'home-outline';
+      } else if (route.name === 'Login') {
+        iconName = focused ? 'log-in' : 'log-in-outline';
+      } else if (route.name === 'SignUp') {
+        iconName = focused ? 'person-add' : 'person-add-outline';
+      } else if (route.name === 'DashboardCRM') {
+        iconName = focused ? 'home' : 'home-outline';
+      } else if (route.name === 'DashboardAdmin') {
+        iconName = focused ? 'home' : 'home-outline';
+      } else if (route.name === 'Logout' || route.name === 'LogOutAdmin') {
+        iconName = focused ? 'log-out' : 'log-out-outline';
       }
-    };
+
+      return <Ionicons name={iconName} size={size} color={color} />;
+    },
+  });
+
+  if (!isLoggedIn && !isAdminLoggedIn) {
+    return (
+      <NavigationContainer>
+        <Tab.Navigator screenOptions={screenOptions}>
+          <Tab.Screen name="Home" component={Home} />
+          <Tab.Screen name="Login">
+            {(props) => <Login {...props} setIsAdminLoggedIn={setAdminIsLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+          </Tab.Screen>
+          <Tab.Screen name="DashboardAdmin" component={DashboardAdmin} options={{ tabBarButton: () => null }} />
+          <Tab.Screen name="SignUp" component={SignUp} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    );
+  }
 
 
 
-    checkAuthentication(); // Call the function to check authentication status when component mounts
-  }, []); // Empty dependency array ensures the effect runs only once when component mounts
+  if (isAdminLoggedIn) {
+    return (
+      <NavigationContainer>
+        <Tab.Navigator screenOptions={screenOptions}>
+          <Tab.Screen name="DashboardAdmin" component={DashboardAdmin} />
+          <Tab.Screen name="Logout">
+            {(props) => <LogOutAdmin {...props} setIsAdminLoggedIn={setAdminIsLoggedIn} />}
+          </Tab.Screen>
+        </Tab.Navigator>
+      </NavigationContainer>
+    );
+  }
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={isLoggedIn ? 'DashboardCRM' : 'Home'}>
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="SignUp" component={SignUp} />
-        <Stack.Screen name="DashboardCRM" component={DashboardCRM} />
-        <Stack.Screen name="CreateBooking" component={CreateBooking} />
-        <Stack.Screen name="MyBookings" component={MyBookings} />
-        <Stack.Screen name="DashboardAdmin" component={DashboardAdmin} />
-        <Stack.Screen name="ManageBookings" component={ManageBookings} />
-        <Stack.Screen name="CreateAnEvent" component={CreateAnEvent} />
-        <Stack.Screen name="CreateAnOffer" component={CreateAnOffer} />
-        <Stack.Screen name="CreateCamp" component={CreateCamp} />
-        <Stack.Screen name="CreateEventBooking" component={CreateEventBooking} />
-      </Stack.Navigator>
+   <Tab.Navigator screenOptions={screenOptions}>
+        <Tab.Screen name="DashboardCRM" component={DashboardCRM} />
+        <Tab.Screen name="DashboardAdmin" component={DashboardAdmin} options={{ tabBarButton: () => null }} />
+        <Tab.Screen name="Logout">
+          {(props) => <Logout {...props} setIsLoggedIn={setIsLoggedIn} />}
+        </Tab.Screen>
+      </Tab.Navigator>
     </NavigationContainer>
   );
-}
+};
 
 export default App;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  innerContainer: {
-    marginBottom: 20, // Adjust the value to control the space between the inner containers
-  },
-  text: {
-    fontSize: 20,
-    marginBottom: 10,
-  },
-});

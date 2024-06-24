@@ -4,9 +4,9 @@ import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Login = ({ navigation }) => {
+const Login = ({ setIsLoggedIn , setIsAdminLoggedIn }) => {
 
-  
+  const navigation = useNavigation(); // Use the useNavigation hook
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +17,10 @@ const Login = ({ navigation }) => {
 
 
 const handleLogin = async () => {
+
+
+
+
   // Reset error messages
   setEmailErrorMessage('');
   setPasswordErrorMessage('');
@@ -58,13 +62,19 @@ const handleLogin = async () => {
         const userJsonResponse = await userResponse.json();
         console.log('User Details:', userJsonResponse);
 
+
+    //   // Store the token in AsyncStoragei
+    //  const setUserType =  await AsyncStorage.setItem('userType', userResponse.userType);// Store token in AsyncStorage
+
           if(userJsonResponse.userType == "Admin")
           {
               // Navigate to UserProfile screen
+               setIsAdminLoggedIn(true);
                navigation.navigate('DashboardAdmin', { user: userJsonResponse });
           }
           else{
                // Navigate to UserProfile screen
+               setIsLoggedIn(true);
                navigation.navigate('DashboardCRM', { user: userJsonResponse });
           }
 

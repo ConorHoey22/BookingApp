@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {StyleSheet, View, TextInput, Button,Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import validator from 'validator';
 
 
@@ -11,7 +12,7 @@ import validator from 'validator';
 //TC5 - User cannot enter an email that is already registered / exists in the DB
 
 
-const SignUp = () => {
+const SignUp = ({navigation}) => {
 
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
@@ -74,9 +75,15 @@ const SignUp = () => {
 
                 });
 
+
+
+
+
                 if (response.ok) {
                   const jsonResponse = await response.json();
                   console.log('Response:', jsonResponse);
+                  navigation.navigate('Login');
+
                 } else {
                   const errorResponse = await response.json();
                   console.error('Error:', errorResponse.error);
