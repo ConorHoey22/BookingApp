@@ -180,10 +180,22 @@ const CreateBooking = ({navigation}) => {
         console.error('Error fetching JWT token:', error);
       }
 
+
+
+        const dayNames = getDayNamesInRange().map((dayName, index) => ({
+          label: dayName,
+          value: `${index}-${dayName}`, // Ensure unique value
+        }));
+        setItems(dayNames);
+
+    
+
       if(displayEditParticipantModal == true)
       {
         setValueEdit(editedDaysSelected);
       }
+
+
 
 
     };
@@ -716,7 +728,7 @@ else {
               console.log('Camp Booking record Created', jsonResponse2);
 
               //Send User back to dashboard
-              navigation.navigate('DashboardCRM');
+              navigation.navigate('Dashboard');
             } else {
               console.log('Error Status:', responseRecord.status);
               console.log('Error Message:', responseRecord.statusText);

@@ -37,28 +37,24 @@ const DashboardAdmin = ({navigation}) => {
   
   const handleCreateAnEventBtn = async () => {
 
-
-    navigation.navigate('CreateAnEvent');
+    navigation.navigate('Create an Event');
   };
 
 
   const handleCreateACampBtn = async () => {
 
-
-  
-    navigation.navigate('CreateCamp');
+    navigation.navigate('Create a Camp');
   };
 
   const handleManageBookings = async () => {
 
-  
-    navigation.navigate('ManageBookings');
+    navigation.navigate('Manage Bookings');
   };
 
 
   const handleCreateAnOffer = async () => {
 
-    navigation.navigate('CreateAnOffer');
+    navigation.navigate('Create an Offer');
   };
 
 

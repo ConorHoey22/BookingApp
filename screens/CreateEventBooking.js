@@ -667,7 +667,7 @@ const CreateEventBookings = ({navigation}) => {
               console.log('Event Booking record Created', jsonResponse2);
 
               //Send User back to dashboard
-              navigation.navigate('DashboardCRM');
+              navigation.navigate('Dashboard');
             } else {
               console.log('Error Status:', responseRecord.status);
               console.log('Error Message:', responseRecord.statusText);

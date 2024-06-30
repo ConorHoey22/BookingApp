@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import {StyleSheet, View, TextInput, Button,Text } from 'react-native';
+import {StyleSheet, View, TextInput, Button,Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import validator from 'validator';
+import { Ionicons } from '@expo/vector-icons';
 
 
 //Test Cases 
@@ -150,53 +151,127 @@ const SignUp = ({navigation}) => {
   }
   return (
 
-      <View style={styles.container}>
-        <View style={styles.innerContainer}>
-            <Text style={styles.text}>Sign Up</Text>
+    <View style={styles.container}>
+
+    <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>Sign Up</Text>
             <Text style={styles.validationText}>{errorMessage}</Text>
             <Text style={styles.validationText}>{emailErrorMessage}</Text>
             <TextInput
-              placeholder="Enter your email here"
+              placeholder="Email:"
               value={email}
               onChangeText={(text) => setEmail(text)}
+              style={styles.text}
             />
             <Text style={styles.validationText}>{passwordErrorMessage}</Text>
             <TextInput
-              placeholder="Enter your password here"
+              placeholder="Password:"
               secureTextEntry
               value={password}
               onChangeText={(text) => setPassword(text)}
+              style={styles.text}
             />
             <Text style={styles.validationText}>{fullNameErrorMessage}</Text>
             <TextInput
-              placeholder="Enter your full name here"
+              placeholder="Full name:"
               value={fullName}
               onChangeText={(text) => setFullName(text)}
+              style={styles.text}
+              
             />
-            <Button title="Sign Up" onPress={handleSave} />
-        </View>
+
+
+          </View>
+   
+          <View style={styles.container2}>
+            <View style={styles.container}>
+              <TouchableOpacity style={styles.button} onPress={handleSave} >
+                <Text style={styles.buttonText}>Sign Up</Text>
+                <Ionicons name="person-add-outline" size={20} color="#0073e6" style={styles.icon} />
+              </TouchableOpacity>
+            </View>
+          </View>
+   
+        
       </View>
-  );
+ 
+        
+  ); 
 };
 
 export default SignUp;
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    flex:1,
+    padding:40,
+    marginTop:250,
+    fontWeight:'bold'
+  },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
     alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+
   },
-  innerContainer: {
-    marginBottom: 20, // Adjust the value to control the space between the inner containers
+
+  icon: {
+    color: '#00e3ae', // Add spacing between icon and text
+    marginLeft : 5 
   },
-  text: {
+text:{
+   
+      color: 'white',
+      fontSize: 18,
+   
+},
+headerText:{
+  color: 'white',
+      fontSize: 24,
+      fontWeight:'bold'
+},
+button:{
+  flexDirection:'row',
+  width: '80%',
+  backgroundColor: '#ffffff',
+  borderRadius: 10,
+  marginBottom: 20,
+  paddingVertical: 15,
+
+  alignItems: 'center',
+  justifyContent: 'center',
+
+},
+  
+ 
+  container2:{
+
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+
+  },
+
+ 
+  containerText:{
+
+    flex: 1,
+   
+
+
+  },
+  validationText: {
     fontSize: 20,
     marginBottom: 10,
+    color: 'red',
   },
-  validationText:{
-    fontSize: 20,
-    marginBottom: 10,
-    color:'red'
-  }
 });

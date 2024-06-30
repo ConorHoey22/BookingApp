@@ -1,6 +1,16 @@
-Restarting Tab nav -  start from start CRM Only
---------------------------------------------------------------------------------
+Working on - 3 BUGS 
+Bug 1 - Console Error on Dates DDL - this may resolve BUG2 aswell , also on Edit participant
+Bug 3 - Edit Participant list is incorrect , it has users bookings that are not linked to that booking , i think we need if the user clicks out of the Create a booking then it clears the previous enter data which
+BUG 2 - Booking a Camp , once payment is successful it is not sending the user back to the Dashboard
 
+
+
+
+
+----------------------------------------------------------
+
+
+Images  on Home
 FRONT END - if there is no discount it just has % so we need it to not appear or 0%
 
 Need a redirect if the user cancels Process of payment so doest enter details

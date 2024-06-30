@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal } from 'react-native';
+import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal ,FlatList} from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -149,85 +149,136 @@ const DashboardCRM = ({navigation}) => {
     navigation.navigate('Login');
   };
 
-  return (
-    <ScrollView>
 
-    <TouchableOpacity style={styles.button}>
-      <Text style={styles.buttonText} onPress={() => navigation.navigate('MyBookings')}>My Bookings</Text>
-    </TouchableOpacity>
+  const renderCampItem = ({ item: camp }) => (
+    <View style={styles.containerCard}>
+      <Text style={styles.headerTextBlack}>Weekly Camp</Text>
 
-    {campData.map((camp, index) => (
-      <View key={index} style={styles.container}>  
-        <Text>Weekly Camp</Text>
-        <Text>{camp.campName} </Text>
-        <Text>Location: {camp.location}</Text> 
-        <Text>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
-        <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
-        <Text>Full Price: £{camp.price5Day} </Text>
-     
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Camp Name: </Text>
+        {camp.campName}
+      </Text>
 
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CreateBooking', { camp })}>
-          <Text style={styles.buttonText} >Book now</Text>
-        </TouchableOpacity>
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Location: </Text>
+        {camp.location}
+      </Text>
 
-        <TouchableOpacity style={styles.button} onPress={OpenBookingOptions}>
-          <Text style={styles.buttonText}>Booking Options</Text>
-        </TouchableOpacity>
-    
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Duration: </Text>
+        {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}
+      </Text>
 
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Start Time: </Text>
+        {new Date(camp.startTime).toLocaleTimeString()} - 
+        
+        <Text style={styles.headerTextBlack}> End Time: </Text> 
+        {new Date(camp.endTime).toLocaleTimeString()}
+      </Text>
 
-          {/* Modal  */}
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={openBookingOptionsModalVisible}
-            onRequestClose={setOpenBookingOptionsModalVisible}
-
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <View style={{ flexDirection: 'column' }}>
-                  <Text style={styles.label}>Booking Options</Text>
-                  <Text>1 Day Camp Price: £{camp.price1Day} </Text>
-                  <Text>2 Day Camp Price: £{camp.price2Day} </Text>
-                  <Text>3 Day Camp Price: £{camp.price3Day} </Text>
-                  <Text>4 Day Camp Price: £{camp.price4Day} </Text>
-                </View>
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Full Price: </Text>
+        £{camp.price5Day}
+      </Text>
 
 
-              <TouchableOpacity style={styles.button} onPress={closeOpenBookingOptions}>
-                <Text style={styles.buttonText}>Close</Text>
-              </TouchableOpacity>
-              </View> 
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Create Booking', { camp })}>
+        <Text style={styles.buttonText}>Book now</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={OpenBookingOptions}>
+        <Text style={styles.buttonText}>Booking Options</Text>
+      </TouchableOpacity>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={openBookingOptionsModalVisible}
+        onRequestClose={closeOpenBookingOptions}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={{ flexDirection: 'column' }}>
+              <Text style={styles.label}>Booking Options</Text>
+              <Text>1 Day Camp Price: £{camp.price1Day}</Text>
+              <Text>2 Day Camp Price: £{camp.price2Day}</Text>
+              <Text>3 Day Camp Price: £{camp.price3Day}</Text>
+              <Text>4 Day Camp Price: £{camp.price4Day}</Text>
+            </View>
+
+            <TouchableOpacity style={styles.button} onPress={closeOpenBookingOptions}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-                                
-      </Modal> 
+      </Modal>
+    </View>
+  );
 
-      </View>
-
-    ))}
-
-
-      {eventData.map((event, index) => (
-      <View key={index} style={styles.container}>  
-        <Text>Day Event</Text>
-        <Text>{event.eventName} </Text>
-        <Text>Location: {event.location}</Text> 
-        <Text>Duration: {new Date(event.startDate).toLocaleDateString('en-GB')} </Text>
-        <Text>Start Time: {new Date(event.startTime).toLocaleTimeString()} - End Time: {new Date(event.endTime).toLocaleTimeString()}</Text>
-        <Text>Price: £{event.price} </Text>
-
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('CreateEventBooking', { event })}>
-          <Text style={styles.buttonText}>Book now</Text>
-        </TouchableOpacity>
-      </View>
-    ))}
+  const renderEventItem = ({ item: event }) => (
+    <View style={styles.containerCard}>
+      <Text style={styles.headerTextBlack}>Day Event</Text>
 
 
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Event Name: </Text>
+        {event.eventName}
+      </Text>
 
 
- 
-  </ScrollView>
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Location: </Text>
+        {event.location}
+      </Text>
+
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Duration: </Text>
+        {new Date(event.startDate).toLocaleDateString('en-GB')}
+      </Text>
+
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Start Time: </Text>
+        {new Date(event.startTime).toLocaleDateString('en-GB')}
+      </Text>
+
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>End Time: </Text>
+        {new Date(event.endTimeTime).toLocaleDateString('en-GB')}
+      </Text>
+
+      <Text style={styles.headerText}>
+        <Text style={styles.headerTextBlack}>Price: </Text>
+        {event.price}
+      </Text>
+
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Create Event Booking', { event })}>
+        <Text style={styles.buttonText}>Book now</Text>
+      </TouchableOpacity>
+    </View>
+  );
+  
+
+  return (
+
+
+    <View style={styles.container2}>
+
+    <View style={styles.container}>
+    <FlatList
+      data={campData}
+      renderItem={renderCampItem}
+      keyExtractor={(item, index) => `camp-${index}`}
+      ListHeaderComponent={() => (
+        <>
+          {eventData.map((event, index) => renderEventItem({ item: event }))}
+        </>
+      )}
+    />
+  </View>
+
+  </View> 
+
 
   );
 };
@@ -235,12 +286,14 @@ const DashboardCRM = ({navigation}) => {
 export default DashboardCRM;
 
 const styles = StyleSheet.create({
-  container: {
-    borderWidth: 2,
-    borderColor: '#ccc',
+  containerCard: {
+    borderWidth: 1,
+    borderColor: '#fffff',
+    borderRadius: 24,
     padding: 20,
     margin: 20,
     width: 'auto',
+    backgroundColor: '#ffffff',
   },
   rowContainer: {
     flexDirection: 'row',
@@ -279,14 +332,99 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     },
     button: {
-      backgroundColor: '#4CAF50',
+ 
+
+      borderRadius: 10,
+      marginTop: 30,
+      paddingVertical: 15,
+      alignItems: 'center',
+      backgroundColor: '#00e3ae',
       borderRadius: 4,
-      padding: 10,
+      padding: 5,
+      zIndex: 2, // Ensure dropdown is above other elements
+
+     
+    },
+     
+    buttonWhite: {
+ 
+      width:100,
+      borderRadius: 10,
+      marginTop: 30,
+      paddingVertical: 15,
+      alignItems: 'center',
+      backgroundColor: '#ffffff',
+      borderRadius: 4,
+      padding: 5,
+      zIndex: 2, // Ensure dropdown is above other elements
+
+     
+    },
+         
+    container: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%', // Width of the container (adjust as needed)
+      height: '10%', // Height of the container (adjust as needed)
+      backgroundColor: '#00e3ae',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+      borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+  
+    },
+  text:{
+        color: 'white',
+        fontSize: 18,
+     
+  },
+
+    
+  headerText:{
+    color: 'black',
+        fontSize: 14,
+        padding:5
+  },
+  headerTextBlack:{
+    color: 'black',
+    fontSize: 14,
+   fontWeight:'bold',
+   padding:5
+  },
+    container2:{
+  
+      flex: 1,
+      width: '100%', // Width of the container (adjust as needed)
+      height: '100%', // Height of the container (adjust as needed)
+      backgroundColor: '#ffffff',
+      alignItems: 'center',
+      justifyContent: 'center',
+  
+  
+    },
+    buttonText:
+    {
+      color: 'black',
+      fontSize: 14,
+      alignItems: 'center',
+       justifyContent: 'center',
+       fontWeight:'bold'
+    },
+  
+  
+   
+    containerText:{
+  
+      flex: 1,
+     
+  
+  
+    },
+    validationText: {
+      fontSize: 20,
       marginBottom: 10,
+      color: 'red',
     },
-    buttonText: {
-      color: 'white',
-      fontSize: 16,
-      textAlign: 'center',
-    },
+    
 });
