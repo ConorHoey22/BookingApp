@@ -2,12 +2,19 @@ Working on - 3 BUGS
 Bug 1 - Console Error on Dates DDL - this may resolve BUG2 aswell , also on Edit participant
 Bug 3 - Edit Participant list is incorrect , it has users bookings that are not linked to that booking , i think we need if the user clicks out of the Create a booking then it clears the previous enter data which
 BUG 2 - Booking a Camp , once payment is successful it is not sending the user back to the Dashboard
+Bug 4 - Make selecting a Participant a required field , must select at least 1 participant
+REMAP Refund process 
+
+
+
+// MyBookings Frontend . needd to fix , step by step add the code in to understand and add comments
+// onpress on View container if a button is TouchableOpacity and a view contaimner
 
 
 
 
 
-----------------------------------------------------------
+--------
 
 
 Images  on Home
@@ -310,7 +317,6 @@ Credit card	The UnionPay card has a variable length of 13-19 digits.	Fill out th
 
 --
 
-
 import React, { useEffect, useState } from 'react';
 import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal,FlatList, Alert } from 'react-native';
 import validator from 'validator';
@@ -445,40 +451,43 @@ const MyBookings = ({ navigation }) => {
       }, []);
     
       const processBookings = (bookingData, campData, eventData) => {
-         // Extract unique camp IDs from bookingData
-          const uniqueCampIDs = Array.from(new Set(bookingData
-            .filter(item => item.bookingType === 'Camp') // Filter bookingData to include only bookings of type 'Camp'
-            .map(item => item.campID))); // Map to get an array of campIDs and then create a set to get unique IDs
-
-          // Map over unique camp IDs to find corresponding camp objects
-          const bookingCampData = uniqueCampIDs.map(campID => {
-            // Find the camp object with the current campID
-            const foundCamp = campData.find(camp => camp._id === campID);
-            // If a camp is found, return it; otherwise, return null
-            return foundCamp ? foundCamp : null;
-          });
-
-          // Set the state with the processed bookingCampData
-          setBookingCampData(bookingCampData);
-
-          // Extract unique event IDs from bookingData
-            const uniqueEventIDs = Array.from(new Set(bookingData
-              .filter(item => item.bookingType === 'Event') // Filter bookingData to include only bookings of type 'Event'
-              .map(item => item.eventID))); // Map to get an array of eventIDs and then create a set to get unique IDs
-
-            // Map over unique event IDs to find corresponding event objects
-            const bookingEventData = uniqueEventIDs.map(eventID => {
-              // Find the event object with the current eventID
-              const foundEvent = eventData.find(event => event._id === eventID);
-              // If an event is found, return it; otherwise, return null
-              return foundEvent ? foundEvent : null;
-            });
-
-            // Set the state with the processed bookingEventData
-            setBookingEventData(bookingEventData);
+        const currentDate = new Date(); // Get current date
     
-      };
+        // Filter and process camp data
+        const futureCamps = campData.filter(camp => {
+            const campStartDate = new Date(camp.startDate);
+            return campStartDate > currentDate;
+        });
+        setCampData(futureCamps);
+    
+        // Filter and process event data
+        const futureEvents = eventData.filter(event => {
+            const eventStartDate = new Date(event.startDate);
+            return eventStartDate > currentDate;
+        });
+        setEventData(futureEvents);
+    
+        // Extract unique camp IDs from bookingData for future camps
+        const uniqueCampIDs = Array.from(new Set(bookingData
+            .filter(item => item.bookingType === 'Camp' && futureCamps.some(camp => camp._id === item.campID))
+            .map(item => item.campID)));
+    
+        // Extract unique event IDs from bookingData for future events
+        const uniqueEventIDs = Array.from(new Set(bookingData
+            .filter(item => item.bookingType === 'Event' && futureEvents.some(event => event._id === item.eventID))
+            .map(item => item.eventID)));
+    
+        // Map over unique camp IDs to find corresponding camp objects
+        const bookingCampData = uniqueCampIDs.map(campID => futureCamps.find(camp => camp._id === campID));
+    
+        // Map over unique event IDs to find corresponding event objects
+        const bookingEventData = uniqueEventIDs.map(eventID => futureEvents.find(event => event._id === eventID));
+    
+        // Set the state with the processed bookingCampData and bookingEventData
+        setBookingCampData(bookingCampData);
+        setBookingEventData(bookingEventData);
 
+    };
 
          // Function to close the modal 
          const openCampBookings = () => {
@@ -1678,7 +1687,7 @@ return (
                         </View> 
 
                       </View>
-                </View>
+                </View>/
                           
 
 

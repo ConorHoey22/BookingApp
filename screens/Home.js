@@ -33,7 +33,7 @@ const Home = ({navigation}) => {
           />
       </View>
       <View style={styles.headerContainer2}>
-          <Text style={styles.headerText}>Developed by </Text>
+          <Text style={styles.buttonText}>Developed by </Text>
           <Image
             source={require('./assets/HoeyTechLogo.png')} // Adjust the path based on your project structure
             style={styles.logo1}
@@ -108,13 +108,6 @@ const styles = StyleSheet.create({
 
     
   },
-  buttonText:
-  {
-    color: 'black',
-    fontSize: 12,
-    alignItems: 'center',
-     justifyContent: 'center',
-  },
 
   buttonContainer: {
     width: '100%',
@@ -124,7 +117,7 @@ const styles = StyleSheet.create({
   button:{
     flexDirection:'row',
     width: '80%',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#6558d3',
     borderRadius: 10,
     marginBottom: 20,
     paddingVertical: 15,
@@ -133,6 +126,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
 
   },
+  buttonText:
+  {
+    color: 'white',
+    fontSize: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight:'bold'
+  },
   
  
   container2:{
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%', // Width of the container (adjust as needed)
     height: '100%', // Height of the container (adjust as needed)
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ecf0ff',
     alignItems: 'center',
     justifyContent: 'center',
 

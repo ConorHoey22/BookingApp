@@ -164,17 +164,40 @@ const styles = StyleSheet.create({
     marginTop:250,
     fontWeight:'bold'
   },
-  container: {
-    flex: 1,
-    width: '100%', // Width of the container (adjust as needed)
-    height: '10%', // Height of the container (adjust as needed)
-    backgroundColor: '#00e3ae',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
-    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
 
-  },
+  buttonText:
+    {
+      color: 'white',
+      fontSize: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontWeight:'bold'
+    },
+    button:{
+      flexDirection:'row',
+      width: '80%',
+      backgroundColor: '#6558d3',
+      borderRadius: 10,
+      marginBottom: 20,
+      paddingVertical: 15,
+    
+      alignItems: 'center',
+      justifyContent: 'center',
+    
+    },
+    container: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%', // Width of the container (adjust as needed)
+      height: '10%', // Height of the container (adjust as needed)
+      backgroundColor: '#00e3ae',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+      borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+  
+    },
 
   icon: {
     color: '#00e3ae', // Add spacing between icon and text
@@ -191,18 +214,7 @@ headerText:{
       fontSize: 24,
       fontWeight:'bold'
 },
-button:{
-  flexDirection:'row',
-  width: '80%',
-  backgroundColor: '#ffffff',
-  borderRadius: 10,
-  marginBottom: 20,
-  paddingVertical: 15,
 
-  alignItems: 'center',
-  justifyContent: 'center',
-
-},
   
  
   container2:{
@@ -210,7 +222,7 @@ button:{
     flex: 1,
     width: '100%', // Width of the container (adjust as needed)
     height: '100%', // Height of the container (adjust as needed)
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ecf0ff',
     alignItems: 'center',
     justifyContent: 'center',
 

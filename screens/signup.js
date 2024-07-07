@@ -224,6 +224,15 @@ const styles = StyleSheet.create({
     color: '#00e3ae', // Add spacing between icon and text
     marginLeft : 5 
   },
+  buttonText:
+  {
+    color: 'white',
+    fontSize: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight:'bold'
+  },
+
 text:{
    
       color: 'white',
@@ -238,7 +247,7 @@ headerText:{
 button:{
   flexDirection:'row',
   width: '80%',
-  backgroundColor: '#ffffff',
+  backgroundColor: '#6558d3',
   borderRadius: 10,
   marginBottom: 20,
   paddingVertical: 15,
@@ -254,7 +263,7 @@ button:{
     flex: 1,
     width: '100%', // Width of the container (adjust as needed)
     height: '100%', // Height of the container (adjust as needed)
-    backgroundColor: '#ffffff',
+    backgroundColor: '#ecf0ff',
     alignItems: 'center',
     justifyContent: 'center',
 

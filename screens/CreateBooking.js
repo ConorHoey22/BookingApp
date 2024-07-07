@@ -822,13 +822,17 @@ const updateItemsEdit = (newItems) => {
 
 
   return (
- 
-  <ScrollView>
-
-   <StripeProvider publishableKey='pk_test_51OnkfED7nseNwvj8Zgtfn4YbMAQbVl2Y3yWn56QAF6rLJmAn6ez4Wyp24aLIEtzLLEs15N06P0FxI5w9I8jnTvaf00DjYAqVWL'>
-    
     <ScrollView>
-    <Text style={styles.label}>Enter your name *: </Text>
+    <StripeProvider publishableKey='pk_test_51OnkfED7nseNwvj8Zgtfn4YbMAQbVl2Y3yWn56QAF6rLJmAn6ez4Wyp24aLIEtzLLEs15N06P0FxI5w9I8jnTvaf00DjYAqVWL'>
+     
+    <View style={styles.container2}>
+          <View style={styles.container}>
+
+
+
+    <View style ={styles.containerCard}>
+  
+      <Text style={styles.label}>Enter your name *: </Text>
         <Text>{bookingNameValidationMessage}</Text>
         <TextInput
           style={styles.textInput}
@@ -836,9 +840,8 @@ const updateItemsEdit = (newItems) => {
           value={bookingName}
           onChangeText={(text) => setBookingName(text)}
         />
-    {/* Get Booking details */}
-    <View style={styles.container}>
-        <Text style={styles.label}>Enter the name of the participant *: </Text>
+
+        <Text style={styles.label}>Enter the name of the participant attending *: </Text>
         <Text>{nameValidationMessage}</Text>
         <TextInput
           style={styles.textInput}
@@ -846,6 +849,7 @@ const updateItemsEdit = (newItems) => {
           value={name}
           onChangeText={(text) => setName(text)}
         />
+
         <Text style={styles.label}>Age: </Text>
         <TextInput
           style={styles.textInput}
@@ -853,7 +857,8 @@ const updateItemsEdit = (newItems) => {
           value={age}
           onChangeText={(text) => setAge(text)}
         />
-        <Text style={styles.label}>Have they any Allergies: </Text>
+
+<Text style={styles.label}>Have they any Allergies: </Text>
         <TextInput
           style={styles.textInput}
           placeholder="Enter here"
@@ -875,374 +880,23 @@ const updateItemsEdit = (newItems) => {
           value={additionalInfo}
           onChangeText={(text) => setAdditionalInfo(text)}
         />
-      </View>
 
         <TouchableOpacity style={styles.button}>
               <Text style={styles.buttonText} onPress={ModalOpenDisplaySelectDaysOfCamp}>Submit Participant</Text>
         </TouchableOpacity>
-    </ScrollView>
 
-   {/* Modal - Select Days of Camps  */}
-
-
-   <Modal
-      animationType="slide"
-      transparent={true}
-      visible={displaySelectDaysOfCampModal}
-      onRequestClose={closeDaysOfCampsModal}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-        <View style={{ flexDirection: 'column' }}>
-          <View>
-
-    {/* DDL list Multi select */}
-
-    <View style={styles.dropdownContainer}>
-      <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
-      <Text>{dateValidationMessage}</Text>
-        {/* Dropdown for selecting participant */}
-      <View style={styles.dropdownContainer}>
+        
 
 
-
-  {/* Dropdown for selecting participant */}
-          <DropDownPicker
-            open={open}
-            value={value}
-            setOpen={setOpen}
-            setValue={updateValue}
-            setItems={updateItems}
-            placeholder={'Choose a Dates'}
-            multiple={true}
-            mode="BADGE"
-            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
-            items={getDayNamesInRange().map((dayName, index) => ({
-              label: dayName,
-              value: dayName,
-            }))}
-            containerStyle={styles.dropdown}
-          />
-        </View>
-     
       </View>
 
-          
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button1}>
-              <Text style={styles.buttonText} onPress={addParticipant}>Submit</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button1}>
-              <Text style={styles.buttonText} onPress={closeDaysOfCampsModal}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      
     </View>
-</View>
+    </View>
+    </StripeProvider> 
 
-</View>
-</Modal>
-     
-
-
-
-{/* This should only appear if user enter at least on particpant */}
-  <View>
-    {/* Conditional rendering using a ternary operator */}
-    {participantCount >= 1 ? (
-
-  <View>
-     
-    {/*  */}
-      <View>
-        <TouchableOpacity style={styles.button} onPress={SelectEditParticipantModal}>
-                  <Text style={styles.buttonText}>Edit Participant Details</Text>
-        </TouchableOpacity>
-      </View>
-
-
-     
-      <View>
-        <TouchableOpacity style={styles.button} onPress={handleBookingCheckout}>
-                <Text style={styles.buttonText}>Continue to Checkout</Text>
-        </TouchableOpacity>
-      </View>
-
-  </View>
-
-
-
-
-    ) : (
-      <View>
-  
-      </View>
-    )}
-  </View>
+    </ScrollView>
  
-  
-
-   
-
-
-    {/* This will only appear when 1 particpant is added to the array count  */}
-   
-   <Modal
-      animationType="slide"
-      transparent={true}
-      visible={displayEditParticipantModal}
-      onRequestClose={closeSelectEditParticipantModal}
-    >
-      <View style={styles.modalContainer}>
-
-      <ScrollView style={styles.modalContent}>
-          
-      
-         
-
-
-   
  
-    <Text style={styles.label}>Participant Booking List:</Text>
-    {/* Display Participant , Be able to Edit / Delete from booking  */}
-
-    {participantArray.map((item, index) => (
-         <View key={index} style={styles.container}>
- 
-          <Text style={styles.label}>Name: {item.name}</Text>
-
-          <Text style={styles.label}>Age: {item.age}</Text>
-          <Text style={styles.label}>Allergies: {item.allergies}</Text>
-          <Text style={styles.label}>Emergency Contact Number: {item.emergencyContactNumber}</Text>
-      
-          <Text style={styles.label}>Anything else you would like us to know: {item.additionalInfo}</Text>
-   
-
-          <View>
-            <TouchableOpacity style={styles.button} onPress={() => editParticipantModal(index)}>
-                <Text style={styles.buttonText}>Edit</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button} onPress={() => removeParticipant(index)}>
-                <Text style={styles.buttonText}>Remove</Text>
-            </TouchableOpacity>
-          </View>
-          </View>
-
-      ))}
-
-            <TouchableOpacity style={styles.button} onPress={closeSelectEditParticipantModal}>
-                <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-
-  
-      </ScrollView>
-      </View>
-  
-      
-     
-</Modal>
-   
-
-
-   {/* Modal EDIT */}
-
-
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={editModalVisible}
-      onRequestClose={closeEditModal}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-        <View style={{ flexDirection: 'column' }}>
-          <View>
-            <Text style={styles.label}>Name</Text>
-            <Text>{editNameValidationMessage}</Text>
-            <TextInput
-              style={styles.textInput}
-              value={editedNameText}
-              onChangeText={setEditedNameText}
-              placeholder='Enter here..'
-            />
-          </View>
-
-          <View>
-            <Text style={styles.label}>Age</Text>
-            <TextInput
-              style={styles.textInput}
-              value={editedAgeText}
-              onChangeText={setEditedAgeText}
-              placeholder='Enter here..'
-            />
-          </View>
-
-          <View>
-            <Text style={styles.label}>Allergies</Text>
-            <TextInput
-              style={styles.textInput}
-              value={editedAllergiesText}
-              onChangeText={setEditedAllergiesText}
-              placeholder='Enter here..'
-            />
-          </View>
-
-          <View>
-            <Text style={styles.label}>Emergency Contact Number</Text>
-            <Text>{editPhoneNumberValidation}</Text>
-            <TextInput
-              style={styles.textInput}
-              value={editedPhoneNumberText}
-              onChangeText={setEditedPhoneNumberText}
-              placeholder='Enter here..'
-            />
-          </View>
-
-
-          <View>
-            <Text style={styles.label}>Anything else you would like us to know? : e.g. Special requests:</Text>
-            <TextInput
-              style={styles.textInput}
-              value={editedAdditionalInfoText}
-              onChangeText={setEditedAdditionalInfoText}
-              placeholder='Enter here..'
-            />
-          </View>
-
-          <View>
-            <Text style={styles.label}>Days selected</Text>
-           {/* DDL list Multi select */}
-
-            <View style={styles.dropdownContainer}>
-              <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
-              <Text>{editDateValidationMessage}</Text>
-                {/* Dropdown for selecting participant */}
-              <View style={styles.dropdownContainer}>
-
-
-
-        {/* Dropdown for selecting participant */}
-                <DropDownPicker
-                        open={openEdit}
-                        value={editedDaysSelected}
-                        setOpen={setOpenEdit}
-                        setValue={updateValueEdit}
-                        setItems={updateItemsEdit}
-                        placeholder={'Choose a Dates'}
-                        multiple={true}
-                        mode="BADGE"
-                        badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
-                        items={getDayNamesInRange().map((dayName, index) => ({
-                          label: dayName,
-                          value: dayName,
-                        }))}
-                        containerStyle={styles.dropdown}
-                      />
-                    </View>
-                
-                  </View>
-         
-
-
-
-
-          <View style={styles.buttonContainer}>
-
-            <TouchableOpacity style={styles.button2} onPress={() => updateBookingRecord(editedBookingRecordArray)}>
-              <Text style={styles.buttonText}>Update Booking</Text>
-            </TouchableOpacity>
-
-          </View>
-
-          <View style={styles.buttonContainer}>
-
-            <TouchableOpacity style={styles.button2} onPress={closeEditModal}>
-              <Text style={styles.buttonText}>Exit</Text>
-            </TouchableOpacity>
-
-          </View>
-          </View>
-        </View>
-
-        </View>  
-
-      </View> 
-
-
-
-
-    </Modal>
-
-
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={displayBreakdownCostOverviewModal}
-      onRequestClose={closeCostBreakdownModal}
-    >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-
-        <View style={{ flexDirection: 'column' }}>
-          
-          <Text>Total Cost Breakdown</Text>
-
-          {participantArray.map((item, index) => (
-            <View key={index} style={styles.container}>
-    
-              <Text style={styles.label}>Name: {item.name}</Text>
-              <Text style={styles.label}>Price: £{item.totalParticipantPrice}</Text>
-              <Text style={styles.label}>Selected Days' Attending: {item.daysSelectedArray.join(", ")}</Text>
-              
-            </View>
-
-          ))}
-
-
-
-        <View style={styles.container}>
-
-          <Text style={styles.label}>Discount:{tempDiscountArray}%</Text>
-          <Text style={styles.label}>Cost: £{totalBookingPrice}</Text>
-          
-        </View>
-
-                        
-        </View>  
-
-
-
-
-         <View>
-            <TouchableOpacity style={styles.button} onPress={processPaymentWithAPI}>
-                <Text style={styles.buttonText}>Make Payment</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button} onPress={closeCostBreakdownModal}>
-                <Text style={styles.buttonText}>Exit</Text>
-            </TouchableOpacity>
-          </View>
-
-              </View> 
-
-
-        </View>
-
-  </Modal>
-
-
-
-
-
-    </StripeProvider>
-  </ScrollView>
-  
 
   );
 };
@@ -1251,11 +905,26 @@ export default CreateBooking;
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 2,
-    borderColor: '#ccc',
-    padding: 20,
-    margin: 20,
-    width: 'auto',
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+
+  },
+  container2:{
+
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    backgroundColor: '#ecf0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+
   },
   validationText: {
     fontSize: 20,
@@ -1287,6 +956,16 @@ const styles = StyleSheet.create({
        marginTop: 15,
        marginBottom: 10,
     },
+    containerCard: {
+      borderWidth: 8,
+      borderColor: '#ffffff',
+      borderRadius: 30,
+      padding: 10,
+      marginTop: 80,
+      width: 'auto',
+      backgroundColor: '#ecf0ff',
+    },
+
     label: {
       // marginBottom: 5,
       fontWeight: 'bold',
@@ -1302,12 +981,18 @@ const styles = StyleSheet.create({
       marginTop:30
     },
     button: {
-      backgroundColor: '#4CAF50',
-      borderRadius: 4,
-      padding: 10,
-      marginBottom: 5,
-      
+ 
+      borderRadius: 10,
+      marginTop: 30,
+      paddingVertical: 15,
+      alignItems: 'center',
+      backgroundColor: '#6558d3',
+      borderRadius: 15,
+      padding: 2,
+      zIndex: 2, // Ensure dropdown is above other elements
+
     },
+   
     button1: {
       backgroundColor: '#4CAF50',
       borderRadius: 4,
