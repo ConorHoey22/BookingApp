@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal, Alert } from 'react-native';
+import { ScrollView,StyleSheet,FlatList, View, TextInput, Button, Text, TouchableOpacity, Modal, Alert } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
+import { Ionicons } from '@expo/vector-icons';
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -316,11 +316,9 @@ const CreateBooking = ({navigation}) => {
     };
 
     const ModalOpenDisplaySelectDaysOfCamp = async() => {
-    
 
       // Check Values 
     
-
       // IF there is no values enter in all required then kick in Validation 
   //Form Validation
 
@@ -382,7 +380,7 @@ const CreateBooking = ({navigation}) => {
           }
         
           if (!phoneNumber || /^\s*$/.test(phoneNumber)) {
-            setPhoneNumberValidationMessage('Enter their contact number');
+            setPhoneNumberValidationMessage('Enter an emergency contact number');
           } else {
             setPhoneNumberValidationMessage('');
           }
@@ -828,12 +826,43 @@ const updateItemsEdit = (newItems) => {
     <View style={styles.container2}>
           <View style={styles.container}>
 
-
-
     <View style ={styles.containerCard}>
+  {/* This should only appear if user enter at least on particpant */}
+  <View>
+    {/* Conditional rendering using a ternary operator */}
+    {participantCount >= 1 ? (
+
+  <View>
+     
+    {/*  */}
+      <View style={styles.bookingsButtonsContainer}>
+        <TouchableOpacity style={styles.buttonBooking} onPress={SelectEditParticipantModal}>
+                  <Text style={styles.buttonText}>Edit Booking <Ionicons name="book-outline" size={20} color="#00e3ae" style={styles.icon} /></Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.buttonBooking} onPress={handleBookingCheckout}>
+                <Text style={styles.buttonText}>Checkout <Ionicons name="basket-outline" size={20} color="#00e3ae" style={styles.icon}/></Text>
+        </TouchableOpacity>
+      </View>
+
+
+     
   
+
+  </View>
+
+
+
+
+    ) : (
+      <View>
+  
+      </View>
+    )}
+  </View> 
+
       <Text style={styles.label}>Enter your name *: </Text>
-        <Text>{bookingNameValidationMessage}</Text>
+      <Text style={styles.validationText}>{bookingNameValidationMessage}</Text>
         <TextInput
           style={styles.textInput}
           placeholder="Enter here"
@@ -842,7 +871,7 @@ const updateItemsEdit = (newItems) => {
         />
 
         <Text style={styles.label}>Enter the name of the participant attending *: </Text>
-        <Text>{nameValidationMessage}</Text>
+        <Text style={styles.validationText}>{nameValidationMessage}</Text>
         <TextInput
           style={styles.textInput}
           placeholder="Enter here"
@@ -858,7 +887,7 @@ const updateItemsEdit = (newItems) => {
           onChangeText={(text) => setAge(text)}
         />
 
-<Text style={styles.label}>Have they any Allergies: </Text>
+        <Text style={styles.label}>Have they any Allergies: </Text>
         <TextInput
           style={styles.textInput}
           placeholder="Enter here"
@@ -866,7 +895,7 @@ const updateItemsEdit = (newItems) => {
           onChangeText={(text) => setAllergies(text)}
         />
         <Text style={styles.label}>Emergency Contact Number *: </Text>
-        <Text>{phoneNumberValidation}</Text>
+        <Text style={styles.validationText}>{phoneNumberValidation}</Text>
         <TextInput
           style={styles.textInput}
           placeholder="Enter here"
@@ -880,18 +909,391 @@ const updateItemsEdit = (newItems) => {
           value={additionalInfo}
           onChangeText={(text) => setAdditionalInfo(text)}
         />
+      <TouchableOpacity style={styles.buttonBooking} onPress={ModalOpenDisplaySelectDaysOfCamp}>
+        <Text style={styles.buttonText}> Submit Participant info  <Ionicons name="person-add-outline" size={20} color="#00e3ae" style={styles.icon} /> </Text>
+      </TouchableOpacity>
+      
 
-        <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={ModalOpenDisplaySelectDaysOfCamp}>Submit Participant</Text>
-        </TouchableOpacity>
+{/* Modal - Select Days of Camps  */}
+   <Modal
+      animationType="slide"
+      transparent={true}
+      visible={displaySelectDaysOfCampModal}
+      onRequestClose={closeDaysOfCampsModal}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+        <View style={{ flexDirection: 'column' }}>
+          <View>
+
+    {/* DDL list Multi select */}
+
+    <View style={styles.dropdownContainer}>
+      <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
+      <Text style={styles.validationText}>{dateValidationMessage}</Text>
+        {/* Dropdown for selecting participant */}
+      <View style={styles.dropdownContainer}>
+
+
+
+  {/* Dropdown for selecting participant */}
+          <DropDownPicker
+            open={open}
+            value={value}
+            setOpen={setOpen}
+            setValue={updateValue}
+            setItems={updateItems}
+            placeholder={'Choose a Dates'}
+            multiple={true}
+            mode="BADGE"
+            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+            items={getDayNamesInRange().map((dayName, index) => ({
+              label: dayName,
+              value: dayName,
+            }))}
+            containerStyle={styles.dropdown}
+          />
+        </View>
+     
+      </View>
+
+                  
+          <View style = {styles.buttonContainer}>
+            <TouchableOpacity style={styles.buttonBooking} onPress={addParticipant}>
+                <Text style={styles.buttonText}> Submit</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style = {styles.buttonContainer}>
+            <TouchableOpacity style={styles.buttonBooking} onPress={closeDaysOfCampsModal}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+       
+      </View>
+
+      
+          </View>
+      </View>
+
+      </View>
+      </Modal>
+
+
+
+
+    {/* This will only appear when 1 particpant is added to the array count  */}
+   
+      {/* Modal - Select Days of Camps  */}
+      <Modal
+      animationType="slide"
+      transparent={true}
+      visible={displayEditParticipantModal}
+      onRequestClose={closeSelectEditParticipantModal}
+      >
+        <View style={styles.modalContainer}>
+          <ScrollView style={styles.modalContent}>
+          <View style={styles.bookingsHeaderContainer}>
+            
+             <Text style={styles.label}>Participant Booking List</Text>
+            <TouchableOpacity style={styles.buttonBooking} onPress={closeSelectEditParticipantModal}>
+              <Text style={styles.buttonText}><Ionicons name="arrow-back-circle-outline" size={20} style={styles.icon} /></Text>
+            </TouchableOpacity>
+          </View>
+          {/* Display Participant , Be able to Edit / Delete from booking  */}
+
+          {participantArray.map((item, index) => (
+              <View key={index} style={styles.containerModal}>
+      
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Name: </Text>
+                {item.name}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Age: </Text>
+                {item.age}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Allergies: </Text>
+                {item.allergies}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Emergency Contact Number: : </Text>
+                {item.emergencyContactNumber}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Anything else you would like us to know: </Text>
+                {item.additionalInfo}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Anything else you would like us to know: </Text>
+                {item.daysSelectedArray.join(', ')}
+              </Text>
+
+
+                  <View style={styles.bookingsButtonsContainer}>
+                    <TouchableOpacity style={styles.buttonBooking} onPress={() => editParticipantModal(index)}>
+                        <Text style={styles.buttonText}>Edit</Text>
+                    </TouchableOpacity>
+
+
+                  <TouchableOpacity style={styles.buttonBooking} onPress={() => removeParticipant(index)}>
+                     <Ionicons name="trash-bin-outline" size={20} color="#00e3ae" style={styles.icon} />
+                  </TouchableOpacity>
+                  </View>
+
+               
+    
+                </View>
+             
+
+            ))}
+
+
+          </ScrollView>
+        </View>
+    
+      </Modal>
+
+
+   {/* Modal EDIT */}
+
+
+   <Modal
+      animationType="slide"
+      transparent={true}
+      visible={editModalVisible}
+      onRequestClose={closeEditModal}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+        <View style={{ flexDirection: 'column' }}>
+          <View>
+            <Text style={styles.label}>Name</Text>
+            <Text>{editNameValidationMessage}</Text>
+            <TextInput
+              style={styles.textInput}
+              value={editedNameText}
+              onChangeText={setEditedNameText}
+              placeholder='Enter here..'
+            />
+          </View>
+
+          <View>
+            <Text style={styles.label}>Age</Text>
+            <TextInput
+              style={styles.textInput}
+              value={editedAgeText}
+              onChangeText={setEditedAgeText}
+              placeholder='Enter here..'
+            />
+          </View>
+
+          <View>
+            <Text style={styles.label}>Allergies</Text>
+            <TextInput
+              style={styles.textInput}
+              value={editedAllergiesText}
+              onChangeText={setEditedAllergiesText}
+              placeholder='Enter here..'
+            />
+          </View>
+
+          <View>
+            <Text style={styles.label}>Emergency Contact Number</Text>
+            <Text>{editPhoneNumberValidation}</Text>
+            <TextInput
+              style={styles.textInput}
+              value={editedPhoneNumberText}
+              onChangeText={setEditedPhoneNumberText}
+              placeholder='Enter here..'
+            />
+          </View>
+
+
+          <View>
+            <Text style={styles.label}>Anything else you would like us to know? : e.g. Special requests:</Text>
+            <TextInput
+              style={styles.textInput}
+              value={editedAdditionalInfoText}
+              onChangeText={setEditedAdditionalInfoText}
+              placeholder='Enter here..'
+            />
+          </View>
+
+          <View>
+            <Text style={styles.label}>Days selected</Text>
+           {/* DDL list Multi select */}
+
+            <View style={styles.dropdownContainer}>
+              <Text style={styles.label}>Choose the dates in which you will be attending:</Text>
+              <Text>{editDateValidationMessage}</Text>
+                {/* Dropdown for selecting participant */}
+              <View style={styles.dropdownContainer}>
+
+
+
+        {/* Dropdown for selecting participant */}
+                <DropDownPicker
+                        open={openEdit}
+                        value={editedDaysSelected}
+                        setOpen={setOpenEdit}
+                        setValue={updateValueEdit}
+                        setItems={updateItemsEdit}
+                        placeholder={'Choose a Dates'}
+                        multiple={true}
+                        mode="BADGE"
+                        badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#e76f51", "#8ac926", "#00b4d8", "#e9c46a"]}
+                        items={getDayNamesInRange().map((dayName, index) => ({
+                          label: dayName,
+                          value: dayName,
+                        }))}
+                        containerStyle={styles.dropdown}
+                      />
+                    </View>
+                
+                  </View>
+         
+
+
+
+
+          <View style={styles.buttonContainer}>
+
+            <TouchableOpacity style={styles.buttonBooking} onPress={() => updateBookingRecord(editedBookingRecordArray)}>
+              <Text style={styles.buttonText}>Update Booking</Text>
+            </TouchableOpacity>
+
+          </View>
+
+          <View style={styles.buttonContainer}>
+
+            <TouchableOpacity style={styles.buttonBooking} onPress={closeEditModal}>
+              <Text style={styles.buttonText}>Exit</Text>
+            </TouchableOpacity>
+
+          </View>
+          </View>
+        </View>
+
+        </View>  
+
+      </View> 
+    </Modal>
+
+
+{/* Cost Breakdown - Checkout */}
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={displayBreakdownCostOverviewModal}
+      onRequestClose={closeCostBreakdownModal}
+    >
+      <View style={styles.modalContainer}>
+        <ScrollView style={styles.modalContent}>
+      
+       
+        <View style={{ flexDirection: 'column' }}>
+          
+
+            <View style={styles.bookingsHeaderContainer}>
+            <Text style={styles.headerTextBlack2}>Checkout Summary:  </Text>
+
+            <TouchableOpacity style={styles.buttonBooking} onPress={closeCostBreakdownModal}>
+               <Ionicons name="arrow-back-circle-outline" color="#00e3ae" size={20} style={styles.icon}/>
+            </TouchableOpacity>
+        </View>
 
         
 
 
-      </View>
+<Text style={styles.headerTextBlack2}>Total Cost: </Text>
+  
+   <View style={styles.checkoutBookingsContainer}>
+    <Text style={styles.headerTextBlack}>
+      <Text style={styles.headerTextBlack2}>Discount: </Text>
+      {tempDiscountArray}%
+    </Text>
+
+    <Text style={styles.headerTextBlack}>
+      <Text style={styles.headerTextBlack2}>Total: </Text>
+        £{totalBookingPrice}
+    </Text>
+  </View>
+            <TouchableOpacity style={styles.buttonBooking} onPress={processPaymentWithAPI}>
+                <Text style={styles.buttonText}>Make Payment</Text>
+            </TouchableOpacity>
+
+
+        <View style={styles.checkoutBookingsLine}></View>
+       
+        <Text style={styles.headerTextBlack2}>Total Cost Breakdown: </Text>
+       
+    
+          {participantArray.map((item, index) => (
+              <View key={index} style={styles.checkoutBookingsContainer}>
+  
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Name: </Text>
+                {item.name}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Price:  </Text>
+                £{item.totalParticipantPrice}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Selected Days attending: </Text>
+                {item.daysSelectedArray.join(", ")}
+              </Text>
+        
+            </View>
+
+          ))} 
+      
+
+
+        <View>
+        <View style={styles.checkoutBookingsLine}></View>
+         
+          
+        </View>
+
+                        
+        </View>  
+
+
+
+
+ 
+
+              </ScrollView> 
+
+  
+        </View>
+
+  </Modal>
+
+
+
+
+
+
+    
+
+
 
     </View>
-    </View>
+
+
+      </View>    
+      </View>    
     </StripeProvider> 
 
     </ScrollView>
@@ -915,6 +1317,30 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 150, // Adjust this value for the desired curvature
 
   },
+  checkoutBookingsContainer:{
+    borderWidth: 1,
+    backgroundColor:'#ecf0ff',
+    borderColor: '#00e3ae',
+    marginBottom:10,
+    borderRadius: 10, // Adjust this value for the desired curvature
+  },
+  checkoutBookingsLine:{
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 10, 
+  marginTop:10,
+    marginBottom:10
+
+  },
+  containerModal: {
+    flex: 1,
+    backgroundColor: '#00e3ae',
+    borderWidth: 1,
+    borderColor: '#00e3ae',
+    borderRadius: 10,
+    padding: 10,
+    margin: 20,
+  },
   container2:{
 
     flex: 1,
@@ -926,8 +1352,13 @@ const styles = StyleSheet.create({
 
 
   },
+  bookingsButtonsContainer:{
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+  },
   validationText: {
-    fontSize: 20,
+    fontSize: 12,
     marginBottom: 10,
     color: 'red',
   },
@@ -948,8 +1379,9 @@ const styles = StyleSheet.create({
     modalContent: {
       backgroundColor: '#fff',
       padding: 20,
-      borderRadius: 10,
-      width: '80%',
+      borderRadius: 30,
+      // marginTop:10,
+      width: '90%',
     },
     fieldRow: {
       flexDirection: 'row',
@@ -978,7 +1410,7 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     },
     buttonContainer:{
-      marginTop:30
+      marginTop: 10
     },
     button: {
  
@@ -992,6 +1424,27 @@ const styles = StyleSheet.create({
       zIndex: 2, // Ensure dropdown is above other elements
 
     },
+
+    bookingsHeaderContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      // padding: 10,
+      marginTop:30,
+      marginBottom:10,
+    },
+
+    bookingsButtonsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      padding: 10,
+    },
+    buttonBooking: {
+      backgroundColor: 'black',
+      paddingVertical: 5, // Reduced padding
+      paddingHorizontal: 10, // Reduced padding
+      borderRadius: 5,
+      marginHorizontal: 5,
+    },
    
     button1: {
       backgroundColor: '#4CAF50',
@@ -1000,6 +1453,25 @@ const styles = StyleSheet.create({
       zIndex: 2, // Ensure dropdown is above other elements
       marginBottom: 5,
      
+    },
+    headerTextBlack:{
+      color: 'black',
+      fontSize: 14,
+      justifyContent:'center',
+      padding:5,
+      marginBottom:5,
+      marginTop:5
+  
+    },
+    headerTextBlack2:{
+      color: 'black',
+      fontSize: 14,
+      fontWeight:'bold',
+      justifyContent:'center',
+      padding:1,
+      marginBottom:5,
+      marginTop:5
+  
     },
     button2: {
       backgroundColor: '#4CAF50',

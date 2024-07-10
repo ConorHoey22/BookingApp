@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
       marginTop: 30,
       paddingVertical: 15,
       alignItems: 'center',
-      backgroundColor: '#6558d3',
+      backgroundColor: 'black',
       borderRadius: 15,
       padding: 2,
       zIndex: 2, // Ensure dropdown is above other elements
@@ -456,7 +456,6 @@ const styles = StyleSheet.create({
   headerTextBlack:{
     color: 'black',
     fontSize: 14,
-    // fontWeight:'bold',
     justifyContent:'center',
     padding:5,
     marginBottom:5,
@@ -490,10 +489,9 @@ const styles = StyleSheet.create({
       fontSize: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      fontWeight:'bold'
+
     },
-  
-  
+
    
     containerText:{
   

@@ -936,17 +936,14 @@ const renderEventItem = ({ item: event }) => (
               <Text>Booking ID: {booking._id}</Text>
               <Text>Participants: {booking.participantsBooked}</Text>
 
-              <View style={styles.buttonEventContainer}>
                 <TouchableOpacity style={styles.button} onPress={() => openEventBookingDetailsModal(booking)}>
                   <Text style={styles.buttonText}>View Booking Details</Text>
                 </TouchableOpacity>
-              </View>
-  
-              <View style={styles.buttonEventContainer}>
+    
                 <TouchableOpacity style={styles.button} onPress={() => RequestEventRefundCancellationModalVisible(booking)}>
                   <Text style={styles.buttonText}>View Refund Options</Text>
                 </TouchableOpacity>
-              </View>
+       
             </View>
           ))}
 
@@ -1261,23 +1258,22 @@ const renderCampItem = ({ item: camp }) => (
                   £{booking.price}
                 </Text>
 
-                <View style={styles.buttonContainer}>
+
                   <TouchableOpacity
                     style={styles.button}
                     onPress={() => openCampBookingDetailsModal(booking)}
                   >
                     <Text style={styles.buttonText}>View Booking Details</Text>
                   </TouchableOpacity>
-                </View>
 
-                <View style={styles.buttonContainer}>
+              
                   <TouchableOpacity
                     style={styles.button}
                     onPress={() => RequestCampRefundCancellationModalVisible(booking)}
                   >
                     <Text style={styles.buttonText}>View Refund Options</Text>
                   </TouchableOpacity>
-                </View>
+   
               </View>
 
               
@@ -1645,26 +1641,29 @@ return (
           marginTop:-20
         },
         button: {
- 
           borderRadius: 10,
           marginTop: 30,
-          paddingVertical: 15,
           alignItems: 'center',
-          backgroundColor: '#6558d3',
-          borderRadius: 15,
+          backgroundColor: 'black',
           padding: 2,
           zIndex: 2, // Ensure dropdown is above other elements
-    
+          paddingVertical: 5, // Reduced padding
+          paddingHorizontal: 10, // Reduced padding
+          borderRadius: 5,
+          marginHorizontal: 5,
         },
+        
+    
+      
        
 
         buttonEventCamp:{
           borderRadius: 10,
-          marginTop: 60,
-          marginBottom: 10,
+          marginTop: 70,
+          marginBottom: 20,
           paddingVertical: 15,
           alignItems: 'center',
-          backgroundColor: '#6558d3',
+          backgroundColor: 'black',
           width:'80%',
           borderRadius: 15,
           padding: 2,
@@ -1676,7 +1675,7 @@ return (
           fontSize: 14,
           alignItems: 'center',
           justifyContent: 'center',
-          fontWeight:'bold'
+          
           
         },
         container1: {

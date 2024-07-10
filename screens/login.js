@@ -171,12 +171,12 @@ const styles = StyleSheet.create({
       fontSize: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      fontWeight:'bold'
+
     },
     button:{
       flexDirection:'row',
       width: '80%',
-      backgroundColor: '#6558d3',
+      backgroundColor: 'black',
       borderRadius: 10,
       marginBottom: 20,
       paddingVertical: 15,

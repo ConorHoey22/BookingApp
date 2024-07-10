@@ -45,12 +45,12 @@ const Home = ({navigation}) => {
         <View style={styles.container2}>
           <View style={styles.container}>
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
-              <Text style={styles.buttonText}>Login</Text>
+              <Text style={styles.buttonText}>Login </Text>
               <Ionicons name="log-in-outline" size={20} style={styles.icon} />
             </TouchableOpacity>
           
             <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-              <Text style={styles.buttonText}>Sign Up</Text>  
+              <Text style={styles.buttonText}>Sign Up </Text>  
               <Ionicons name="person-add-outline" size={20} color="#0073e6" style={styles.icon} />
             </TouchableOpacity>
           
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   headerText:{
     color: 'white',
     fontSize: 18,
-    // fontWeight:'bold'
+   
   },
   icon: {
     color: '#00e3ae', // Add spacing between icon and text
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   button:{
     flexDirection:'row',
     width: '80%',
-    backgroundColor: '#6558d3',
+    backgroundColor: 'black',
     borderRadius: 10,
     marginBottom: 20,
     paddingVertical: 15,
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    fontWeight:'bold'
+
   },
   
  
