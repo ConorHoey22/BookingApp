@@ -1,13 +1,13 @@
 import React, { useEffect,useState } from 'react';
 import {ScrollView, StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal,FlatList } from 'react-native';
 import validator from 'validator';
-import { PreventRemoveProvider, useNavigation } from '@react-navigation/native';
+import { PreventRemoveProvider, useNavigation, useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { DatePickerModal } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
-
+import { Ionicons } from '@expo/vector-icons';
 
 
 
@@ -47,6 +47,8 @@ const [startTime, setStartTime] = useState(new Date());
 const [endTime, setEndTime] = useState(new Date());
 const [showTimePicker, setShowTimePicker] = useState(false);
 
+const route = useRoute()
+const dataT = route.params?.dataTrigger;
   
     useEffect(() => {
       const checkAuthentication = async () => {
@@ -59,6 +61,15 @@ const [showTimePicker, setShowTimePicker] = useState(false);
           console.error('Error fetching JWT token:', error);
         }
       };
+
+
+
+      if(dataT){
+        handleCamps();
+        handleEvents();
+      }
+  
+
   
       checkAuthentication(); // Call the function to check authentication status when component mounts
     
@@ -66,7 +77,7 @@ const [showTimePicker, setShowTimePicker] = useState(false);
     handleEvents();
     
     
-    }, []);
+    }, [route.params]);
     
     // Empty dependency array ensures the effect runs only once when component mounts
 //GET CAMPS || EVENTS 
@@ -346,14 +357,17 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
 
           // Access participant array
           const participantArray = booking.participantArray;
-        
+
+
           // Iterate over participant array
           participantArray.forEach(participant => {
             // Access participant details
             const participantName = participant.name;
             const participantAge = participant.age;
-            const participantAttendanceStatus = participant.attendanceStatus
-            const participantEmergencyContactNumber = participant.emergencyContactNumber
+            const participantAttendanceStatus = participant.attendanceStatus;
+            const participantEmergencyContactNumber = participant.emergencyContactNumber;
+            const participantsDaysSelected = participant.daysSelectedArray;
+            const participantsAdditionalInfo = participant.additionalInfo;
             // Access other participant details as needed
 
           // Create an object with participant details and push it to the bookingData array
@@ -361,8 +375,10 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
             name: participantName,
             age: participantAge,
             attendanceStatus: participantAttendanceStatus,
-            emergencyContactNumber: participantEmergencyContactNumber
-       
+            emergencyContactNumber: participantEmergencyContactNumber,
+            participantsDaysSelected: participantsDaysSelected,
+            participantsAdditionalInfo: participantsAdditionalInfo
+            
           });
 
 
@@ -412,14 +428,17 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
   
             // Access participant array
             const participantArray = booking.participantArray;
-          
+            const numberOfEventParticipants = participantArray.length;
             // Iterate over participant array
             participantArray.forEach(participant => {
               // Access participant details
               const participantName = participant.name;
               const participantAge = participant.age;
-              const participantAttendanceStatus = participant.attendanceStatus
-              const participantEmergencyContactNumber = participant.emergencyContactNumber
+              const participantAttendanceStatus = participant.attendanceStatus;
+              const participantEmergencyContactNumber = participant.emergencyContactNumber;
+              const participantsAdditionalInfo = participant.additionalInfo;
+              const participantsAllergies = participant.allergies;
+
               // Access other participant details as needed
   
             // Create an object with participant details and push it to the bookingData array
@@ -427,7 +446,10 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
               name: participantName,
               age: participantAge,
               attendanceStatus: participantAttendanceStatus,
-              emergencyContactNumber: participantEmergencyContactNumber
+              emergencyContactNumber: participantEmergencyContactNumber,
+              additionalInfo: participantsAdditionalInfo,
+              allergies: participantsAllergies
+      
          
             });
   
@@ -470,6 +492,7 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
     const id = campData[index]._id; // Assuming each camp has an '_id' property
     setSelectedCamp(id);
 
+
   };
 
 
@@ -479,6 +502,7 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
     const id = eventData[index]._id; // Assuming each event has an '_id' property
     setSelectedEvent(id);
 
+
   };
 
 
@@ -486,6 +510,9 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
 
     const jwtToken = await AsyncStorage.getItem('jwtToken');
     const id = selectedCamp; // Assuming each camp has an '_id' property
+
+
+
 
     try {
 
@@ -506,9 +533,12 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
         newData.splice(index, 1);
 
         setDeleteCampModal(false);
+
         return newData;
       });
 
+      handleCamps();
+      navigation.navigate('Admin Dashboard');
 
       
 
@@ -524,6 +554,7 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
 
     const jwtToken = await AsyncStorage.getItem('jwtToken');
     const id = selectedEvent; // Assuming each event has an '_id' property
+
 
     try {
 
@@ -545,7 +576,9 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
         return newData;
       });
 
-
+      setDeleteEventModal(false);
+      handleEvents();
+      navigation.navigate('Admin Dashboard');
       
 
 
@@ -704,66 +737,235 @@ const [edited1DayPriceText, setEdited1DayPrice] = useState(''); // Edited text f
 return (
 
     <ScrollView>
-      <Text>Camps</Text>
+      <View style={styles.container2}>
+        <View style={styles.container}>
+        
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Camps</Text>
+        </View>
+
         {campData.map((camp, index) => (
-        <View key={index} style={styles.container}>  
-            <Text>{camp.campName} </Text>
-            <Text>Location: {camp.location}</Text> 
+        <View key={index} style={styles.containerCard}> 
+
+            <View style={styles.BookingOptionsContainer}>
+              <Text style={styles.headerText}>{camp.campName} </Text>
+            </View>
+
+            <View style={styles.BookingOptionsContainerLine}></View>
+
+            <View style={styles.BookingOptionsContainer}>
+              <Text style={styles.headerText}>Location: {camp.location}</Text> 
+            </View>
+
+            <View style={styles.BookingOptionsContainer}>
+              <Text style={styles.headerText}>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
+            </View>
     
-            <Text>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
+            <View style={styles.BookingOptionsContainer}>
+              <Text>
+                <Text style={styles.headerText}>Start Time: </Text>
+                {new Date(camp.startTime).toLocaleTimeString()} -
+                <Text style={styles.headerText}> End Time: </Text><Text>{new Date(camp.endTime).toLocaleTimeString()}</Text>
+              </Text> 
+            </View>
+        
+            <View style={styles.BookingOptionsContainer}>
+              <Text>
+                <Text style={styles.headerText}>Full Camp Price: </Text>
+                £{camp.price5Day}
+              </Text> 
+            </View>
+
+            <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>Participants Booked:  </Text>
+                {camp.participantsBooked}
+              </Text>
+            </View>
+
+            <View style={styles.BookingOptionsContainerLine}></View>
+
+            <View style={styles.BookingOptionsContainer}>
+              <Text style={styles.headerText}>Booking Options</Text>
+            </View>
+
+            <View style={styles.BookingOptionsContainerLine}></View>
+            
+
+            <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>4 Days Price: </Text>
+                £{camp.price4Day}
+              </Text> 
+            </View>
+    
+
+            <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>3 Days Price: </Text>
+                £{camp.price3Day}
+              </Text>
+            </View>
+          
+
+            <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>2 Days Price: </Text>
+                £{camp.price2Day}
+              </Text>
+            </View>
 
 
-            <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
-            <Text>Full Camp Price: £{camp.price5Day} </Text>
-            <Text>Booking Options</Text>
-            <Text>4 Days Price: £{camp.price4Day} </Text>
-            <Text>3 Days Price: £{camp.price3Day} </Text>
-            <Text>2 Days Price: £{camp.price2Day} </Text>
-            <Text>1 Day Price: £{camp.price1Day} </Text>
+            <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>1 Day Price: </Text>
+                £{camp.price1Day}
+              </Text>
+            </View>
 
-            <TouchableOpacity style={styles.button} onPress={() => openEditModal(index)}>
-            <Text style={styles.buttonText} >Edit</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}  onPress={() => ViewCampAttendance(index)}>
-            <Text style={styles.buttonText}>View Attendance</Text>
-            </TouchableOpacity>
+      
+            <View style={styles.BookingButtons}>
+              
+              <View>
+                  <TouchableOpacity style={styles.button} onPress={() => openEditModal(index)}>
+                    <View style={styles.buttonContent}>
+                      <Text style={styles.buttonText}>Edit Camp Details </Text>
+                      <Ionicons name="create-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                    </View>
+                  </TouchableOpacity>
+              </View>
+           
 
-            <TouchableOpacity style={styles.button}  onPress={() => openDeleteCampModal(index)}>
-            <Text style={styles.buttonText}>Delete Camp</Text>
-            </TouchableOpacity>
+              <View>
+                <TouchableOpacity style={styles.button} onPress={() => ViewCampAttendance(index)}>
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>View Attendance </Text>
+                    <Ionicons name="today-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+              <View>
+                <TouchableOpacity style={styles.button} onPress={() => openDeleteCampModal(index)}>
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>Delete Camp </Text>
+                    <Ionicons name="trash-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                  </View>
+                </TouchableOpacity>
+              </View>
+ 
+     
+            </View>
+
+
         </View>
-        ))}
 
-        <Text>Events</Text>
+        ))}
+ 
+
+
+ {/* Events */}
+
+     <Text style={styles.headerText}>Events</Text>
         {eventData.map((event, index) => (
-        <View key={index} style={styles.container}>  
+        <View key={index} style={styles.containerCard}>  
     
-            <Text>Event Name: {event.eventName}</Text>
-            <Text>Location: {event.location} </Text> 
+ 
+      <View>
+
+
+
+           <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>Event Name: </Text>
+                 {event.eventName}
+              </Text>
+            </View>
+
+
+           <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>Location: </Text>
+                 {event.location}
+              </Text>
+           </View>
+
+           <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>Date: </Text>
+                {new Date(event.startDate).toLocaleDateString('en-GB')}
+              </Text>
+           </View>
+
+           <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>Start Time:  </Text>
+                {new Date(event.startTime).toLocaleTimeString()}
+              </Text>
+           </View>
+
+
+           <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>End Time:  </Text>
+                {new Date(event.endTime).toLocaleTimeString()}
+              </Text>
+           </View>
+
+           <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>Price:  </Text>
+                £{event.price}
+              </Text>
+           </View>
+
+           
+           <View style={styles.BookingOptionsText}>
+              <Text>
+                <Text style={styles.headerText}>Participants Booked:  </Text>
+                {event.participantsBooked}
+              </Text>
+           </View>
+
     
-            <Text>Date: {new Date(event.startDate).toLocaleDateString('en-GB')}  </Text>
+            </View>
 
 
-            <Text>Start Time: {new Date(event.startTime).toLocaleTimeString()}</Text>
+              <View>
+                  <TouchableOpacity style={styles.button} onPress={() => openEditEventModal(index)}>
+                    <View style={styles.buttonContent}>
+                      <Text style={styles.buttonText}>Edit Event </Text>
+                      <Ionicons name="create-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                    </View>
+                  </TouchableOpacity>
+              </View>
+           
+              <View>
+                  <TouchableOpacity style={styles.button} onPress={() => ViewEventAttendance(index)}>
+                    <View style={styles.buttonContent}>
+                      <Text style={styles.buttonText}>View Attendance </Text>
+                      <Ionicons name="today-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                    </View>
+                  </TouchableOpacity>
+              </View>
 
-            <Text>End Time: {new Date(event.endTime).toLocaleTimeString()}</Text>
-            <Text>Price: £{event.price} </Text>
+              <View>
+                  <TouchableOpacity style={styles.button} onPress={() => openDeleteEventModal(index)}>
+                    <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>Delete Event</Text>
+                      <Ionicons name="trash-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                    </View>
+                  </TouchableOpacity>
+              </View>
 
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={() => openEditEventModal(index)}>Edit</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button}  onPress={() => ViewEventAttendance(index)}>
-              <Text style={styles.buttonText}>View Attendance</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button}  onPress={() => openDeleteEventModal(index)}>
-              <Text style={styles.buttonText}>Delete Event</Text>
-            </TouchableOpacity>
         </View>
         ))}
     
+
+
+
+
 
 {/* Modal - Edit Camp Modal */}
 
@@ -775,15 +977,14 @@ return (
       onRequestClose={closeEditModal}
     >
      <View style={styles.modalContainer}>
-      <ScrollView>
-
       <View style={styles.modalContent}>
-      <View style={{ flexDirection: 'column' }}>
-      <View style={styles.fieldRow}>
-       
-          <Text style={styles.label}>Location</Text>
+
+      <View style={styles.formContent}>
+        <Text style={styles.validationText}>* Edit by clicking the value you would like to change:</Text>
       </View>
-          <View>
+
+          <View style={styles.formContent}>
+          <Text style={styles.headerText}>Location: </Text>
           <TextInput
             style={styles.textInput}
             value={editedLocationText}
@@ -792,8 +993,8 @@ return (
           />
         </View>
 
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>Start Date:</Text>
+        <View style={styles.formContent}>
+          <Text style={styles.headerText}>Start Date: </Text>
   
           {startPickerVisible && (
             
@@ -810,10 +1011,8 @@ return (
               
         </View>
 
-
-
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>End Date:</Text>
+        <View style={styles.formContent}>
+          <Text style={styles.headerText}>End Date: </Text>
   
           {startPickerVisible && (
             
@@ -834,8 +1033,8 @@ return (
 
 
 
-        <View style={styles.fieldRow}>
-        <Text style={styles.label}>Select a start time:</Text>
+        <View style={styles.formContent}>
+        <Text style={styles.headerText}>Select a start time: </Text>
                   {show && (
                   <DateTimePicker
                   testID="dateTimePicker"
@@ -850,8 +1049,8 @@ return (
           </View>
 
 
-          <View style={styles.fieldRow}>
-            <Text style={styles.label}>Select a end time:</Text>
+          <View style={styles.formContent}>
+            <Text style={styles.headerText}>Select a end time: </Text>
               {show && (
               <DateTimePicker
               testID="dateTimePicker"
@@ -863,9 +1062,9 @@ return (
             />
           )}
           </View>
-
-          <Text style={styles.label}>Full Price(£)</Text>
-          <View>
+      
+          <View style={styles.formContent}>
+          <Text style={styles.headerText}>Full Price(£) </Text>
             <TextInput
             style={styles.textInput}
             value={edited5DayPriceText}
@@ -875,8 +1074,9 @@ return (
           </View>
           
 
-          <Text style={styles.label}>4 Day Camp Price(£)</Text>
-          <View>
+          <View style={styles.formContent}>
+
+          <Text style={styles.headerText}>4 Day Camp Price(£) </Text>
             <TextInput
             style={styles.textInput}
             value={edited4DayPriceText}
@@ -885,8 +1085,8 @@ return (
           />
           </View>
 
-          <Text style={styles.label}>3 Day Camp Price(£)</Text>
-          <View>
+          <View style={styles.formContent}>
+          <Text style={styles.headerText}>3 Day Camp Price(£) </Text>
             <TextInput
             style={styles.textInput}
             value={edited3DayPriceText}
@@ -895,18 +1095,18 @@ return (
           />
           </View>
 
-          <Text style={styles.label}>2 Day Camp Price(£)</Text>
-          <View>
-            <TextInput
-            style={styles.textInput}
-            value={edited2DayPriceText}
-            onChangeText={setEdited2DayPrice}
-            placeholder='Enter here..'
-          />
+          <View style={styles.formContent}>
+            <Text style={styles.headerText}>2 Day Camp Price(£) </Text>
+              <TextInput
+              style={styles.textInput}
+              value={edited2DayPriceText}
+              onChangeText={setEdited2DayPrice}
+              placeholder='Enter here..'
+            />
           </View>
 
-          <Text style={styles.label}>1 Day Camp Price(£)</Text>
-          <View>
+          <View style={styles.formContent}>
+          <Text style={styles.headerText}>1 Day Camp Price(£) </Text>
             <TextInput
             style={styles.textInput}
             value={edited1DayPriceText}
@@ -915,101 +1115,136 @@ return (
           />
           </View>
 
+   
 
-          <View style={styles.fieldRow}>
+
+
+
+          <View>
 
             <TouchableOpacity style={styles.button}  onPress={() => updateCamp(editedCampIndex)}>
-              <Text style={styles.buttonText}>Update Camp</Text>
+                <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Update Camp </Text>
+                <Ionicons name="create-outline" size={20} style={styles.icon} color="#ecf0ff" />
+              </View>
             </TouchableOpacity>
-
           </View>
 
 
 
 
-          <View style={styles.fieldRow}>
-
-            <TouchableOpacity style={styles.button}  onPress={closeEditModal}>
-              <Text style={styles.buttonText}>Exit</Text>
+          <View>
+              <TouchableOpacity style={styles.button} onPress={closeEditModal}>
+                <View style={styles.buttonContent}>
+                  <Text style={styles.buttonText}>Exit </Text>
+                <Ionicons name="close-circle-outline" size={20} style={styles.icon} color="#ecf0ff" />
+              </View>
             </TouchableOpacity>
-
           </View>
 
-
-
+       
       </View>
-
-
-
      
-</View>
-      
+      </View>       
 
-
-      
-     
-  
-  </ScrollView>
-   
-  </View>
     </Modal>
 
 
 
 
 
-
-
-  {/* Attendance Event View Modal */}
-
+  {/* Attendance Camp View Modal  */}
   <Modal
       animationType="slide"
       transparent={true}
-      visible={eventAttendanceModalVisible}
-      onRequestClose={closeEventAttendanceModal}
+      visible={campAttendanceModalVisible}
+      onRequestClose={closeCampAttendanceModal}
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
 
           {/* Iterate over all participants  */}
- 
-          <View>
-            <Text>Event Attendance</Text>
-          </View>
+          <View style={styles.containerGap}></View>
+          <View style={styles.containerGap}></View>
+
+            <View>
+                <TouchableOpacity style={styles.button} onPress={closeCampAttendanceModal}>
+                  <View style={styles.buttonContent}>
+                      <Text style={styles.buttonText}>Exit </Text>
+                      <Ionicons name="close-circle-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                    </View>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.containerCardAttendanceGap}></View>
+            <Text style={styles.headerText}>Number of bookings: {bookingData.length}</Text>
+            <View style={styles.containerCardAttendanceGap}></View>
+
+
+
+
+            {bookingData.length === 0 ? (
+              <Text style={styles.noBookingsText}>No bookings have been made.</Text>
+            ) : (
+
+                <FlatList
+                  data={bookingData}
+                  style={styles.containerCardAttendance}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => (
+                    <View style={styles.containerCardBooking}>
+                  
+                    <Text>
+                      <Text style={styles.headerText}>Name: </Text>    
+                      {item.name}
+                    </Text>
+
+
+                    <View style={styles.containerCardAttendanceGap}></View>
+
+                    <Text>
+                      <Text style={styles.headerText}>Attendance Status: </Text>    
+                      {item.attendanceStatus}
+                    </Text>
+
+
+                    <View style={styles.containerCardAttendanceGap}></View>
+
+                    <Text>
+                      <Text style={styles.headerText}>Contact Number: </Text>    
+                      {item.emergencyContactNumber}
+                    </Text>
+
+                    <View style={styles.containerCardAttendanceGap}></View>
+
+                    <Text>
+                      <Text style={styles.headerText}>Days Selected: </Text>    
+                      {Array.isArray(item.participantsDaysSelected) ? item.participantsDaysSelected.join(', ') : ''}
+                    </Text>
+
+
+                    <View style={styles.containerCardAttendanceGap}></View>
+
+                    <Text>
+                      <Text style={styles.headerText}>Info: </Text>    
+                      {item.participantsAdditionalInfo}
+                    </Text>
+           
+
+                      <View style={styles.containerCardAttendanceGap}></View>
+                      {/* Other participant details */}
+                    </View>
+                    )}
+                    />
+                  )}
+              </View>
+            </View>
       
-
-
-            <FlatList
-              data={bookingData}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <View style={{ flexDirection: 'column' }}>
-                  <Text>Name: {item.name}</Text>
-                  <Text>Attendance Status: {item.attendanceStatus}</Text>
-                  <Text>Contact Number: {item.emergencyContactNumber}</Text>
-                  {/* Other participant details */}
-          
-                
-          </View>
-        )}
-      />
-
-                
-          <View>
-            <TouchableOpacity style={styles.button}  onPress={closeEventAttendanceModal}>
-              <Text style={styles.buttonText}>Exit</Text>
-            </TouchableOpacity>
-          </View> 
-          </View>
-        </View>
-      
-    </Modal>
+          </Modal>
 
 
 
-
-
-          {/* Modal  */}
+          {/* Delete Modal  */}
           <Modal
             animationType="slide"
             transparent={true}
@@ -1038,80 +1273,98 @@ return (
 
 
 
-
-          {/* Modal  - Delete Event confirmation  */}
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={openDeleteEventModalVisible}
-            onRequestClose={closeDeleteEventModal}
-
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                  <View style={{ flexDirection: 'column' }}>
-                    <Text style={styles.label}>Are you sure you want to delete this Camp? 
-                    Once deleted this is removed from the Database and effect current bookings not advised* Contact HoeyTech for more info </Text>
-                      <TouchableOpacity style={styles.button} onPress={removeEvent}>
-                        <Text style={styles.buttonText}>Yes</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity style={styles.button} onPress={closeDeleteCampModal}>
-                        <Text style={styles.buttonText}>No</Text>
-                      </TouchableOpacity>
-                  </View>
-
-              </View> 
-        </View>
-                                
-      </Modal> 
-
-
-
-
-
-  {/* Attendance Camp View Modal  */}
+  {/* Attendance Event View Modal */}
 
   <Modal
       animationType="slide"
       transparent={true}
-      visible={campAttendanceModalVisible}
-      onRequestClose={closeCampAttendanceModal}
+      visible={eventAttendanceModalVisible}
+      onRequestClose={closeEventAttendanceModal}
     >
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
 
           {/* Iterate over all participants  */}
- 
-          <View>
-            <Text>Attendance</Text>
-          </View>
-      
-
-
-            <FlatList
-              data={bookingData}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <View style={{ flexDirection: 'column' }}>
-                  <Text>Name: {item.name}</Text>
-                  <Text>Attendance Status: {item.attendanceStatus}</Text>
-                  <Text>Contact Number: {item.emergencyContactNumber}</Text>
-                  {/* Other participant details */}
+          <View style={styles.containerGap}></View>
+          <View style={styles.containerGap}></View>
           
-                
-          </View>
-        )}
-      />
+        
+              <View>
+                <TouchableOpacity style={styles.button} onPress={closeEventAttendanceModal}>
+                    <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>Exit </Text>
+                      <Ionicons name="close-circle-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                    </View>
+                </TouchableOpacity>
+              </View>
 
-                
-          <View>
-            <TouchableOpacity style={styles.button}  onPress={closeCampAttendanceModal}>
-              <Text style={styles.buttonText}>Exit</Text>
-            </TouchableOpacity>
-          </View> 
-          </View>
-        </View>
+             
+
+              <View style={styles.containerCardAttendanceGap}></View>
+
+              <Text> 
+              <Text style={styles.headerText}>Number of bookings: </Text>
+               {bookingData.length}
+              </Text>
+            
+
+              <View style={styles.containerCardAttendanceGap}></View>
+              
+              {bookingData.length === 0 ? (
+              <Text style={styles.noBookingsText}>No bookings have been made.</Text>
+            ) : (
+
+
+                <FlatList
+                  data={bookingData}
+                  style={styles.containerCardAttendance}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => (
+                    
+                    <View style={styles.containerCardBooking}>
+                        <Text>
+                            <Text style={styles.headerText}>Name: </Text>
+                            <Text>{item.name}</Text>
+                        </Text>
+
+                        <View style={styles.containerCardAttendanceGap}></View>
+
+                        <Text>
+                            <Text style={styles.headerText}>Attendance Status: </Text>
+                            <Text>{item.attendanceStatus}</Text>
+                        </Text>
+
+                        <View style={styles.containerCardAttendanceGap}></View>
+                        
+                        <Text>
+                            <Text style={styles.headerText}>Contact Number: </Text>
+                            <Text>{item.emergencyContactNumber}</Text>
+                        </Text>
+
+                        <View style={styles.containerCardAttendanceGap}></View>
+
+                        <Text>
+                            <Text style={styles.headerText}>Allergies: </Text>
+                            <Text>{item.allergies}</Text>
+                        </Text>
+
+                        <View style={styles.containerCardAttendanceGap}></View>
+        
+                        <Text>
+                            <Text style={styles.headerText}>Additional Info: </Text>
+                            <Text>{item.additionalInfo}</Text>
+                        </Text>
+
+                      {/* Other participant details */}
+
+                          </View>
+                        )}
+                      />
+                      )}
+
+
+              </View>
+            </View>
       
     </Modal>
 
@@ -1126,122 +1379,136 @@ return (
       onRequestClose={closeEditEventModal}
     >
     <View style={styles.modalContainer}>
-      <ScrollView>
-
       <View style={styles.modalContent}>
-      <View style={{ flexDirection: 'column' }}>
-      <View style={styles.fieldRow}>
-       
-      <Text style={styles.label}>Location</Text>
-      </View>
-          <View>
-          <TextInput
-            style={styles.textInput}
-            value={editedEventLocationText}
-            onChangeText={setEditedEventLocationText}
-            placeholder='Enter here..'
-          />
+
+        <View style={styles.formContent}>
+          <Text style={styles.validationText}>* Edit by clicking the value you would like to change:</Text>
         </View>
 
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>Start Date:</Text>
-  
-          {startPickerVisible && (
-            
-            <DateTimePicker
-              testID="dateTimePickerStart"
-              value={startDate}
-              mode={'date'}
-              display="default"
-              onChange={handleStartChange}
-         
-            />
-            
-          )}
-              
-        </View>
-
-
-
-
-        <View style={styles.fieldRow}>
-        <Text style={styles.label}>Select a start time:</Text>
-                  {show && (
-                  <DateTimePicker
-                  testID="dateTimePicker"
-                  value={startTime}
-                  mode="time"
-                  is24Hour={true}
-                  display="default"
-                  onChange={onStartChange}
-                />
-              )}
-              
-          </View>
-
-
-          <View style={styles.fieldRow}>
-            <Text style={styles.label}>Select a end time:</Text>
-              {show && (
-              <DateTimePicker
-              testID="dateTimePicker"
-              value={endTime}
-              mode="time"
-              is24Hour={true}
-              display="default"
-              onChange={onEndChange}
-            />
-          )}
-          </View>
-
-          <Text style={styles.label}>Full Price(£)</Text>
-          <View>
+        <View style={styles.formContent}>
+            <Text style={styles.label}>Location: </Text>
             <TextInput
-            style={styles.textInput}
-            value={editedEventPriceText}
-            onChangeText={setEditedEventPrice}
-            placeholder='Enter here..'
-          />
-          </View>
-          
-
-          <View style={styles.fieldRow}>
-
-            <TouchableOpacity style={styles.button}  onPress={() => updateEvent(editedEventIndex)}>
-              <Text style={styles.buttonText}>Update Event</Text>
-            </TouchableOpacity>
-
+              style={styles.textInput}
+              value={editedEventLocationText}
+              onChangeText={setEditedEventLocationText}
+              placeholder='Enter here..'
+            />
           </View>
 
-
-
-
-          <View style={styles.fieldRow}>
-
-            <TouchableOpacity style={styles.button}  onPress={closeEditModal}>
-              <Text style={styles.buttonText}>Exit</Text>
-            </TouchableOpacity>
-
+          <View style={styles.formContent}>
+            <Text style={styles.label}>Start Date:</Text>
+              {startPickerVisible && (
+                
+                <DateTimePicker
+                  testID="dateTimePickerStart"
+                  value={startDate}
+                  mode={'date'}
+                  display="default"
+                  onChange={handleStartChange}
+                /> 
+              )}
           </View>
 
+          <View style={styles.formContent}>
+                  <Text style={styles.label}>Select a start time:</Text>
+                      {show && (
+                      <DateTimePicker
+                      testID="dateTimePicker"
+                      value={startTime}
+                      mode="time"
+                      is24Hour={true}
+                      display="default"
+                      onChange={onStartChange}
+                    />
+                  )}
+            </View>
 
+            <View style={styles.formContent}>
+              <Text style={styles.label}>Select a end time:</Text>
+                {show && (
+                <DateTimePicker
+                testID="dateTimePicker"
+                value={endTime}
+                mode="time"
+                is24Hour={true}
+                display="default"
+                onChange={onEndChange}
+              />
+            )}
+            </View>
+
+            <View style={styles.formContent}>
+              <Text style={styles.label}>Full Price: £</Text>
+                <TextInput
+                style={styles.textInput}
+                value={editedEventPriceText}
+                onChangeText={setEditedEventPrice}
+                placeholder='Enter here..'
+              />
+            </View>
+
+            <View>
+              <TouchableOpacity style={styles.button}  onPress={() => updateEvent(editedEventIndex)}>
+                    <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>Update Event </Text>
+                    <Ionicons name="create-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                  </View>
+                </TouchableOpacity>
+            </View>
+
+            <View>
+              <TouchableOpacity style={styles.button}  onPress={closeEditEventModal}>
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>Exit </Text>
+                  <Ionicons name="close-circle-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                </View>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+      
+        </View>
+    </Modal>
+
+
+         {/* Modal  - Delete Event confirmation  */}
+         <Modal
+            animationType="slide"
+            transparent={true}
+            visible={openDeleteEventModalVisible}
+            onRequestClose={closeDeleteEventModal}
+
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                  <View style={{ flexDirection: 'column' }}>
+                    <Text style={styles.label}>Are you sure you want to delete this Event? 
+                    Once deleted this is removed from the Database and effect current bookings not advised* Contact HoeyTech for more info </Text>
+                      <TouchableOpacity style={styles.button} onPress={removeEvent}>
+                        <Text style={styles.buttonText}>Yes</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={styles.button} onPress={closeDeleteEventModal}>
+                        <Text style={styles.buttonText}>No</Text>
+                      </TouchableOpacity>
+                  </View>
+
+              </View> 
+        </View>
+                                
+      </Modal> 
+
+
+
+
+
+
+ 
+
+
+        </View>
 
       </View>
-
-
-
-     
-</View>
-      
-
-
-      
-     
-  
-  </ScrollView>
-   
-  </View>
-    </Modal>
 
 
 
@@ -1252,62 +1519,218 @@ return (
 
 
 
+
+
   );
 };
 
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      // borderWidth: 2,
-      // borderColor: '#ccc',
-      // padding: 20,
-      // margin: 20,
-      width: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalContainer: {
-      flex: 1,
-      // justifyContent: 'center',
-      // alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      width: '100%',
 
-    },
-    modalContent: {
-      backgroundColor: '#fff',
-      padding: 20,
-      borderRadius: 10,
-      width: '100%',
-    },
-    fieldRow: {
-      flexDirection: 'row',
-       marginTop: 15,
-    },
-    label: {
-      // marginBottom: 5,
-      fontWeight: 'bold',
-    },
-    textInput: {
-      borderWidth: 1,
-      borderColor: 'gray',
-      padding: 10,
-      marginTop: 10,
-    },
-    button: {
-      backgroundColor: '#4CAF50',
-      borderRadius: 4,
-      padding: 10,
-      marginBottom: 10,
-    },
-    buttonText: {
-      color: 'white',
-      fontSize: 16,
-      textAlign: 'center',
-    },
-  });
+  container: {
+    flex: 1,
+   
+    width:'100%'
+  }, 
+  headerContainer: {
+    marginTop:80,
+    marginBottom:10
+  }, 
+  containerCardBooking: {
+    borderWidth: 1,
+    borderColor: '#00e3ae',
+    borderRadius: 10,
+    padding: 10,
+    paddingTop: 5,
+    marginBottom:10,
+    width: '',
+    backgroundColor: 'white',
+  },
+
+
+
+  containerCard: {
+    borderWidth: 8,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    padding: 10,
+    margin: 0,
+    marginBottom:100,
+    width: '100%',
+    backgroundColor: '#ecf0ff',
+  },  
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#ecf0ff',
+    padding: 50,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    width: '80%',
+    borderWidth: 8,
+  },
+
+  button: {
   
+    borderRadius: 10,
+    marginTop: 30,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    backgroundColor: 'black',
+    borderRadius: 15,
+    padding: 2,
+    zIndex: 2, // Ensure dropdown is above other elements
+
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    
+    
+  },
+  BookingOptionsContainer:{
+    marginTop:10,
+    marginBottom:10
+  },
+  BookingOptionsText:{
+    marginTop:5,
+    marginBottom:5
+  },
+
+  BookingButtons:{
+    marginTop:1,
+  },
+  BookingOptionsContainerLine:{
+   
+    borderColor:'grey',
+    borderWidth:0.3
+  },
+
+  headerText:{
+    color: 'black',
+    fontSize: 14,
+    
+
+  },
 
 
+  contentPosition:{
+    marginTop:100
+  },
+  containerCard: {
+    borderWidth: 8,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    padding: 10,
+    margin: 0,
+    marginTop:10,
+    marginBottom:10, 
+    width: '80%',
+    backgroundColor: '#ecf0ff',
+  },  
+
+  containerCardAttendance: {
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  
+   
+    flexWrap: 'wrap', // Ensure text wraps if too long
+  
+    width: '100%',
+    backgroundColor: '#ecf0ff',
+  },  
+  validationText: {
+    fontSize: 12,
+    marginBottom: 10,
+    color: 'red',
+  },
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  containerTextInput:{
+    flex: 1,
+    marginTop:70,
+    marginBottom:-30,
+  },
+  icon :{
+    color: '#00e3ae',
+  },
+  container2:{
+  
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    backgroundColor: '#ecf0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+
+  },
+  
+  containerGap:{
+  
+    marginTop:40
+  
+  },
+
+  containerCardAttendanceGap:{
+  
+    marginTop:20
+  
+  },
+  DateSelectionContainer:{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+    width:'100%'
+  },
+
+  fieldRow:{
+    flexDirection: 'row', // Display items in a row
+    alignItems: 'center', // Align items in the center of the row
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+
+    borderColor:"black",
+    borderWidth:0.5
+  }, 
+  formContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    justifyContent: 'center',
+
+  },
+
+  formValidation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10
+  },
+});
+  
 export default ManageBookings;
+

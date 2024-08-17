@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
-
-import { StyleSheet, View, Button, Text, Platform ,TextInput , SafeAreaView, ScrollView} from 'react-native';
+import { StyleSheet, View, Button, Text, Platform ,TextInput ,TouchableOpacity, SafeAreaView, ScrollView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation , useRoute } from '@react-navigation/native';
 import { DatePickerModal } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-
-
+import { Ionicons } from '@expo/vector-icons';
 
 //Stripe imports
 import { CardField, useStripe, StripeProvider, InitPaymentSheet , usePaymentSheet} from '@stripe/stripe-react-native';
@@ -16,17 +14,7 @@ import { CardField, useStripe, StripeProvider, InitPaymentSheet , usePaymentShee
 const CreateCamp = ({navigation}) => {
 
 
-  useEffect(() => {
-    setStartPickerVisible(true);
-    setEndPickerVisible(true);
-    setShow(true);
 
- 
-  
-
-    
-
-  }, []);
 
 
   const [campName, setCampName] = useState('');
@@ -40,12 +28,33 @@ const CreateCamp = ({navigation}) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 
+
+
   //Error Messages 
   const [campNameErrorMessage, setCampNameErrorMessage] = useState('');
   const [locationErrorMessage, setLocationErrorMessage] = useState('');
   const [priceErrorMessage, setPriceErrorMessage] = useState('');
 
 
+   
+  useEffect(() => {
+    setStartPickerVisible(true);
+    setEndPickerVisible(true);
+    setShow(true);
+   
+
+    setCampName("");
+    setLocation("");
+    setPrice1Day("");
+    setPrice2Day("");
+    setPrice3Day("");
+    setPrice4Day("");
+    setPrice5Day("");
+
+
+   
+
+  }, []);
 // ------------- iOS Date Picker functions ---------------
 
 const [startDate, setStartDate] = useState(new Date());
@@ -217,7 +226,7 @@ useEffect(() => {
         if (response.ok) {
           const jsonResponse = await response.json();
           console.log('Camp Created', jsonResponse);
-          navigation.navigate('DashboardAdmin');
+          navigation.navigate('Manage Bookings', { dataTrigger: true}); 
         } else {
           console.log('Error Status:', response.status);
           console.log('Error Message:', response.statusText);
@@ -245,77 +254,108 @@ useEffect(() => {
 
   return (
 
+        <ScrollView>
+        <View style = {styles.container2}>
+          <View style={styles.container}>
 
-    
-    <ScrollView style = {styles.container}>
-      <View style={styles.fieldRow}>
-        <Text>Camp Name:</Text>
-        <TextInput
-          placeholder=" Enter the Camp name here"
-          value={campName}
-          onChangeText={setCampName} />
-      </View>
-      <Text style={styles.validationText}>{campNameErrorMessage}</Text>
-      <View style={styles.fieldRow}>
-        <Text>Location:</Text>
-        <TextInput
-          placeholder=" Enter the Location here"
-          value={location}
-          onChangeText={setLocation} />
-      </View>
-      <Text style={styles.validationText}>{locationErrorMessage}</Text>
+          <View style={styles.contentPosition}>
 
-      <View style={styles.fieldRow}>
-          <Text>Enter a price for 1 Day :</Text>
-          <TextInput
-            placeholder="£0.00"
-            value={price1Day}
-            onChangeText={setPrice1Day} />
-      </View>
-      <Text style={styles.validationText}>{priceErrorMessage}</Text>
+            <View style={styles.containerCard}>
+            
+                <View style={styles.formContent}>
+                    <Text style={styles.headerText}>Camp Name: </Text>
+                      <TextInput
+                          placeholder=" Enter the Camp name here"
+                          value={campName}
+                          onChangeText={setCampName} />
+                </View>
 
-      <View style={styles.fieldRow}>
-          <Text>Enter a price for 2 Days :</Text>
-          <TextInput
-            placeholder="£0.00"
-            value={price2Day}
-            onChangeText={setPrice2Day} />
-      </View>
-      <Text style={styles.validationText}>{priceErrorMessage}</Text>
+                <View style={styles.formValidation}>
+                  <Text style={styles.validationText}>{campNameErrorMessage}</Text>
+                </View>
+
+                <View style={styles.formContent}>
+                  <Text style={styles.headerText}>Location:</Text>
+                  <TextInput
+                    placeholder=" Enter the Location here"
+                    value={location}
+                    onChangeText={setLocation} />
+                </View>
+
+                <View style={styles.formValidation}>
+                  <Text style={styles.validationText}>{locationErrorMessage}</Text>
+                </View>
 
 
-      <View style={styles.fieldRow}>
-          <Text>Enter a price for 3 Days :</Text>
-          <TextInput
-            placeholder="£0.00"
-            value={price3Day}
-            onChangeText={setPrice3Day} />
-      </View>
-      <Text style={styles.validationText}>{priceErrorMessage}</Text>
+
+                <View style={styles.formContent}>
+                <Text style={styles.headerText}>Enter a price for 1 Day :</Text>
+                <TextInput
+                  placeholder=" £0.00"
+                  value={price1Day}
+                  onChangeText={setPrice1Day} />
+                </View>
+
+                <View style={styles.formValidation}>
+                  <Text style={styles.validationText}>{priceErrorMessage}</Text>
+                </View>
 
 
-      <View style={styles.fieldRow}>
-          <Text>Enter a price for 4 Days :</Text>
-          <TextInput
-            placeholder="£0.00"
-            value={price4Day}
-            onChangeText={setPrice4Day} />
-      </View>
-      <Text style={styles.validationText}>{priceErrorMessage}</Text>
+                <View style={styles.formContent}>
+                <Text style={styles.headerText}>Enter a price for 2 Days :</Text>
+                  <TextInput
+                  placeholder=" £0.00"
+                  value={price2Day}
+                  onChangeText={setPrice2Day} />
+                </View>
 
-      <View style={styles.fieldRow}>
-          <Text>Enter a price for 5 Days :</Text>
-          <TextInput
-            placeholder="£0.00"
-            value={price5Day}
-            onChangeText={setPrice5Day} />
-      </View>
-      <Text style={styles.validationText}>{priceErrorMessage}</Text>
+                <View style={styles.formValidation}>
+                  <Text style={styles.validationText}>{priceErrorMessage}</Text>
+                </View>
+
+               <View style={styles.formContent}>
+               <Text style={styles.headerText}>Enter a price for 3 Days :</Text>
+                <TextInput
+                  placeholder=" £0.00"
+                  value={price3Day}
+                  onChangeText={setPrice3Day} />
+              </View>
+
+              <View style={styles.formValidation}>
+                  <Text style={styles.validationText}>{priceErrorMessage}</Text>
+              </View>
 
 
-      {/* Web  */}
+              <View style={styles.formContent}>
+              <Text style={styles.headerText}>Enter a price for 4 Days :</Text>
+                  <TextInput
+                    placeholder=" £0.00"
+                    value={price4Day}
+                    onChangeText={setPrice4Day} />
+              </View>
 
-          {Platform.OS === 'web' && 
+              <View style={styles.formValidation}>
+                  <Text style={styles.validationText}>{priceErrorMessage}</Text>
+              </View>
+
+
+              <View style={styles.formContent}>
+              <Text style={styles.headerText}>Enter a price for 5 Days :</Text>
+                <TextInput
+                  placeholder=" £0.00"
+                  value={price5Day}
+                  onChangeText={setPrice5Day} />
+              </View>
+
+              <View style={styles.formValidation}>
+                  <Text style={styles.validationText}>{priceErrorMessage}</Text>
+              </View>
+
+
+
+          {/* Web  */}
+
+           {Platform.OS === 'web' && 
           <SafeAreaProvider>
               <View style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
                 <Button title = "Pick a Date Range" onPress={() => setOpen(true)} uppercase={false} mode="outlined" />
@@ -337,123 +377,120 @@ useEffect(() => {
             </SafeAreaProvider>
             }
 
+
             {/* ios */}
         
-            {Platform.OS === 'ios' && 
+           {Platform.OS === 'ios' && 
                 <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
-                  <Text>Select a start date:</Text>
-                 
-                  <View style={styles.fieldRow}>
+                  <Text style={styles.headerText}>Select a start date:</Text>
+                    <View style={styles.formContent}>
                       
-                      {startPickerVisible && (
+                       {startPickerVisible && (
                         <DateTimePicker
-                          testID="dateTimePickerStart"
+                           testID="dateTimePickerStart"
                           value={startDate}
-                          mode={'date'}
-                          display="default"
-                          onChange={handleStartChange}
+                           mode={'date'}
+                           display="default"
+                           onChange={handleStartChange}
                         />
-                      )}
-                   </View>
+                       )}
+                    </View>
 
-                  <Text>Select a end date:</Text>
-                  <View style={styles.fieldRow}>
-                    {endPickerVisible && (
-                      <DateTimePicker
-                        testID="dateTimePickerEnd"
-                        value={endDate}
-                        mode={'date'}
-                        display="default"
-                        onChange={handleEndChange}
-                      />
-                    )}
+                  <Text style={styles.headerText}>Select a end date:</Text>
+                  <View style={styles.formContent}>
+                     {endPickerVisible && (
+                       <DateTimePicker
+                         testID="dateTimePickerEnd"
+                         value={endDate}
+                         mode={'date'}
+                         display="default"
+                         onChange={handleEndChange}
+                       />
+                     )}
                   </View>
 
+                <Text style={styles.headerText}>Select a start time:</Text>
+
+                <View style={styles.formContent}>
+                        {show && (
+                        <DateTimePicker
+                        testID="dateTimePicker"
+                        value={startTime}
+                        mode="time"
+                        is24Hour={true}
+                        display="default"
+                        onChange={onStartChange}
+                      />
+                    )}
+                </View>
 
 
+                <Text style={styles.headerText}>Select an end time:</Text>
 
+                <View style={styles.formContent}>
 
-
-           <Text>Select a start time:</Text>
-
-           <View style={styles.fieldRow}>
                     {show && (
                     <DateTimePicker
                     testID="dateTimePicker"
-                    value={startTime}
+                    value={endTime}
                     mode="time"
                     is24Hour={true}
                     display="default"
-                    onChange={onStartChange}
+                    onChange={onEndChange}
                   />
-                )}
-                
-           </View>
-           <Text>Select an end time:</Text>
-          <View style={styles.fieldRow}>
+                  )}
+
+                </View>
+
+
+           
+                    <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                          <View style={styles.buttonContent}>
+                              <Text style={styles.buttonText}>Create Camp </Text>
+                              <Ionicons name="book-outline" size={20} style={styles.icon} />
+                          </View>
+                    </TouchableOpacity>
+        
+
+
+         
+    
+        </SafeAreaView>
+      }
+
+      {/* Andriod */}
+      {Platform.OS === 'android' &&
+      <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
+      <Button onPress={showDatepicker} title="Show date picker!" />
+      <Button onPress={showTimepicker} title="Show time picker!" />
+      <Text>selected: {date.toLocaleString()}</Text>
+
+
+
 
               {show && (
-              <DateTimePicker
-              testID="dateTimePicker"
-              value={endTime}
-              mode="time"
-              is24Hour={true}
-              display="default"
-              onChange={onEndChange}
-            />
-            )}
-
-          </View>
-
-  
-  
-
-<View style = {styles.container}>
-   
-    <View style={styles.fieldRow}>
-            {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
-            <Button
-              title="Create Camp"
-              onPress={handleSubmit} />
-    </View>
-
-
-    
-
-
- 
-
-    
-</View>
-     
-          
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode={mode}
+                  is24Hour={true}
+                  onChange={onChange}
+                />
+              )}
               </SafeAreaView>
-            }
-
-            {/* Andriod */}
-            {Platform.OS === 'android' &&
-            <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
-            <Button onPress={showDatepicker} title="Show date picker!" />
-            <Button onPress={showTimepicker} title="Show time picker!" />
-            <Text>selected: {date.toLocaleString()}</Text>
+              }
 
 
+              
 
 
-            {show && (
-              <DateTimePicker
-                testID="dateTimePicker"
-                value={date}
-                mode={mode}
-                is24Hour={true}
-                onChange={onChange}
-              />
-            )}
-            </SafeAreaView>
-            }
-            
-    </ScrollView>
+      </View>
+              
+      </View>
+      </View>
+      </View>
 
+</ScrollView>
  
 
     
@@ -463,17 +500,96 @@ useEffect(() => {
 
 const styles = StyleSheet.create({
 
+
   container: {
     flex: 1,
    
     width:'100%'
+  }, 
+
+  button: {
+    borderRadius: 10,
+    marginTop: 30,
+    alignItems: 'center',
+    backgroundColor: 'black',
+    padding: 2,
+    zIndex: 2, // Ensure dropdown is above other elements
+    paddingVertical: 5, // Reduced padding
+    paddingHorizontal: 10, // Reduced padding
+    borderRadius: 5,
+    marginHorizontal: 5,
   },
+  buttonText: {
+    color: 'white',
+    fontSize: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    
+    
+  },
+
+
+  headerText:{
+    color: 'black',
+    fontSize: 14,
+    fontWeight:'bold'
+
+  },
+
+  contentPosition:{
+    marginTop:100
+  },
+  containerCard: {
+    borderWidth: 8,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    padding: 10,
+    margin: 0,
+    width: 'auto',
+    backgroundColor: '#ecf0ff',
+  },  
   validationText: {
-    fontSize: 20,
+    fontSize: 12,
     marginBottom: 10,
     color: 'red',
   },
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
 
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  containerTextInput:{
+    flex: 1,
+    marginTop:70,
+    marginBottom:-30,
+  },
+  icon :{
+    color: '#00e3ae',
+  },
+  container2:{
+  
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    backgroundColor: '#ecf0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+
+  },
   
   DateSelectionContainer:{
     flex: 1,
@@ -488,12 +604,22 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Align items in the center of the row
     paddingHorizontal: 20,
     paddingVertical: 20,
-
+    marginTop:200,
     borderColor:"black",
-    borderWidth:0.5
+    borderWidth:1
   }, 
-  
- 
+  formContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5
+  },
+
+  formValidation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10
+  },      
+
 });
 
 export default CreateCamp;

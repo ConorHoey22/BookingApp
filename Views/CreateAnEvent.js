@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { StyleSheet, View, Button, Text, Platform ,TextInput , SafeAreaView, ScrollView} from 'react-native';
+import { StyleSheet, View, Button, Text, Platform ,TextInput , SafeAreaView, TouchableOpacity, ScrollView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { DatePickerModal } from 'react-native-paper-dates';
@@ -8,7 +8,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 
-
+import { Ionicons } from '@expo/vector-icons';
 
 //Stripe imports
 import { CardField, useStripe, StripeProvider, InitPaymentSheet , usePaymentSheet} from '@stripe/stripe-react-native';
@@ -209,7 +209,7 @@ useEffect(() => {
         if (response.ok) {
           const jsonResponse = await response.json();
           console.log('Event Created', jsonResponse);
-          navigation.navigate('DashboardAdmin');
+          navigation.navigate('Manage Bookings', { dataTrigger: true}); 
         } else {
           console.log('Error Status:', response.status);
           console.log('Error Message:', response.statusText);
@@ -237,108 +237,122 @@ useEffect(() => {
 
   return (
 
+     <ScrollView>
+      <View style = {styles.container2}>
+        <View style={styles.container}>
 
-    
-    <ScrollView style = {styles.container}>
-      <View style={styles.fieldRow}>
-        <Text>Event Name:</Text>
-        <TextInput
-          placeholder="Enter the Event name here"
-          value={eventName}
-          onChangeText={setEventName} />
-      </View>
-      <Text style={styles.validationText}>{eventNameErrorMessage}</Text>
-      <View style={styles.fieldRow}>
-        <Text>Location:</Text>
-        <TextInput
-          placeholder="Enter the Location here"
-          value={location}
-          onChangeText={setLocation} />
-      </View>
-      <Text style={styles.validationText}>{locationErrorMessage}</Text>
 
-      <View style={styles.fieldRow}>
-          <Text>Enter a price</Text>
-          <TextInput
-            placeholder="£0.00"
-            value={price}
-            onChangeText={setPrice} />
-      </View>
-   
-    
 
-            {/* ios */}
+        <View style={styles.contentPosition}>
+
+        <View style={styles.containerCard}>
         
-            {Platform.OS === 'ios' && 
-                <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
-                  <Text>Select a start date:</Text>
-                 
-                  <View style={styles.fieldRow}>
-                      
-                      {startPickerVisible && (
+            <View style={styles.formContent}>
+                <Text style={styles.headerText}>Event Name: </Text>
+                  <TextInput
+                      placeholder=" Enter the Event name here"
+                      value={eventName}
+                      onChangeText={setEventName} />
+            </View>
+
+            <View style={styles.formValidation}>
+              <Text style={styles.validationText}>{eventNameErrorMessage}</Text>
+            </View>
+
+
+                <View style={styles.formContent}>
+                 <Text style={styles.headerText}>Location: </Text>
+                    <TextInput
+                      placeholder=" Enter the Location here"
+                      value={location}
+                      onChangeText={setLocation} />
+                </View>
+
+            <View style={styles.formValidation}>
+              <Text style={styles.validationText}>{locationErrorMessage}</Text>
+            </View>
+          
+
+                <View style={styles.formContent}>
+                <Text style={styles.headerText}>Enter a price : </Text>
+                      <TextInput
+                        placeholder=" £0.00"
+                        value={price}
+                        onChangeText={setPrice} />
+                </View>
+
+                                  
+            <View style={styles.formValidation}>
+              <Text style={styles.validationText}>{priceErrorMessage}</Text>
+            </View>
+              
+    
+
+                        {/* ios */}
+                    
+                        {Platform.OS === 'ios' && 
+                            // <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
+                          
+                            <SafeAreaView>
+                             <View style={styles.formContent}>
+                              <Text style={styles.headerText}>Select a start date:</Text>
+                                  
+                                  {startPickerVisible && (
+                                    <DateTimePicker
+                                      testID="dateTimePickerStart"
+                                      value={startDate}
+                                      mode={'date'}
+                                      display="default"
+                                      onChange={handleStartChange}
+                                    />
+                                  )}
+                              </View>
+
+                        
+      
+                              <View style={styles.formContent}>
+                              <Text style={styles.headerText}>Select a start time:</Text>
+                                  {show && (
+                                  <DateTimePicker
+                                  testID="dateTimePicker"
+                                  value={startTime}
+                                  mode="time"
+                                  is24Hour={true}
+                                  display="default"
+                                  onChange={onStartChange}
+                                />
+                              )}
+                            
+                              </View>
+               
+                      <View style={styles.formContent}>
+                      <Text style={styles.headerText}>Select an end time:</Text>      
+                        {show && (
                         <DateTimePicker
-                          testID="dateTimePickerStart"
-                          value={startDate}
-                          mode={'date'}
-                          display="default"
-                          onChange={handleStartChange}
+                            testID="dateTimePicker"
+                            value={endTime}
+                            mode="time"
+                            is24Hour={true}
+                            display="default"
+                            onChange={onEndChange}
                         />
-                      )}
-                   </View>
+                          )}
+                   
 
-            
-           <Text>Select a start time:</Text>
+                      </View>
 
-           <View style={styles.fieldRow}>
-                    {show && (
-                    <DateTimePicker
-                    testID="dateTimePicker"
-                    value={startTime}
-                    mode="time"
-                    is24Hour={true}
-                    display="default"
-                    onChange={onStartChange}
-                  />
-                )}
+                  
                 
-           </View>
-           <Text>Select an end time:</Text>
-          <View style={styles.fieldRow}>
+                          <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                                <View style={styles.buttonContent}>
+                                    <Text style={styles.buttonText}>Create </Text>
+                                    <Ionicons name="book-outline" size={20} style={styles.icon} />
+                                </View>
+                          </TouchableOpacity>
+                     
+                    
 
-              {show && (
-              <DateTimePicker
-              testID="dateTimePicker"
-              value={endTime}
-              mode="time"
-              is24Hour={true}
-              display="default"
-              onChange={onEndChange}
-            />
-            )}
-
-          </View>
-
-  
-  
-
-<View style = {styles.container}>
-   
-    <View style={styles.fieldRow}>
-            {error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
-            <Button
-              title="Create Event"
-              onPress={handleSubmit} />
-    </View>
-
-
-    
-
-
- 
-
-    
-</View>
-     
+               
           
               </SafeAreaView>
             }
@@ -353,22 +367,29 @@ useEffect(() => {
 
 
 
-            {show && (
-              <DateTimePicker
-                testID="dateTimePicker"
-                value={date}
-                mode={mode}
-                is24Hour={true}
-                onChange={onChange}
-              />
-            )}
-            </SafeAreaView>
-            }
-            
-    </ScrollView>
+                    {show && (
+                      <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode={mode}
+                        is24Hour={true}
+                        onChange={onChange}
+                      />
+                    )}
+                    </SafeAreaView>
+                    }
 
+
+                    
+
+
+            </View>
+                    
+            </View>
+            </View>
+            </View>
  
-
+    </ScrollView>
     
   );
 };
@@ -380,13 +401,91 @@ const styles = StyleSheet.create({
     flex: 1,
    
     width:'100%'
+  }, 
+
+  button: {
+    borderRadius: 10,
+    marginTop: 30,
+    alignItems: 'center',
+    backgroundColor: 'black',
+    padding: 2,
+    zIndex: 2, // Ensure dropdown is above other elements
+    paddingVertical: 5, // Reduced padding
+    paddingHorizontal: 10, // Reduced padding
+    borderRadius: 5,
+    marginHorizontal: 5,
   },
+  buttonText: {
+    color: 'white',
+    fontSize: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    
+    
+  },
+
+
+  headerText:{
+    color: 'black',
+    fontSize: 14,
+    fontWeight:'bold'
+
+  },
+
+  contentPosition:{
+    marginTop:100
+  },
+  containerCard: {
+    borderWidth: 8,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    padding: 10,
+    margin: 0,
+    width: 'auto',
+    backgroundColor: '#ecf0ff',
+  },  
   validationText: {
-    fontSize: 20,
+    fontSize: 12,
     marginBottom: 10,
     color: 'red',
   },
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
 
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  containerTextInput:{
+    flex: 1,
+    marginTop:70,
+    marginBottom:-30,
+  },
+  icon :{
+    color: '#00e3ae',
+  },
+  container2:{
+  
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    backgroundColor: '#ecf0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+
+  },
   
   DateSelectionContainer:{
     flex: 1,
@@ -405,7 +504,18 @@ const styles = StyleSheet.create({
     borderColor:"black",
     borderWidth:0.5
   }, 
-  
+  formContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10
+  },
+
+  formValidation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10
+  },
+
  
 });
 

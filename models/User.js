@@ -8,7 +8,8 @@ const mongoose = require('mongoose');
     email: String,
     password: String,
     fullName: String,
-    userType: String // Default value 'CRM'
+    userType: String, // Default value 'CRM'
+    agreeToTCs: String // Terms and Conditions Agree Value
   });
   
   //Define Model

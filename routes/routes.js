@@ -53,7 +53,7 @@ router.post('/api/signup', async (req, res) => {
 
     try {
       
-          const { email  , password , fullName, userType} = req.body;
+          const { email  , password , fullName, userType, agreeToTCs} = req.body;
      
           // Check if a user with the given email already exists
           const existingUser = await User.findOne({ email });
@@ -63,9 +63,11 @@ router.post('/api/signup', async (req, res) => {
           }
           // Hash the password before saving it to the database
           const hashedPassword = await bcrypt.hash(password, 10);
-  
+
+
+          console.log(agreeToTCs);
           // Save data to MongoDB
-          const newUser = new User({ email, password: hashedPassword, fullName , userType });
+          const newUser = new User({ email, password: hashedPassword, fullName , userType, agreeToTCs });
           await newUser.save();
   
   
@@ -496,6 +498,18 @@ router.delete('/api/camps/:id',verifyToken, async (req, res) => {
   }
 });
 
+// DELETE route to remove a camp by its ID
+router.delete('/api/events/:id',verifyToken, async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Event.findByIdAndDelete(id);
+    res.status(204).send();
+  } catch (error) {
+
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 // DELETE route to remove a campOffer by its ID
 router.delete('/api/campOffers/:id',verifyToken, async (req, res) => {
@@ -755,7 +769,7 @@ router.put('/api/updateBookingRecord/:id', verifyToken, async (req, res) => {
 //Full Refund Request
 router.put('/api/fullRefundRequest/:id', verifyToken, async (req, res) => {
   try {
-     
+     console.log("kk");
        const receivedBookingID = req.params.id; // Access the ID from request params
  
        const reasonForRefund = req.body.reasonForRefund;

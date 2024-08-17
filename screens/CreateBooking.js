@@ -72,16 +72,23 @@ const CreateBooking = ({navigation}) => {
 
 
   useEffect(() => {
+
+     //Clear Arrays and previous bookings 
+     setBookingName("");
+     setParticipantArray([]);
+     setParticipantCount(0);
+ 
+
+
+   
+
     const checkAuthentication = async () => {
+
+
       try {
 
         const jwtToken = await AsyncStorage.getItem('jwtToken');
         setIsLoggedIn(!!jwtToken);
-
-
-
-// Check number of Camps the User has booked 
-
 
 
 //-----------------------------
@@ -158,6 +165,17 @@ const CreateBooking = ({navigation}) => {
                 setReceivedStartTime(camp.startTime);
                 setReceivedEndDate(new Date(camp.endDate));
                 setReceivedEndTime(camp.endTime);
+
+
+                //reset text boxes 
+
+                setName("");
+
+               // Clear array 
+               setParticipantArray([]);
+              
+                
+
               } else {
                 console.error("Start date is missing in camp object");
               }
@@ -200,6 +218,8 @@ const CreateBooking = ({navigation}) => {
 
     };
 
+
+
     checkAuthentication(); // Call the function to check authentication status when component mounts
 
   
@@ -207,10 +227,6 @@ const CreateBooking = ({navigation}) => {
   }, [route.params]); // Empty dependency array ensures the effect runs only once when component mounts
 
 
- 
-
-
-  
 
     const handleLogOut = async () => {
         await AsyncStorage.removeItem('jwtToken');
@@ -313,6 +329,18 @@ const CreateBooking = ({navigation}) => {
 
 
 
+    };
+
+
+
+    const clearArrays = async() => {
+      
+      clearArrays();
+      setParticipantArray([]);
+      setParticipantCount(0);
+
+      //Run function to open modal 
+      ModalOpenDisplaySelectDaysOfCamp();
     };
 
     const ModalOpenDisplaySelectDaysOfCamp = async() => {
@@ -725,8 +753,11 @@ else {
               const jsonResponse2 = await responseRecord.json();
               console.log('Camp Booking record Created', jsonResponse2);
 
+
+              setDisplayBreakdownCostOverviewModal(false);
               //Send User back to dashboard
-              navigation.navigate('Dashboard');
+              navigation.navigate('MyBookings', { dataTrigger: true });
+
             } else {
               console.log('Error Status:', responseRecord.status);
               console.log('Error Message:', responseRecord.statusText);
@@ -834,20 +865,28 @@ const updateItemsEdit = (newItems) => {
 
   <View>
      
-    {/*  */}
+   
       <View style={styles.bookingsButtonsContainer}>
-        <TouchableOpacity style={styles.buttonBooking} onPress={SelectEditParticipantModal}>
-                  <Text style={styles.buttonText}>Edit Booking <Ionicons name="book-outline" size={20} color="#00e3ae" style={styles.icon} /></Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonBooking} onPress={handleBookingCheckout}>
-                <Text style={styles.buttonText}>Checkout <Ionicons name="basket-outline" size={20} color="#00e3ae" style={styles.icon}/></Text>
-        </TouchableOpacity>
+          <View>
+            <TouchableOpacity style={styles.buttonBooking} onPress={SelectEditParticipantModal}>
+                <View style={styles.buttonContent}>
+                  <Text style={styles.buttonText}>Edit Booking  </Text>
+                  <Ionicons name="book-outline" size={20} color="#00e3ae" style={styles.icon} />
+                </View>
+            </TouchableOpacity>
+          </View>
+
+          <View>
+          <TouchableOpacity style={styles.buttonBooking} onPress={handleBookingCheckout}>
+                <View style={styles.buttonContent}>
+                  <Text style={styles.buttonText}>Checkout  </Text>
+                  <Ionicons name="basket-outline" size={20} color="#00e3ae" style={styles.icon}/>
+                </View>
+            </TouchableOpacity>
+          </View>
+
       </View>
-
-
-     
-  
 
   </View>
 
@@ -861,7 +900,7 @@ const updateItemsEdit = (newItems) => {
     )}
   </View> 
 
-      <Text style={styles.label}>Enter your name *: </Text>
+      <Text style={styles.label}>Enter your name*: </Text>
       <Text style={styles.validationText}>{bookingNameValidationMessage}</Text>
         <TextInput
           style={styles.textInput}
@@ -909,9 +948,20 @@ const updateItemsEdit = (newItems) => {
           value={additionalInfo}
           onChangeText={(text) => setAdditionalInfo(text)}
         />
-      <TouchableOpacity style={styles.buttonBooking} onPress={ModalOpenDisplaySelectDaysOfCamp}>
-        <Text style={styles.buttonText}> Submit Participant info  <Ionicons name="person-add-outline" size={20} color="#00e3ae" style={styles.icon} /> </Text>
-      </TouchableOpacity>
+
+
+      <View>
+        <TouchableOpacity style={styles.button} onPress={ModalOpenDisplaySelectDaysOfCamp}>
+            <View style={styles.buttonContent}>
+              <Text style={styles.buttonText}>Submit Participant  </Text>
+              <Ionicons name="person-add-outline" size={20} color="#00e3ae" style={styles.icon} />
+            </View>
+        </TouchableOpacity>
+      </View>
+
+
+
+
       
 
 {/* Modal - Select Days of Camps  */}
@@ -960,7 +1010,7 @@ const updateItemsEdit = (newItems) => {
                   
           <View style = {styles.buttonContainer}>
             <TouchableOpacity style={styles.buttonBooking} onPress={addParticipant}>
-                <Text style={styles.buttonText}> Submit</Text>
+                <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
           </View>
 
@@ -997,7 +1047,7 @@ const updateItemsEdit = (newItems) => {
             
              <Text style={styles.label}>Participant Booking List</Text>
             <TouchableOpacity style={styles.buttonBooking} onPress={closeSelectEditParticipantModal}>
-              <Text style={styles.buttonText}><Ionicons name="arrow-back-circle-outline" size={20} style={styles.icon} /></Text>
+                <Ionicons name="arrow-back-circle-outline" color="#00e3ae" size={20} style={styles.icon} />
             </TouchableOpacity>
           </View>
           {/* Display Participant , Be able to Edit / Delete from booking  */}
@@ -1031,7 +1081,7 @@ const updateItemsEdit = (newItems) => {
               </Text>
 
               <Text style={styles.headerTextBlack}>
-                <Text style={styles.headerTextBlack2}>Anything else you would like us to know: </Text>
+                <Text style={styles.headerTextBlack2}>Days Selected: </Text>
                 {item.daysSelectedArray.join(', ')}
               </Text>
 
@@ -1388,6 +1438,11 @@ const styles = StyleSheet.create({
        marginTop: 15,
        marginBottom: 10,
     },
+
+    buttonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     containerCard: {
       borderWidth: 8,
       borderColor: '#ffffff',
@@ -1418,7 +1473,7 @@ const styles = StyleSheet.create({
       marginTop: 30,
       paddingVertical: 15,
       alignItems: 'center',
-      backgroundColor: '#6558d3',
+      backgroundColor: 'black',
       borderRadius: 15,
       padding: 2,
       zIndex: 2, // Ensure dropdown is above other elements

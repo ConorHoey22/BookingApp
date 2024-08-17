@@ -3,7 +3,7 @@ import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity } from 'rea
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Ionicons } from '@expo/vector-icons';
 
 const DashboardAdmin = ({navigation}) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -61,17 +61,55 @@ const DashboardAdmin = ({navigation}) => {
 
   return (
    
+    <View style={styles.container2}>
 
-    <View>
-      <Text>Dashboard Admin: </Text>
-      
-        <Button title='Create an Event' onPress={handleCreateAnEventBtn}/>
-        <Button title='Create a Camp' onPress={handleCreateACampBtn} />
-        <Button title='Manage Bookings' onPress={handleManageBookings} />
-        <Button title='Create / View an Offer' onPress={handleCreateAnOffer} />
+        <View style={styles.container}>
 
+        <View style={styles.contentPosition}>
+          <Text style={styles.headerText}>Admin Dashboard</Text>
+        </View>
 
-     
+          
+
+          <View style={styles.containerCard}>
+          <View>
+            <TouchableOpacity style={styles.button} onPress={handleCreateAnEventBtn}>
+              <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Create an Event  </Text>
+                <Ionicons name="today-outline" size={20} style={styles.icon} color="#ecf0ff" />
+              </View>
+            </TouchableOpacity>
+         </View>
+
+          <View>
+             <TouchableOpacity style={styles.button} onPress={handleCreateACampBtn}>
+              <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Create a Camp  </Text>
+                <Ionicons name="today-outline" size={20} style={styles.icon} color="#ecf0ff" />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity style={styles.button} onPress={handleManageBookings}>
+              <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Manage Bookings  </Text>
+                <Ionicons name="book-outline" size={20} style={styles.icon} color="#ecf0ff" />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity style={styles.button} onPress={handleCreateAnOffer}>
+              <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Create / View an Offers </Text>
+                <Ionicons name="share-social-outline" size={20} style={styles.icon} color="#ecf0ff" />
+              </View>
+            </TouchableOpacity>
+          </View>
+</View>
+    
+      </View>
     </View>
   );
 };
@@ -80,11 +118,41 @@ export default DashboardAdmin;
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 2,
-    borderColor: '#ccc',
-    padding: 20,
-    margin: 20,
-    width: 'auto',
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+
+  },
+  headerText:{
+    color: 'white',
+    fontSize: 24,
+    fontWeight:'bold'
+  },
+  containerRow:{
+    flexDirection: 'row',
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  container2:{
+  
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    backgroundColor: '#ecf0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+
   },
   rowContainer: {
     flexDirection: 'row',
@@ -94,12 +162,39 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
   },
+  containerCard: {
+    borderWidth: 8,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    padding: 10,
+    margin: 0,
+    width: 'auto',
+    backgroundColor: '#ecf0ff',
+  },  
   button: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#007bff',
-    borderRadius: 5,
-    marginTop: 10,
+ 
+    borderRadius: 10,
+    marginTop: 30,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    backgroundColor: 'black',
+    borderRadius: 15,
+    padding: 2,
+    zIndex: 2, // Ensure dropdown is above other elements
 
   },
+  
+  contentPosition:{
+    marginBottom:50
+  },
+  buttonText:
+  {
+    color: 'white',
+    fontSize: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  },
+ 
 });

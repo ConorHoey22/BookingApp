@@ -186,15 +186,25 @@ const DashboardCRM = ({navigation}) => {
         £{camp.price5Day}
       </Text>
 
+      <View>
+            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Create Booking', { camp })}>
+              <View style={styles.buttonContent}>
+                <Text style={styles.buttonText}>Book now </Text>
+                <Ionicons name="arrow-forward-circle-outline" size={20} style={styles.icon} />
+              </View>
+            </TouchableOpacity>
+      </View>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Create Booking', { camp })}>
-        <Text style={styles.buttonText}>Book now <Ionicons name="arrow-forward-circle-outline" size={20} style={styles.icon} /></Text>
-      
-      </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={OpenBookingOptions}>
-        <Text style={styles.buttonText}>Booking Options <Ionicons name="information-circle-outline" size={20} style={styles.icon} /></Text>
-      </TouchableOpacity>
+      <View>
+            <TouchableOpacity style={styles.button} onPress={OpenBookingOptions}>
+              <View style={styles.buttonContent}>
+              <Text style={styles.buttonText}>Booking Options </Text>
+              <Ionicons name="information-circle-outline" size={20} style={styles.icon} />
+              </View>
+            </TouchableOpacity>
+      </View>
+
 
       <Modal
         animationType="slide"
@@ -277,9 +287,17 @@ const DashboardCRM = ({navigation}) => {
         £{event.price}
       </Text>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Create Event Booking', { event })}>
-      <Text style={styles.buttonText}>Book now <Ionicons name="arrow-forward-circle-outline" size={20} style={styles.icon} /></Text>
-      </TouchableOpacity>
+
+
+      <View>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Create Event', { event })}>
+          <View style={styles.buttonContent}>
+            <Text style={styles.buttonText}>Book now </Text>
+            <Ionicons name="arrow-forward-circle-outline" size={20} style={styles.icon} />
+          </View>
+        </TouchableOpacity>
+      </View>
+  
     </View>
   );
   
@@ -401,6 +419,10 @@ const styles = StyleSheet.create({
       zIndex: 2, // Ensure dropdown is above other elements
 
      
+    },
+    buttonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
     },
      
     buttonWhite: {

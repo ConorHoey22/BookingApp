@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { DatePickerModal } from 'react-native-paper-dates';
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Ionicons } from '@expo/vector-icons';
 
 //Stripe imports
 import { CardField, useStripe, StripeProvider, InitPaymentSheet , usePaymentSheet} from '@stripe/stripe-react-native';
@@ -201,8 +202,9 @@ const CreateAnOffer = ({navigation}) => {
   
       if (response.ok) {
         const jsonResponse = await response.json();
-        console.log('Event Offer Created', jsonResponse);
-        navigation.navigate('DashboardAdmin');
+
+        navigation.navigate('Admin Dashboard');
+        setEventOfferCreationVisible(false);
       } else {
         console.log('Error Status:', response.status);
         console.log('Error Message:', response.statusText);
@@ -344,8 +346,9 @@ const CreateCampOffer = async () => {
     
         if (response.ok) {
           const jsonResponse = await response.json();
-          console.log('Camp Offer Created', jsonResponse);
-          navigation.navigate('DashboardAdmin');
+
+          navigation.navigate('Admin Dashboard');
+          setCampOfferCreationVisible(false);
         } else {
           console.log('Error Status:', response.status);
           console.log('Error Message:', response.statusText);
@@ -438,7 +441,7 @@ const CreateCampOffer = async () => {
       const jsonResponse = await response.json();
 
       Alert.alert("Camp offer has been activated for all Camps");
-      navigation.navigate('DashboardAdmin');
+      navigation.navigate('Admin Dashboard');
     } else {
       console.log('Error Status:', response.status);
       console.log('Error Message:', response.statusText);
@@ -488,7 +491,7 @@ const CreateCampOffer = async () => {
         const jsonResponse = await response.json();
 
         Alert.alert("Camp offer has been deactivated for all Camps")
-        navigation.navigate('DashboardAdmin');
+        navigation.navigate('Admin Dashboard');
       } else {
         console.log('Error Status:', response.status);
         console.log('Error Message:', response.statusText);
@@ -541,7 +544,7 @@ const CreateCampOffer = async () => {
       const jsonResponse = await response.json();
 
       Alert.alert("Event offer has been activated for all Events");
-      navigation.navigate('DashboardAdmin');
+      navigation.navigate('Admin Dashboard');
     } else {
       console.log('Error Status:', response.status);
       console.log('Error Message:', response.statusText);
@@ -591,7 +594,7 @@ const CreateCampOffer = async () => {
         const jsonResponse = await response.json();
 
         Alert.alert("Event offer has been deactivated for all Events")
-        navigation.navigate('DashboardAdmin');
+        navigation.navigate('Admin Dashboard');
       } else {
         console.log('Error Status:', response.status);
         console.log('Error Message:', response.statusText);
@@ -692,26 +695,32 @@ const CreateCampOffer = async () => {
 
   return (
      <ScrollView>
-          <View style = {styles.container}>
+      <View style={styles.container2}>
+        <View style={styles.container}>
+          
+ 
 
             {/* MENU */}
+            <View style={styles.containerCard}>
+       
+              <TouchableOpacity style={styles.button} onPress={ViewCampOffers}>
+                  <Text style={styles.buttonText}>View Camp Offers</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={ViewCampOffers}>
-                <Text style={styles.buttonText}>View Camp Offers</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={ViewEventOffers}>
+                  <Text style={styles.buttonText}>View Event Offers</Text>
+              </TouchableOpacity>
+              
+              
+              <TouchableOpacity style={styles.button} onPress={GoToCampOfferCreation}>
+                  <Text style={styles.buttonText}>Create a Camp Offer</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={ViewEventOffers}>
-                <Text style={styles.buttonText}>View Event Offers</Text>
-            </TouchableOpacity>
-            
-            
-            <TouchableOpacity style={styles.button} onPress={GoToCampOfferCreation}>
-                <Text style={styles.buttonText}>Create a Camp Offer</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={GoToEventOfferCreation}>
+                  <Text style={styles.buttonText}>Create a Event Offer</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={GoToEventOfferCreation}>
-                <Text style={styles.buttonText}>Create a Event Offer</Text>
-            </TouchableOpacity>
+            </View>
 
 
           {/* Camp Offer Create Modal  */}
@@ -722,51 +731,57 @@ const CreateCampOffer = async () => {
             onRequestClose={closeViewCampOfferModal}
 
           >
-           <ScrollView>
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <View style={{ flexDirection: 'column' }}>
-           
 
+                   <View style={styles.fieldRow}>
+                      <Text style={styles.headerText}>Create a Camp Offer</Text>
+                   </View>
 
-                  <Text>Camp Offers</Text>
-                  <View style={{ flexDirection: 'column' }}>
-                      <Text>Camp Offer name:</Text>
-                          <TextInput
-                          placeholder="Enter the name of the offer here"
-                          value={offerName}
-                          onChangeText={setOfferName} />
+                   <View style={styles.fieldRow}>
+                    <Text>Camp Offer name: </Text>
+
+                      <TextInput
+                        placeholder="Enter here"
+                        value={offerName}
+                        onChangeText={setOfferName} />
+
                       <Text style={styles.validationText}>{offerNameErrorMessage}</Text>
-                    <View/>
+
+                    </View>
 
 
-                    <View style={{ flexDirection: 'column' }}>
+                
+                    <View style={styles.fieldRow}>
                       <Text>Number of Participants required:</Text>
                           <TextInput
-                          placeholder="Enter the number of participants"
+                          placeholder="Enter here"
                           value={participantsRequired}
                           onChangeText={setParticipants} />
                       <Text style={styles.validationText}>{participantRequiredErrorMessage}</Text>
-                    <View/>
+                    </View>
                     
-                    <View style={{ flexDirection: 'column' }}>
+                    <View style={styles.fieldRow}>
                       <Text>% off Booking:</Text>
                       <TextInput
-                        placeholder=" Enter number of percentage"
+                        placeholder=" Enter % here"
                         value={percentageDiscount}
                         onChangeText={setPecentageDiscount} />
                          <Text style={styles.validationText}>{discountRewardErrorMessage}</Text>
                     </View>
 
                     
-                    <View style={{ flexDirection: 'column' }}>
+                    <View style={styles.fieldRow}>
                       <Text>Physical Reward e.g. Jumper :</Text>
                       <TextInput
-                        placeholder=" Enter the Reward here"
+                        placeholder=" Enter here"
                         value={reward}
                         onChangeText={setReward} />
-                         <Text style={styles.validationText}>{discountRewardErrorMessage}</Text>
-                          <TouchableOpacity style={styles.button} onPress={CreateCampOffer} >
+                        <Text style={styles.validationText}>{discountRewardErrorMessage}</Text>
+                    </View>  
+
+                       
+                           <TouchableOpacity style={styles.button} onPress={CreateCampOffer} >
                               <Text style={styles.buttonText}>Create Camp Offer</Text>
                           </TouchableOpacity>
 
@@ -774,16 +789,14 @@ const CreateCampOffer = async () => {
                           <TouchableOpacity style={styles.button} onPress={closeCampOfferCreationModal} >
                               <Text style={styles.buttonText}>Close</Text>
                           </TouchableOpacity>
-                  </View>
+                 
 
                 
-              </View>
-            </View>
-
-      </View>
-      </View>
-      </View>
-      </ScrollView>
+             
+          </View>
+        </View>
+ 
+    
       </Modal>
 
 
@@ -797,36 +810,35 @@ const CreateCampOffer = async () => {
             transparent={true}
             visible={eventOfferCreationVisible}
             onRequestClose={closeViewEventCreationModal}
-
           >
-           <ScrollView>
+ 
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <View style={{ flexDirection: 'column' }}>
-           
+               
+                  <View style={styles.fieldRow}>
+                    <Text style={styles.headerText}>Create Event Offer</Text>
+                  </View>
 
-
-                  <Text>Event Offers</Text>
-                  <View style={{ flexDirection: 'column' }}>
+                    <View style={styles.fieldRow}>
                       <Text>Event Offer name:</Text>
                           <TextInput
                           placeholder="Enter the name of the offer here"
                           value={offerName}
                           onChangeText={setOfferName} />
                       <Text style={styles.validationText}>{offerNameErrorMessage}</Text>
-                    <View/>
+                    </View>
 
 
-                    <View style={{ flexDirection: 'column' }}>
+                    <View style={styles.fieldRow}>
                       <Text>Number of Participants required:</Text>
                           <TextInput
                           placeholder="Enter the number of participants"
                           value={participantsRequired}
                           onChangeText={setParticipants} />
                       <Text style={styles.validationText}>{participantRequiredErrorMessage}</Text>
-                    <View/>
+                    </View>
                     
-                    <View style={{ flexDirection: 'column' }}>
+                    <View style={styles.fieldRow}>
                       <Text>% off Booking:</Text>
                       <TextInput
                         placeholder=" Enter number of percentage"
@@ -835,14 +847,16 @@ const CreateCampOffer = async () => {
                          <Text style={styles.validationText}>{discountRewardErrorMessage}</Text>
                     </View>
 
-                    
-                    <View style={{ flexDirection: 'column' }}>
+                    <View style={styles.fieldRow}>
                       <Text>Physical Reward e.g. Jumper :</Text>
                       <TextInput
                         placeholder=" Enter the Reward here"
                         value={reward}
                         onChangeText={setReward} />
                          <Text style={styles.validationText}>{discountRewardErrorMessage}</Text>
+                    </View>     
+                         
+                    <View style={styles.fieldRow}>
                           <TouchableOpacity style={styles.button} onPress={CreateEventOffer} >
                               <Text style={styles.buttonText}>Create Event Offer</Text>
                           </TouchableOpacity>
@@ -851,16 +865,16 @@ const CreateCampOffer = async () => {
                           <TouchableOpacity style={styles.button} onPress={closeViewEventCreationModal}>
                               <Text style={styles.buttonText}>Close</Text>
                           </TouchableOpacity>
-                  </View>
+                    </View>
 
                 
-              </View>
+           
             </View>
       
-         </View>
+
         </View>
-      </View>
-      </ScrollView>
+
+   
       </Modal>
 
 
@@ -876,24 +890,39 @@ const CreateCampOffer = async () => {
               onRequestClose={closeViewCampOfferModal}
 
             >
-              <ScrollView>
-              <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-        
-                <View style={{ flexDirection: 'column' }}>
-                  <Text>Camp Offers</Text>
+              {/* <ScrollView> */}
+                <View style={styles.modalContainer}>
+                  <View style={styles.modalContent}>
 
+                  <View style={styles.containerGap}></View>
+                  <View style={styles.containerGap}></View>
+                      <TouchableOpacity style={styles.button} onPress={closeViewCampOfferModal}>
+                        <View style={styles.buttonContent}>
+                          <Ionicons name="close-circle-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                        </View>
+                      </TouchableOpacity>
+         
 
+                      <View style={styles.containerGap}></View>
+                      <ScrollView>
+       
                          {campOfferData.map((campOffer, index) => (
-                          <View key={index} style={styles.container}>  
+                          <View key={index} style={styles.containerCardBooking}>  
                             
-                            <Text>Camp Offers</Text>
-                            <Text>{campOffer.offerName}</Text>
-                            <Text>Discount % : {campOffer.percentageDiscount}</Text>
-                            <Text>Reward : {campOffer.reward}</Text>
+                            <View style={styles.fieldContent}>
+                              <Text>Offer Name: {campOffer.offerName}</Text>
+                            </View>
+                                    
+                            <View style={styles.fieldContent}>
+                              <Text>Discount % : {campOffer.percentageDiscount}</Text>
+                            </View>
+
+                            <View style={styles.fieldContent}>
+                              <Text>Reward : {campOffer.reward}</Text>
+                            </View>
                       
-                            <View style={styles.container}>
-                              <Text>Activate Camp Offer</Text>
+                            <View style={styles.fieldContent}>
+                              <Text>Activate Camp Offer: </Text>
                               <Switch
                                 trackColor={{false: '#767577', true: '#81b0ff'}}
                                 thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
@@ -903,7 +932,7 @@ const CreateCampOffer = async () => {
                               />
                             </View>
 
-                            <View style={styles.container}>
+                            <View style={styles.fieldContent}>
                               <TouchableOpacity style={styles.button} onPress={() => deleteCampOffer(index)}>
                                 <Text style={styles.buttonText}>Delete Offer</Text>
                               </TouchableOpacity>
@@ -913,16 +942,15 @@ const CreateCampOffer = async () => {
 
                           </View>
                         ))}
-                            <TouchableOpacity style={styles.button} onPress={closeViewCampOfferModal}>
-                              <Text style={styles.buttonText}>Close</Text>
-                            </TouchableOpacity>
+                   
+                 
+              
                               
-                    </View>
+                    </ScrollView>
+                  </View>
                 </View>
-                </View>
-              </ScrollView> 
-          
-
+              {/* </ScrollView>  */}
+        
             </Modal>
             
 
@@ -934,24 +962,40 @@ const CreateCampOffer = async () => {
               onRequestClose={closeViewEventOfferModal}
 
             >
-              <ScrollView>
               <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-        
-                <View style={{ flexDirection: 'column' }}>
-                  <Text>Event Offers</Text>
+                <View style={styles.containerGap}></View>
+                <View style={styles.containerGap}></View>
+                    
+                    <TouchableOpacity style={styles.button} onPress={closeViewEventOfferModal}>
+                        <View style={styles.buttonContent}>
+                          <Ionicons name="close-circle-outline" size={20} style={styles.icon} color="#ecf0ff" />
+                        </View>
+                      </TouchableOpacity>
+
+              <View style={styles.containerGap}></View>
+
  
+                 <ScrollView>
 
                          {eventOfferData.map((eventOffer, index) => (
-                          <View key={index} style={styles.container}>  
+                          <View key={index} style={styles.containerCardBooking}>  
                             
-                            <Text>Event Offers</Text>
-                            <Text>{eventOffer.offerName}</Text>
-                            <Text>Discount % : {eventOffer.percentageDiscount}</Text>
-                            <Text>Reward : {eventOffer.reward}</Text>
+                            <View style={styles.fieldContent}>
+                               <Text>Offer Name: {eventOffer.offerName}</Text>
+                            </View>
+
+                            <View style={styles.fieldContent}>
+                               <Text>Discount % :  {eventOffer.percentageDiscount}</Text>
+                            </View>
+                           
+                            <View style={styles.fieldContent}>
+                              <Text>Reward : {eventOffer.reward}</Text>
+                            </View>
+                 
                       
-                            <View style={styles.container}>
-                              <Text>Activate Event Offer</Text>
+                            <View style={styles.fieldContent}>
+                              <Text>Activate Event Offer: </Text>
                               <Switch
                                 trackColor={{false: '#767577', true: '#81b0ff'}}
                                 thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
@@ -963,7 +1007,7 @@ const CreateCampOffer = async () => {
 
 
 
-                            <View style={styles.container}>
+                            <View style={styles.fieldContent}>
                               <TouchableOpacity style={styles.button} onPress={() => deleteEventOffer(index)}>
                                 <Text style={styles.buttonText}>Delete Offer</Text>
                               </TouchableOpacity>
@@ -973,19 +1017,19 @@ const CreateCampOffer = async () => {
 
                           </View>
                         ))}
-                            <TouchableOpacity style={styles.button} onPress={closeViewEventOfferModal}>
-                              <Text style={styles.buttonText}>Close</Text>
-                            </TouchableOpacity>
-                              
-                    </View>
-                </View>
-                </View>
-              </ScrollView> 
+
+                  </ScrollView>      
+           
+               
           
+                  </View>
+                </View>
+      
 
             </Modal>
             
             </View>
+        </View>
     </ScrollView>
 
  
@@ -996,95 +1040,202 @@ const CreateCampOffer = async () => {
 
 
 const styles = StyleSheet.create({
-  container: {
-    borderWidth: 2,
-    borderColor: '#ccc',
-    padding: 20,
-    margin: 20,
+  ontainer: {
+    flex: 1,
+   
+    width:'100%'
+  }, 
+  headerContainer: {
+    marginTop:80,
+    marginBottom:10
+  }, 
+  containerCardBooking: {
+    borderWidth: 1,
+    borderColor: '#00e3ae',
+    borderRadius: 10,
+    padding: 30,
+    paddingTop: 5,
+    marginBottom:10,
     width: 'auto',
+    backgroundColor: 'white',
   },
+
+
+
+  containerCard: {
+    borderWidth: 8,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    padding: 10,
+    margin: 0,
+    marginBottom:100,
+    width: '80%',
+    backgroundColor: '#ecf0ff',
+    marginTop:200
+  },  
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#ecf0ff',
+    padding: 50,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    width: '80%',
+    borderWidth: 8,
+  },
+
+  button: {
+  
+    borderRadius: 10,
+    marginTop: 30,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+    backgroundColor: 'black',
+    borderRadius: 15,
+    padding: 2,
+    zIndex: 2, // Ensure dropdown is above other elements
+
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    
+    
+  },
+  BookingOptionsContainer:{
+    marginTop:10,
+    marginBottom:10
+  },
+  BookingOptionsText:{
+    marginTop:5,
+    marginBottom:5
+  },
+
+  BookingButtons:{
+    marginTop:1,
+  },
+  BookingOptionsContainerLine:{
+   
+    borderColor:'grey',
+    borderWidth:0.3
+  },
+
+  headerText:{
+    color: 'black',
+    fontSize: 14,
+    fontWeight:'bold'
+
+  },
+
+
+  contentPosition:{
+    marginTop:100
+  },
+ 
+
+  containerCardAttendance: {
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  
+   
+    flexWrap: 'wrap', // Ensure text wraps if too long
+  
+    width: '100%',
+    backgroundColor: '#ecf0ff',
+  },  
   validationText: {
-    fontSize: 20,
+    fontSize: 12,
     marginBottom: 10,
     color: 'red',
   },
-  rowContainer: {
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+
+  },
+  buttonContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  columnContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
+
+  containerTextInput:{
+    flex: 1,
+    marginTop:70,
+    marginBottom:-30,
   },
-   modalContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    modalContent: {
-      backgroundColor: '#fff',
-      padding: 20,
-      borderRadius: 10,
-       width: '80%',
-    },
-    fieldRow: {
-      flexDirection: 'row',
-       marginTop: 15,
-       marginBottom: 10,
-    },
-    label: {
-      // marginBottom: 5,
-      fontWeight: 'bold',
-    },
-    textInput: {
-      borderWidth: 1,
-      borderColor: 'gray',
-      padding: 10,
-      marginTop: 10,
-      marginBottom: 10,
-    },
-    buttonContainer:{
-      marginTop:30
-    },
-    button: {
-      backgroundColor: '#4CAF50',
-      borderRadius: 4,
-      padding: 10,
-      marginBottom: 5,
-      
-    },
-    button1: {
-      backgroundColor: '#4CAF50',
-      borderRadius: 4,
-      padding: 10,
-      zIndex: 2, // Ensure dropdown is above other elements
-      marginBottom: 5,
-     
-    },
-    buttonText: {
-      color: 'white',
-      fontSize: 16,
-      textAlign: 'center',
-    },
-    containerd: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-
-    dropdownContainer: {
-      position: 'relative',
-      marginBottom: 30, // Adjust this value as needed to prevent overlap
-      zIndex: 1, // Ensure dropdown is above other elements
-    },
-    dropdown: {
-       position: 'absolute',
-      zIndex: 1, // Ensure dropdown is above other elements
-      width: '100%',
-    },
+  icon :{
+    color: '#00e3ae',
+  },
+  container2:{
   
- 
-});
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    
+    backgroundColor: '#ecf0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
 
+
+  },
+  
+  containerGap:{
+
+    marginBottom:10
+  
+  },
+
+  containerCardAttendanceGap:{
+  
+    marginBottom:10,
+
+  
+  },
+  DateSelectionContainer:{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+    width:'100%'
+  },
+
+  fieldRow:{
+    flexDirection: 'column', // Display items in a row
+
+    marginTop: 20,
+    marginLeft:-10
+    // paddingVertical: 20,
+
+
+  }, 
+  fieldContent: {
+    flex:1,
+    flexDirection: 'row',
+    alignItems: 'center',
+
+    justifyContent: 'center',
+
+  },
+
+  formValidation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10
+  },
+});
 export default CreateAnOffer;

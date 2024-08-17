@@ -1,0 +1,669 @@
+
+
+
+
+      {/* <Text>Camps</Text>
+        {campData.map((camp, index) => (
+        <View key={index} style={styles.container}>  
+            <Text>{camp.campName} </Text>
+            <Text>Location: {camp.location}</Text> 
+    
+            <Text>Duration: {new Date(camp.startDate).toLocaleDateString('en-GB')} - {new Date(camp.endDate).toLocaleDateString('en-GB')}</Text>
+
+
+            <Text>Start Time: {new Date(camp.startTime).toLocaleTimeString()} - End Time: {new Date(camp.endTime).toLocaleTimeString()}</Text>
+            <Text>Full Camp Price: £{camp.price5Day} </Text>
+            <Text>Booking Options</Text>
+            <Text>4 Days Price: £{camp.price4Day} </Text>
+            <Text>3 Days Price: £{camp.price3Day} </Text>
+            <Text>2 Days Price: £{camp.price2Day} </Text>
+            <Text>1 Day Price: £{camp.price1Day} </Text>
+
+            <TouchableOpacity style={styles.button} onPress={() => openEditModal(index)}>
+            <Text style={styles.buttonText} >Edit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}  onPress={() => ViewCampAttendance(index)}>
+            <Text style={styles.buttonText}>View Attendance</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}  onPress={() => openDeleteCampModal(index)}>
+            <Text style={styles.buttonText}>Delete Camp</Text>
+            </TouchableOpacity>
+        </View>
+        ))} */}
+
+        {/* <Text>Events</Text>
+        {eventData.map((event, index) => (
+        <View key={index} style={styles.container}>  
+    
+            <Text>Event Name: {event.eventName}</Text>
+            <Text>Location: {event.location} </Text> 
+    
+            <Text>Date: {new Date(event.startDate).toLocaleDateString('en-GB')}  </Text>
+
+
+            <Text>Start Time: {new Date(event.startTime).toLocaleTimeString()}</Text>
+
+            <Text>End Time: {new Date(event.endTime).toLocaleTimeString()}</Text>
+            <Text>Price: £{event.price} </Text>
+
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText} onPress={() => openEditEventModal(index)}>Edit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}  onPress={() => ViewEventAttendance(index)}>
+              <Text style={styles.buttonText}>View Attendance</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button}  onPress={() => openDeleteEventModal(index)}>
+              <Text style={styles.buttonText}>Delete Event</Text>
+            </TouchableOpacity>
+        </View>
+        ))}
+     */}
+
+{/* Modal - Edit Camp Modal */}
+
+
+    {/* <Modal
+      animationType="slide"
+      transparent={true}
+      visible={editModalVisible}
+      onRequestClose={closeEditModal}
+    >
+     <View style={styles.modalContainer}>
+      <ScrollView>
+
+      <View style={styles.modalContent}>
+      <View style={{ flexDirection: 'column' }}>
+      <View style={styles.fieldRow}>
+       
+          <Text style={styles.label}>Location</Text>
+      </View>
+          <View>
+          <TextInput
+            style={styles.textInput}
+            value={editedLocationText}
+            onChangeText={setEditedLocationText}
+            placeholder='Enter here..'
+          />
+        </View>
+
+        <View style={styles.fieldRow}>
+          <Text style={styles.label}>Start Date:</Text>
+  
+          {startPickerVisible && (
+            
+            <DateTimePicker
+              testID="dateTimePickerStart"
+              value={startDate}
+              mode={'date'}
+              display="default"
+              onChange={handleStartChange}
+         
+            />
+            
+          )}
+              
+        </View>
+
+
+
+        <View style={styles.fieldRow}>
+          <Text style={styles.label}>End Date:</Text>
+  
+          {startPickerVisible && (
+            
+            <DateTimePicker
+              testID="dateTimePickerStart"
+              value={endDate}
+              mode={'date'}
+              display="default"
+              onChange={handleEndChange}
+         
+            />
+            
+          )}
+              
+        </View>
+
+
+
+
+
+        <View style={styles.fieldRow}>
+        <Text style={styles.label}>Select a start time:</Text>
+                  {show && (
+                  <DateTimePicker
+                  testID="dateTimePicker"
+                  value={startTime}
+                  mode="time"
+                  is24Hour={true}
+                  display="default"
+                  onChange={onStartChange}
+                />
+              )}
+              
+          </View>
+
+
+          <View style={styles.fieldRow}>
+            <Text style={styles.label}>Select a end time:</Text>
+              {show && (
+              <DateTimePicker
+              testID="dateTimePicker"
+              value={endTime}
+              mode="time"
+              is24Hour={true}
+              display="default"
+              onChange={onEndChange}
+            />
+          )}
+          </View>
+
+          <Text style={styles.label}>Full Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited5DayPriceText}
+            onChangeText={setEdited5DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+          
+
+          <Text style={styles.label}>4 Day Camp Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited4DayPriceText}
+            onChangeText={setEdited4DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+
+          <Text style={styles.label}>3 Day Camp Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited3DayPriceText}
+            onChangeText={setEdited3DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+
+          <Text style={styles.label}>2 Day Camp Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited2DayPriceText}
+            onChangeText={setEdited2DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+
+          <Text style={styles.label}>1 Day Camp Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={edited1DayPriceText}
+            onChangeText={setEdited1DayPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+
+
+          <View style={styles.fieldRow}>
+
+            <TouchableOpacity style={styles.button}  onPress={() => updateCamp(editedCampIndex)}>
+              <Text style={styles.buttonText}>Update Camp</Text>
+            </TouchableOpacity>
+
+          </View>
+
+
+
+
+          <View style={styles.fieldRow}>
+
+            <TouchableOpacity style={styles.button}  onPress={closeEditModal}>
+              <Text style={styles.buttonText}>Exit</Text>
+            </TouchableOpacity>
+
+          </View>
+
+
+
+      </View>
+
+
+
+     
+</View>
+      
+
+
+      
+     
+  
+  </ScrollView>
+   
+  </View>
+    </Modal> */}
+
+
+
+
+
+
+
+  {/* Attendance Event View Modal */}
+
+  {/* <Modal
+      animationType="slide"
+      transparent={true}
+      visible={eventAttendanceModalVisible}
+      onRequestClose={closeEventAttendanceModal}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}> */}
+
+          {/* Iterate over all participants  */}
+{/*  
+          <View>
+            <Text>Event Attendance</Text>
+          </View>
+      
+
+
+            <FlatList
+              data={bookingData}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View style={{ flexDirection: 'column' }}>
+                  <Text>Name: {item.name}</Text>
+                  <Text>Attendance Status: {item.attendanceStatus}</Text>
+                  <Text>Contact Number: {item.emergencyContactNumber}</Text>
+                  {/* Other participant details */}
+          
+                
+          {/* </View>
+        )}
+      />  */}
+
+                
+          {/* <View> */}
+            {/* <TouchableOpacity style={styles.button}  onPress={closeEventAttendanceModal}>
+              <Text style={styles.buttonText}>Exit</Text>
+            </TouchableOpacity>
+          </View> 
+          </View>
+        </View>
+       */}
+    {/* </Modal> */}
+
+
+
+
+
+          {/* Modal  */}
+          {/* <Modal
+            animationType="slide"
+            transparent={true}
+            visible={openDeleteCampModalVisible}
+            onRequestClose={closeDeleteCampModal}
+
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                  <View style={{ flexDirection: 'column' }}>
+                    <Text style={styles.label}>Are you sure you want to delete this Camp? 
+                    Once deleted this is removed from the Database and effect current bookings not advised* Contact HoeyTech for more info </Text>
+                      <TouchableOpacity style={styles.button} onPress={removeCamp}>
+                        <Text style={styles.buttonText}>Yes</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={styles.button} onPress={closeDeleteCampModal}>
+                        <Text style={styles.buttonText}>No</Text>
+                      </TouchableOpacity>
+                  </View>
+
+              </View> 
+        </View>
+                                
+      </Modal>  */}
+
+
+
+
+          {/* Modal  - Delete Event confirmation  */}
+          {/* <Modal
+            animationType="slide"
+            transparent={true}
+            visible={openDeleteEventModalVisible}
+            onRequestClose={closeDeleteEventModal}
+
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                  <View style={{ flexDirection: 'column' }}>
+                    <Text style={styles.label}>Are you sure you want to delete this Camp? 
+                    Once deleted this is removed from the Database and effect current bookings not advised* Contact HoeyTech for more info </Text>
+                      <TouchableOpacity style={styles.button} onPress={removeEvent}>
+                        <Text style={styles.buttonText}>Yes</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={styles.button} onPress={closeDeleteCampModal}>
+                        <Text style={styles.buttonText}>No</Text>
+                      </TouchableOpacity>
+                  </View>
+
+              </View> 
+        </View>
+                                
+      </Modal>  */}
+
+
+
+
+
+  {/* Attendance Camp View Modal  */}
+
+  {/* <Modal
+      animationType="slide"
+      transparent={true}
+      visible={campAttendanceModalVisible}
+      onRequestClose={closeCampAttendanceModal}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}> */}
+
+          {/* Iterate over all participants  */}
+ 
+          {/* <View>
+            <Text>Attendance</Text>
+          </View>
+      
+
+
+            <FlatList
+              data={bookingData}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <View style={{ flexDirection: 'column' }}>
+                  <Text>Name: {item.name}</Text>
+                  <Text>Attendance Status: {item.attendanceStatus}</Text>
+                  <Text>Contact Number: {item.emergencyContactNumber}</Text>
+                  {/* Other participant details */}
+          
+                
+          {/* </View> */}
+        {/* )}
+      /> */} 
+
+                
+          {/* <View>
+            <TouchableOpacity style={styles.button}  onPress={closeCampAttendanceModal}>
+              <Text style={styles.buttonText}>Exit</Text>
+            </TouchableOpacity>
+          </View> 
+          </View>
+        </View> */}
+{/*       
+    </Modal> */}
+
+
+
+    {/* Modal - Edit Event Modal */}
+
+    {/* <Modal
+      animationType="slide"
+      transparent={true}
+      visible={editEventModalVisible}
+      onRequestClose={closeEditEventModal}
+    >
+    <View style={styles.modalContainer}>
+      <ScrollView>
+
+      <View style={styles.modalContent}>
+      <View style={{ flexDirection: 'column' }}>
+      <View style={styles.fieldRow}>
+       
+      <Text style={styles.label}>Location</Text>
+      </View>
+          <View>
+          <TextInput
+            style={styles.textInput}
+            value={editedEventLocationText}
+            onChangeText={setEditedEventLocationText}
+            placeholder='Enter here..'
+          />
+        </View>
+
+        <View style={styles.fieldRow}>
+          <Text style={styles.label}>Start Date:</Text> */}
+{/*   
+          {startPickerVisible && (
+            
+            <DateTimePicker
+              testID="dateTimePickerStart"
+              value={startDate}
+              mode={'date'}
+              display="default"
+              onChange={handleStartChange}
+         
+            />
+            
+          )}
+              
+        </View>
+ */}
+{/* 
+
+
+        <View style={styles.fieldRow}>
+        <Text style={styles.label}>Select a start time:</Text>
+                  {show && (
+                  <DateTimePicker
+                  testID="dateTimePicker"
+                  value={startTime}
+                  mode="time"
+                  is24Hour={true}
+                  display="default"
+                  onChange={onStartChange}
+                />
+              )}
+              
+          </View> */}
+
+{/* 
+          <View style={styles.fieldRow}>
+            <Text style={styles.label}>Select a end time:</Text>
+              {show && (
+              <DateTimePicker
+              testID="dateTimePicker"
+              value={endTime}
+              mode="time"
+              is24Hour={true}
+              display="default"
+              onChange={onEndChange}
+            />
+          )}
+          </View> */}
+{/* 
+          <Text style={styles.label}>Full Price(£)</Text>
+          <View>
+            <TextInput
+            style={styles.textInput}
+            value={editedEventPriceText}
+            onChangeText={setEditedEventPrice}
+            placeholder='Enter here..'
+          />
+          </View>
+           */}
+
+          {/* <View style={styles.fieldRow}>
+
+            <TouchableOpacity style={styles.button}  onPress={() => updateEvent(editedEventIndex)}>
+              <Text style={styles.buttonText}>Update Event</Text>
+            </TouchableOpacity>
+
+          </View>
+
+
+
+
+          <View style={styles.fieldRow}>
+
+            <TouchableOpacity style={styles.button}  onPress={closeEditModal}>
+              <Text style={styles.buttonText}>Exit</Text>
+            </TouchableOpacity>
+
+          </View>
+ */}
+
+{/* 
+      </View>
+
+
+
+     
+</View>
+      
+
+
+      
+     
+  
+  </ScrollView>
+   
+  </View>
+    </Modal> */}
+
+
+
+
+    {/* </ScrollView> */}
+
+
+
+
+  container: {
+    flex: 1,
+   
+    width:'100%'
+  }, 
+
+  button: {
+    borderRadius: 10,
+    marginTop: 30,
+    alignItems: 'center',
+    backgroundColor: 'black',
+    padding: 2,
+    zIndex: 2, // Ensure dropdown is above other elements
+    paddingVertical: 5, // Reduced padding
+    paddingHorizontal: 10, // Reduced padding
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    
+    
+  },
+
+
+  headerText:{
+    color: 'black',
+    fontSize: 14,
+    fontWeight:'bold'
+
+  },
+
+  contentPosition:{
+    marginTop:100
+  },
+  containerCard: {
+    borderWidth: 8,
+    borderColor: '#ffffff',
+    borderRadius: 30,
+    padding: 10,
+    margin: 0,
+    width: 'auto',
+    backgroundColor: '#ecf0ff',
+  },  
+  validationText: {
+    fontSize: 12,
+    marginBottom: 10,
+    color: 'red',
+  },
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  containerTextInput:{
+    flex: 1,
+    marginTop:70,
+    marginBottom:-30,
+  },
+  icon :{
+    color: '#00e3ae',
+  },
+  container2:{
+  
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    backgroundColor: '#ecf0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+
+  },
+  
+  DateSelectionContainer:{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+    width:'100%'
+  },
+
+  fieldRow:{
+    flexDirection: 'column', // Display items in a row
+    alignItems: 'center', // Align items in the center of the row
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+
+    borderColor:"black",
+    borderWidth:0.5
+  }, 
+  formContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5
+  },
+
+  formValidation: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10
+  },

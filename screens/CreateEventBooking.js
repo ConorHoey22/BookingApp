@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
+import { Ionicons } from '@expo/vector-icons';
 import { StripeProvider, useStripe } from "@stripe/stripe-react-native";
 
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -67,6 +67,14 @@ const CreateEventBookings = ({navigation}) => {
 
 
   useEffect(() => {
+
+
+    //Clear Arrays and previous bookings 
+    setBookingName("");
+    setParticipantArray([]);
+    setParticipantCount(0);
+
+
     const checkAuthentication = async () => {
       try {
 
@@ -664,10 +672,14 @@ const CreateEventBookings = ({navigation}) => {
             
             if (responseRecord.ok) {
               const jsonResponse2 = await responseRecord.json();
-              console.log('Event Booking record Created', jsonResponse2);
+
 
               //Send User back to dashboard
-              navigation.navigate('Dashboard');
+              setDisplayBreakdownCostOverviewModal(false);
+              navigation.navigate('MyBookings', { dataTrigger: true });
+           
+              console.log('Event Booking record Created', jsonResponse2);
+
             } else {
               console.log('Error Status:', responseRecord.status);
               console.log('Error Message:', responseRecord.statusText);
@@ -745,10 +757,53 @@ const updateItemsEdit = (newItems) => {
   <ScrollView>
 
    <StripeProvider publishableKey='pk_test_51OnkfED7nseNwvj8Zgtfn4YbMAQbVl2Y3yWn56QAF6rLJmAn6ez4Wyp24aLIEtzLLEs15N06P0FxI5w9I8jnTvaf00DjYAqVWL'>
-    
-    <ScrollView>
+ 
+ 
+  
+       
+   <View style={styles.container2}>
+          <View style={styles.container}>
+          <View style ={styles.containerCard}>
+               {/* This should only appear if user enter at least on particpant */}
+  <View>
+    {/* Conditional rendering using a ternary operator */}
+    {participantCount >= 1 ? (
+
+    <View style={styles.bookingsButtonsContainer}>
+        
+         <View>
+            <TouchableOpacity style={styles.buttonBooking} onPress={SelectEditParticipantModal}>
+                <View style={styles.buttonContent}>
+                  <Text style={styles.buttonText}>Edit Booking  </Text>
+                  <Ionicons name="book-outline" size={20} color="#00e3ae" style={styles.icon} />
+                </View>
+            </TouchableOpacity>
+          </View>
+
+
+     
+          <View>
+            <TouchableOpacity style={styles.buttonBooking} onPress={handleBookingCheckout}>
+                  <View style={styles.buttonContent}>
+                    <Text style={styles.buttonText}>Checkout  </Text>
+                    <Ionicons name="basket-outline" size={20} color="#00e3ae" style={styles.icon}/>
+                  </View>
+              </TouchableOpacity>
+          </View>
+
+    </View>
+
+
+
+
+    ) : (
+      <View>
+  
+      </View>
+    )}
+  </View>
     <Text style={styles.label}>Enter your name *: </Text>
-        <Text>{bookingNameValidationMessage}</Text>
+        <Text style={styles.validationText}>{bookingNameValidationMessage}</Text>
         <TextInput
           style={styles.textInput}
           placeholder="Enter here"
@@ -756,9 +811,9 @@ const updateItemsEdit = (newItems) => {
           onChangeText={(text) => setBookingName(text)}
         />
     {/* Get Booking details */}
-    <View style={styles.container}>
+
         <Text style={styles.label}>Enter the name of the participant *: </Text>
-        <Text>{nameValidationMessage}</Text>
+        <Text style={styles.validationText}>{nameValidationMessage}</Text>
         <TextInput
           style={styles.textInput}
           placeholder="Enter here"
@@ -780,7 +835,7 @@ const updateItemsEdit = (newItems) => {
           onChangeText={(text) => setAllergies(text)}
         />
         <Text style={styles.label}>Emergency Contact Number *: </Text>
-        <Text>{phoneNumberValidation}</Text>
+        <Text style={styles.validationText}>{phoneNumberValidation}</Text>
         <TextInput
           style={styles.textInput}
           placeholder="Enter here"
@@ -794,52 +849,21 @@ const updateItemsEdit = (newItems) => {
           value={additionalInfo}
           onChangeText={(text) => setAdditionalInfo(text)}
         />
-      </View>
-
-        <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText} onPress={addParticipant}>Submit Participant</Text>
-        </TouchableOpacity>
-    </ScrollView>
-
-     
-
-
-
-{/* This should only appear if user enter at least on particpant */}
-  <View>
-    {/* Conditional rendering using a ternary operator */}
-    {participantCount >= 1 ? (
-
-  <View>
-     
-    {/*  */}
-      <View>
-        <TouchableOpacity style={styles.button} onPress={SelectEditParticipantModal}>
-                  <Text style={styles.buttonText}>Edit Participant Details</Text>
-        </TouchableOpacity>
-      </View>
-
-
-     
-      <View>
-        <TouchableOpacity style={styles.button} onPress={handleBookingCheckout}>
-                <Text style={styles.buttonText}>Continue to Checkout</Text>
-        </TouchableOpacity>
-      </View>
-
-  </View>
-
-
-
-
-    ) : (
-      <View>
   
-      </View>
-    )}
-  </View>
- 
-  
+        <View>
+          <TouchableOpacity style={styles.button} onPress={addParticipant}>
+              <View style={styles.buttonContent}>
+              <Text style={styles.buttonText}>Submit Participant  </Text>
+                <Ionicons name="person-add-outline" size={20} color="#00e3ae" style={styles.icon} />
+              </View>
+          </TouchableOpacity>
+       </View>
+
+     
+
+
+
+
 
    
 
@@ -855,46 +879,62 @@ const updateItemsEdit = (newItems) => {
       <View style={styles.modalContainer}>
 
       <ScrollView style={styles.modalContent}>
-          
-      
-         
+
+        <View style={styles.bookingsHeaderContainer}>
+        
+          <Text style={styles.label}>Participant Booking List:</Text>
+              <TouchableOpacity style={styles.buttonBooking} onPress={closeSelectEditParticipantModal}>
+                <Ionicons name="arrow-back-circle-outline" color="#00e3ae" size={20} style={styles.icon} />
+              </TouchableOpacity>
+        </View>
 
 
-   
- 
-    <Text style={styles.label}>Participant Booking List:</Text>
     {/* Display Participant , Be able to Edit / Delete from booking  */}
+   
+        {participantArray.map((item, index) => (
+         <View key={index} style={styles.containerModal}>
+            
+             <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Name: </Text>
+                {item.name}
+              </Text>
 
-    {participantArray.map((item, index) => (
-         <View key={index} style={styles.container}>
- 
-          <Text style={styles.label}>Name: {item.name}</Text>
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Age: </Text>
+                {item.age}
+              </Text>
 
-          <Text style={styles.label}>Age: {item.age}</Text>
-          <Text style={styles.label}>Allergies: {item.allergies}</Text>
-          <Text style={styles.label}>Emergency Contact Number: {item.emergencyContactNumber}</Text>
-      
-          <Text style={styles.label}>Anything else you would like us to know: {item.additionalInfo}</Text>
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Allergies: </Text>
+                {item.allergies}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Emergency Contact Number: : </Text>
+                {item.emergencyContactNumber}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Anything else you would like us to know: </Text>
+                {item.additionalInfo}
+              </Text>
+
    
 
-          <View>
-            <TouchableOpacity style={styles.button} onPress={() => editParticipantModal(index)}>
-                <Text style={styles.buttonText}>Edit</Text>
-            </TouchableOpacity>
+            <View style={styles.bookingsButtonsContainer}>
+              <TouchableOpacity style={styles.buttonBooking} onPress={() => editParticipantModal(index)}>
+                  <Text style={styles.buttonText}>Edit</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={() => removeParticipant(index)}>
-                <Text style={styles.buttonText}>Remove</Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity style={styles.buttonBooking} onPress={() => removeParticipant(index)}>
+                <Ionicons name="trash-bin-outline" size={20} color="#00e3ae" style={styles.icon} />
+              </TouchableOpacity>
+            </View>
           </View>
 
       ))}
 
-            <TouchableOpacity style={styles.button} onPress={closeSelectEditParticipantModal}>
-                <Text style={styles.buttonText}>Close</Text>
-            </TouchableOpacity>
-
-  
+      
       </ScrollView>
       </View>
   
@@ -1005,58 +1045,83 @@ const updateItemsEdit = (newItems) => {
       onRequestClose={closeCostBreakdownModal}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+      <ScrollView style={styles.modalContent}>
+      
+       
+      <View style={{ flexDirection: 'column' }}>
+        
 
-        <View style={{ flexDirection: 'column' }}>
-          
-          <Text>Total Cost Breakdown</Text>
+          <View style={styles.bookingsHeaderContainer}>
+          <Text style={styles.headerTextBlack2}>Checkout Summary:  </Text>
 
-          {participantArray.map((item, index) => (
-            <View key={index} style={styles.container}>
-    
-              <Text style={styles.label}>Name: {item.name}</Text>
-              <Text style={styles.label}>Price: £{item.totalParticipantPrice}</Text>
-            
-              
+          <TouchableOpacity style={styles.buttonBooking} onPress={closeCostBreakdownModal}>
+             <Ionicons name="arrow-back-circle-outline" color="#00e3ae" size={20} style={styles.icon}/>
+          </TouchableOpacity>
+      </View>
+
+      
+
+
+<Text style={styles.headerTextBlack2}>Total Cost: </Text>
+
+ <View style={styles.checkoutBookingsContainer}>
+  <Text style={styles.headerTextBlack}>
+    <Text style={styles.headerTextBlack2}>Discount: </Text>
+    {tempDiscountArray}%
+  </Text>
+
+  <Text style={styles.headerTextBlack}>
+    <Text style={styles.headerTextBlack2}>Total: </Text>
+      £{totalBookingPrice}
+  </Text>
+</View>
+          <TouchableOpacity style={styles.buttonBooking} onPress={processPaymentWithAPI}>
+              <Text style={styles.buttonText}>Make Payment</Text>
+          </TouchableOpacity>
+
+
+      <View style={styles.checkoutBookingsLine}></View>
+     
+      <Text style={styles.headerTextBlack2}>Total Cost Breakdown: </Text>
+     
+  
+        {participantArray.map((item, index) => (
+            <View key={index} style={styles.checkoutBookingsContainer}>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Name: </Text>
+                {item.name}
+              </Text>
+
+              <Text style={styles.headerTextBlack}>
+                <Text style={styles.headerTextBlack2}>Price:  </Text>
+                £{item.totalParticipantPrice}
+              </Text>
+
             </View>
 
-          ))}
+        ))} 
+    
+              <View>
+              <View style={styles.checkoutBookingsLine}></View>
+              
+                
+              </View>
+
+                              
+              </View>  
 
 
-
-        <View style={styles.container}>
-
-          <Text style={styles.label}>Discount:{tempDiscountArray}%</Text>
-          <Text style={styles.label}>Cost: £{totalBookingPrice}</Text>
-          
-        </View>
-
-                        
-        </View>  
-
-
-
-
-         <View>
-            <TouchableOpacity style={styles.button} onPress={processPaymentWithAPI}>
-                <Text style={styles.buttonText}>Make Payment</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button} onPress={closeCostBreakdownModal}>
-                <Text style={styles.buttonText}>Exit</Text>
-            </TouchableOpacity>
-          </View>
-
-              </View> 
+            </ScrollView> 
 
 
         </View>
 
   </Modal>
 
-
-
-
+  </View>
+  </View>
+  </View>
 
     </StripeProvider>
   </ScrollView>
@@ -1067,16 +1132,61 @@ const updateItemsEdit = (newItems) => {
 
 export default CreateEventBookings;
 
+
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 2,
-    borderColor: '#ccc',
-    padding: 20,
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '10%', // Height of the container (adjust as needed)
+    backgroundColor: '#00e3ae',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 150, // Adjust this value for the desired curvature
+    borderBottomRightRadius: 150, // Adjust this value for the desired curvature
+
+  },
+  checkoutBookingsContainer:{
+    borderWidth: 1,
+    backgroundColor:'#ecf0ff',
+    borderColor: '#00e3ae',
+    marginBottom:10,
+    borderRadius: 10, // Adjust this value for the desired curvature
+  },
+  checkoutBookingsLine:{
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 10, 
+  marginTop:10,
+    marginBottom:10
+
+  },
+  containerModal: {
+    flex: 1,
+    backgroundColor: '#00e3ae',
+    borderWidth: 1,
+    borderColor: '#00e3ae',
+    borderRadius: 10,
+    padding: 10,
     margin: 20,
-    width: 'auto',
+  },
+  container2:{
+
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
+    backgroundColor: '#ecf0ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+
+  },
+  bookingsButtonsContainer:{
+    flex: 1,
+    width: '100%', // Width of the container (adjust as needed)
+    height: '100%', // Height of the container (adjust as needed)
   },
   validationText: {
-    fontSize: 20,
+    fontSize: 12,
     marginBottom: 10,
     color: 'red',
   },
@@ -1097,14 +1207,30 @@ const styles = StyleSheet.create({
     modalContent: {
       backgroundColor: '#fff',
       padding: 20,
-      borderRadius: 10,
-      width: '80%',
+      borderRadius: 30,
+      // marginTop:10,
+      width: '90%',
     },
     fieldRow: {
       flexDirection: 'row',
        marginTop: 15,
        marginBottom: 10,
     },
+
+    buttonContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    containerCard: {
+      borderWidth: 8,
+      borderColor: '#ffffff',
+      borderRadius: 30,
+      padding: 10,
+      marginTop: 80,
+      width: 'auto',
+      backgroundColor: '#ecf0ff',
+    },
+
     label: {
       // marginBottom: 5,
       fontWeight: 'bold',
@@ -1117,15 +1243,42 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     },
     buttonContainer:{
-      marginTop:30
+      marginTop: 10
     },
     button: {
-      backgroundColor: '#4CAF50',
-      borderRadius: 4,
-      padding: 10,
-      marginBottom: 5,
-      
+ 
+      borderRadius: 10,
+      marginTop: 30,
+      paddingVertical: 15,
+      alignItems: 'center',
+      backgroundColor: 'black',
+      borderRadius: 15,
+      padding: 2,
+      zIndex: 2, // Ensure dropdown is above other elements
+
     },
+
+    bookingsHeaderContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      // padding: 10,
+      marginTop:30,
+      marginBottom:10,
+    },
+
+    bookingsButtonsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      padding: 10,
+    },
+    buttonBooking: {
+      backgroundColor: 'black',
+      paddingVertical: 5, // Reduced padding
+      paddingHorizontal: 10, // Reduced padding
+      borderRadius: 5,
+      marginHorizontal: 5,
+    },
+   
     button1: {
       backgroundColor: '#4CAF50',
       borderRadius: 4,
@@ -1133,6 +1286,25 @@ const styles = StyleSheet.create({
       zIndex: 2, // Ensure dropdown is above other elements
       marginBottom: 5,
      
+    },
+    headerTextBlack:{
+      color: 'black',
+      fontSize: 14,
+      justifyContent:'center',
+      padding:5,
+      marginBottom:5,
+      marginTop:5
+  
+    },
+    headerTextBlack2:{
+      color: 'black',
+      fontSize: 14,
+      fontWeight:'bold',
+      justifyContent:'center',
+      padding:1,
+      marginBottom:5,
+      marginTop:5
+  
     },
     button2: {
       backgroundColor: '#4CAF50',

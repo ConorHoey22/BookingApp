@@ -210,7 +210,7 @@ text:{
    
 },
 headerText:{
-  color: 'white',
+      color: 'white',
       fontSize: 24,
       fontWeight:'bold'
 },
