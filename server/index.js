@@ -12,17 +12,23 @@ const routes = require('../routes/routes'); // Import the routes module
 
 
 
+
 app.use(bodyParser.json());
 app.use(express.json());
 
+app.use(cors({
+  origin: '*',  // Allow all origins
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
 
 
 
-
-app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 const mongoURI = 'mongodb+srv://HoeyTech:HoeyTechMongo@cluster0.ax0r64x.mongodb.net/BookingAppDatabase?retryWrites=true&w=majority';
+
 
 
 

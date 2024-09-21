@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {StyleSheet, View, TextInput,Modal, Button,Text,Switch, TouchableOpacity, ScrollView } from 'react-native';
+import {StyleSheet, View, TextInput,Modal, Button,Text,Switch, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import validator from 'validator';
 import { Ionicons } from '@expo/vector-icons';
@@ -70,10 +70,10 @@ const SignUp = ({navigation}) => {
           
 
           // Check if the password meets the criteria
-         else if(password.length >= minLength && hasUppercase && hasLowercase &&hasDigit && hasSpecialChar)
+         else if(password.length >= minLength && hasUppercase && hasLowercase && hasDigit && hasSpecialChar)
           {
 
-            console.log(agreeToTCs);
+    
             console.log("Valid password")
             //Valid Entry - No error message needed
             setEmailErrorMessage('');
@@ -86,7 +86,11 @@ const SignUp = ({navigation}) => {
 
             try{ 
 
-                const apiUrl = 'http://localhost:3000/api/signup'; // Update with your actual server endpoint - THis will need update in Production
+                const apiUrl =
+                Platform.OS === 'ios'
+                  ? 'http://localhost:3000/api/signup'  // iOS simulator uses localhost
+                  : 'http://192.168.1.186:3000/api/signup';  // Android emulator 
+             
                 const response = await fetch(apiUrl, {
                   method: 'POST',
                   headers: {
@@ -360,7 +364,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     flex:1,
     padding:40,
-    marginTop:50,
+    marginBottom:50,
     fontWeight:'bold'
   },
   headerText:{

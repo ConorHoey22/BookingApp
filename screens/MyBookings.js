@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal,FlatList, Alert, VirtualizedList } from 'react-native';
+import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal,FlatList, Alert, VirtualizedList,Platform } from 'react-native';
 import validator from 'validator';
 import { useNavigation , useRoute } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -65,9 +65,12 @@ const MyBookings = ({ navigation }) => {
           try {
             const jwtToken = await AsyncStorage.getItem('jwtToken');
             setIsLoggedIn(!!jwtToken);
+
+            const apiGetBookings =
+            Platform.OS === 'ios'
+              ? 'http://localhost:3000/api/getBookingRecords'  // iOS simulator uses localhost
+              : 'http://192.168.1.186:3000/api/getBookingRecords';  // Android emulator 
     
-            // Fetch booking data
-            const apiGetBookings = 'http://localhost:3000/api/getBookingRecords';
             const bookingsResponse = await fetch(apiGetBookings, {
               method: 'GET',
               headers: {
@@ -84,10 +87,13 @@ const MyBookings = ({ navigation }) => {
           
 
 
-          
+            const apiGetCamps =
+            Platform.OS === 'ios'
+              ? 'http://localhost:3000/api/camps'  // iOS simulator uses localhost
+              : 'http://192.168.1.186:3000/api/camps';  // Android emulator 
     
             // Fetch and process camp data
-            const apiGetCamps = 'http://localhost:3000/api/camps';
+
             const campsResponse = await fetch(apiGetCamps, {
               method: 'GET',
               headers: {
@@ -102,8 +108,14 @@ const MyBookings = ({ navigation }) => {
 
 
             // Fetch and process event data
-            const apiGetEvent = 'http://localhost:3000/api/events';
-            const eventResponse = await fetch(apiGetEvent, {
+
+            const apiGetEvents =
+            Platform.OS === 'ios'
+              ? 'http://localhost:3000/api/events'  // iOS simulator uses localhost
+              : 'http://192.168.1.186:3000/api/events';  // Android emulator 
+
+     
+            const eventResponse = await fetch(apiGetEvents, {
               method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
@@ -387,7 +399,11 @@ const MyBookings = ({ navigation }) => {
         }
         else{
 
-              const selectedBookingTypeRecordID = `http://localhost:3000/api/fullRefundRequest/${selectedBookingRecord._id}`;
+          const selectedBookingTypeRecordID =
+          Platform.OS === 'ios'
+            ? `http://localhost:3000/api/fullRefundRequest/${selectedBookingRecord._id}`  // iOS simulator uses localhost
+            : `http://192.168.1.186:3000/api/fullRefundRequest/${selectedBookingRecord._id}`; // Android emulator 
+
 
               // Update Status so that it changes on the Record from Booked to Full Refund Request Sent 
               // Update Person AttendanceStatus value 
@@ -457,8 +473,13 @@ const RequestedEventFullRefund = async() => {
   }
   else{
 
-        const selectedBookingTypeRecordID = `http://localhost:3000/api/fullRefundRequest/${selectedEventBookingRecord._id}`;
 
+    const selectedBookingTypeRecordID =
+    Platform.OS === 'ios'
+      ? `http://localhost:3000/api/fullRefundRequest/${selectedEventBookingRecord._id}`  // iOS simulator uses localhost
+      : `http://192.168.1.186:3000/api/fullRefundRequest/${selectedEventBookingRecord._id}`; // Android emulator 
+
+  
         // Update Status so that it changes on the Record from Booked to Full Refund Request Sent 
         // Update Person AttendanceStatus value 
 

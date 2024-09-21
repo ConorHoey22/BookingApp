@@ -18,6 +18,106 @@ const router = express.Router();
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
+
+
+
+
+
+
+
+
+const nodemailer = require('nodemailer');
+
+
+
+router.post('/api/sendResetPasswordCode', async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+      // Generate a random reset token (6-digit code)
+      const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+
+      user.resetToken = resetToken;
+      user.resetTokenExpiry = Date.now() + 3600000; // Token valid for 1 hour
+
+      await user.save();
+
+
+
+
+       // Create a transporter using the App Password from your Gmail account
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'conorhoey133@gmail.com', // Your Gmail address
+          pass: 'yzyn ogxw eejb flof',    // Your App Password (replace with the generated App Password)
+        },
+      });
+
+      // Set up email data (who the email is sent to, subject, etc.)
+      const mailOptions = {
+        from: 'conorhoey133@gmail.com',        // Sender address
+        to: email,  // List of recipients
+        subject: 'Password Reset Request - Booking System',      // Subject line
+        text: `Your password reset token is: ${resetToken}`,
+      };
+
+      // Send the email using the transporter
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log('Error sending email: ', error);
+        } else {
+          console.log('Email sent successfully: ' + info.response);
+        }
+      });
+
+
+});
+
+router.post('/api/verifyResetToken', async (req, res) => {
+ 
+  const { enteredResetPasswordCode , newPassword } = req.body;
+
+  const user = await User.findOne({ resetToken: enteredResetPasswordCode });
+
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid or expired token' });
+  }
+
+  // Hash the new password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update the user's password and clear the token
+    user.password = hashedPassword;
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+
+    await user.save();
+
+    res.json({ message: 'Code is correct' });
+
+});
+
+
+
+router.put('/api/resetPassword', async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ resetToken: enteredResetPasswordCode });
+
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid or expired token' });
+  }
+
+});
+
+
 router.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -162,6 +262,37 @@ router.post('/api/createEvent', verifyToken, async (req, res) => {
   
 });
 
+
+// API endpoint for Create Event 
+router.post('/api/createEventAndroid', verifyToken, async (req, res) => {
+
+  try {
+    
+
+        const { eventName, location, price, startDate,startTime, endTime } = req.body;
+   
+
+
+        //Is there a way to obtain the UserID 
+        const createdByUserID = req.user.userId; // Corrected parameter name
+
+        //Event model 
+
+        // Save data to MongoDB
+        const newEvent = new Event({createdByUserID,eventName,location, price,startDate,startTime,endTime});
+        await newEvent.save();
+       
+      
+        res.status(200).json({ message: 'Event Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
 //GET EVENTS 
 router.get('/api/events', verifyToken, async (req, res) => {
   try {
@@ -234,6 +365,26 @@ router.put('/api/updateEvent/:id', verifyToken, async (req, res) => {
       res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+// Update Event Android
+router.put('/api/updateEventAndroid/:id', verifyToken, async (req, res) => {
+  try {
+      const id = req.params.id;
+      const updatedEvent = req.body; // Contains updated event data
+      const result = await Event.findByIdAndUpdate(id, updatedEvent, { new: true });
+
+      if (!result) {
+          return res.status(404).json({ message: 'Event not found' });
+      }
+
+      res.status(200).json(result); // Return updated event
+  } catch (error) {
+
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 
@@ -442,7 +593,7 @@ router.put('/api/DeactivateCampOffer/:id', verifyToken, async (req, res) => {
 
 
 
-// API endpoint for Create Camp 
+// API endpoint for Create Camp Android
 router.post('/api/createCamp', verifyToken, async (req, res) => {
 
   try {
@@ -471,6 +622,39 @@ router.post('/api/createCamp', verifyToken, async (req, res) => {
     }
   
 });
+
+
+
+// API endpoint for Create Camp iOS
+router.post('/api/createCampIOS', verifyToken, async (req, res) => {
+
+  try {
+    
+
+        const { campName, location, price1Day, price2Day, price3Day, price4Day, price5Day,startIOSDate,startIOSTime, endIOSDate, endIOSTime} = req.body;
+   
+
+
+        //Is there a way to obtain the UserID 
+        const createdByUserID = req.user.userId; // Corrected parameter name
+
+        //Camp model 
+
+        // Save data to MongoDB
+        const newCamp = new Camp({createdByUserID,campName,location, price1Day,price2Day,price3Day,price4Day,price5Day,startDate: startIOSDate,startTime: startIOSTime, endDate: endIOSDate, endTime: endIOSTime});
+        await newCamp.save();
+       
+      
+        res.status(200).json({ message: 'Camp Data saved successfully' });
+
+    } catch (error) {
+        
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+  
+});
+
 
 
 //GET CAMPS 
@@ -538,6 +722,23 @@ router.delete('/api/eventOffers/:id',verifyToken, async (req, res) => {
 
 
 router.put('/api/updateCamp/:id', verifyToken, async (req, res) => {
+  try {
+      const id = req.params.id;
+      const updatedCamp = req.body; // Contains updated camp data
+      const result = await Camp.findByIdAndUpdate(id, updatedCamp, { new: true });
+
+      if (!result) {
+          return res.status(404).json({ message: 'Camp not found' });
+      }
+
+      res.status(200).json(result); // Return updated camp
+  } catch (error) {
+
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/api/updateCampAndroid/:id', verifyToken, async (req, res) => {
   try {
       const id = req.params.id;
       const updatedCamp = req.body; // Contains updated camp data

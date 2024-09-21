@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , Platform} from 'react';
 import { View, StyleSheet } from 'react-native';
 
 import { NavigationContainer } from '@react-navigation/native';
@@ -26,6 +26,8 @@ import CreateAnOffer from './Views/CreateAnOffer';
 
 import Logout from './screens/Logout';
 import LogOutAdmin from './screens/LogOutAdmin';
+import ResetPasswordScreen from './screens/ResetPasswordScreen';
+import ForgotPassword from './screens/ForgotPassword';
 
 const Tab = createBottomTabNavigator();
 
@@ -73,6 +75,8 @@ const App = () => {
             {(props) => <Login {...props} setIsAdminLoggedIn={setAdminIsLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
           </Tab.Screen>
           <Tab.Screen name="Admin Dashboard" component={DashboardAdmin} options={{ tabBarButton: () => null }} />
+          <Tab.Screen name="Forgot Password" component={ForgotPassword} options={{ tabBarButton: () => null }} />
+          <Tab.Screen name="Reset Password" component={ResetPasswordScreen} options={{ tabBarButton: () => null }} />
           <Tab.Screen name="SignUp" component={SignUp} />
         </Tab.Navigator>
       </NavigationContainer>

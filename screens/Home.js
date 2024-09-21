@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Image} from 'react-native';
+import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Image, Platform} from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
@@ -20,6 +20,11 @@ const Home = ({navigation}) => {
         navigation.navigate('SignUp');
       };
 
+
+      const handleForgotPassword = async () => {
+        navigation.navigate('Forgot Password');
+      };
+      
   return (
 
 
@@ -52,6 +57,11 @@ const Home = ({navigation}) => {
             <TouchableOpacity style={styles.button} onPress={handleSignUp}>
               <Text style={styles.buttonText}>Sign Up </Text>  
               <Ionicons name="person-add-outline" size={20} color="#0073e6" style={styles.icon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={handleForgotPassword}>
+              <Text style={styles.buttonText}>Forgot Password </Text>  
+              
             </TouchableOpacity>
           
           </View>

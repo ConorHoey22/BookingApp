@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TextInput, Button, Text, TouchableOpacity,Platform } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';

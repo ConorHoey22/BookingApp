@@ -9,7 +9,9 @@ const mongoose = require('mongoose');
     password: String,
     fullName: String,
     userType: String, // Default value 'CRM'
-    agreeToTCs: String // Terms and Conditions Agree Value
+    agreeToTCs: String, // Terms and Conditions Agree Value
+    resetToken: String,
+    resetTokenExpiry: { type: Date },
   });
   
   //Define Model

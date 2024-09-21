@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Button, Text,TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TextInput, Button, Text,TouchableOpacity,Platform } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,7 +28,13 @@ const handleLogin = async () => {
   setErrorMessage('');
 
   try {
-    const apiUrlLogin = 'http://localhost:3000/api/login';
+    // const apiUrlLogin = 'http://localhost:3000/api/login';
+
+ // Set the API URL based on the platform
+  const apiUrlLogin =
+  Platform.OS === 'ios'
+    ? 'http://localhost:3000/api/login'  // iOS simulator uses localhost
+    : 'http://192.168.1.186:3000/api/login';  // Android emulator 
   
 
     const response = await fetch(apiUrlLogin, {
@@ -50,7 +56,15 @@ const handleLogin = async () => {
 
       // Get the user ID from the response
       const userId = jsonResponse.userId; // Assuming the user ID is available in the response
-      const apiUrlUser = `http://localhost:3000/api/user/${userId}`;
+      // const apiUrlUser = `http://localhost:3000/api/user/${userId}`;
+
+      const apiUrlUser =
+      Platform.OS === 'ios'
+        ? `http://localhost:3000/api/user/${userId}`  // iOS simulator uses localhost
+        : `http://192.168.1.186:3000/api/user/${userId}`;  // Android emulator uses 10.0.2.2
+      
+    
+
 
       const userResponse = await fetch(apiUrlUser, {
         method: 'GET',

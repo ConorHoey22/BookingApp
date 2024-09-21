@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView,StyleSheet,FlatList, View, TextInput, Button, Text, TouchableOpacity, Modal, Alert } from 'react-native';
+import { ScrollView,StyleSheet,FlatList, View, TextInput, Button, Text, TouchableOpacity, Modal, Alert, Platform } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -93,8 +93,11 @@ const CreateBooking = ({navigation}) => {
 
 //-----------------------------
       //Get API Request - Fetch all camps offers 
-      const apiGetCampsOffers = 'http://localhost:3000/api/getCampOffers';
-
+      const apiGetCampsOffers =
+      Platform.OS === 'ios'
+        ? 'http://localhost:3000/api/getCampOffers'  // iOS simulator uses localhost
+        : 'http://192.168.1.186:3000/api/getCampOffers';  // Android emulator 
+      
       
       try {
     
@@ -123,8 +126,14 @@ const CreateBooking = ({navigation}) => {
 
           // --------------------------------------------------------------------------
 
-            const apiGetUsers = 'http://localhost:3000/api/user/:userId';
+  
+            const apiGetUsers =
+            Platform.OS === 'ios'
+              ? 'http://localhost:3000/api/user/:userId'  // iOS simulator uses localhost
+              : 'http://192.168.1.186:3000/api/user/:userId';  // Android emulator 
             
+
+
             try {
               const response = await fetch(apiGetUsers, {
                 method: 'GET',
@@ -705,7 +714,13 @@ else {
         };
           
 
-      const apiCreateBooking = 'http://localhost:3000/api/campPayment';
+      //Get API Request - Fetch all camps offers 
+      const apiCreateBooking =
+      Platform.OS === 'ios'
+        ? 'http://localhost:3000/api/campPayment'  // iOS simulator uses localhost
+        : 'http://192.168.1.186:3000/api/campPayment';  // Android emulator 
+      
+    
       const jwtToken = await AsyncStorage.getItem('jwtToken');
 
           const response = await fetch(apiCreateBooking, {
@@ -739,7 +754,13 @@ else {
           //Create Booking on DB 
           try{
 
-            const apiBookingCampRecord = 'http://localhost:3000/api/createBookingCampRecord';
+
+          //Get API Request - Fetch all camps offers 
+          const apiBookingCampRecord =
+          Platform.OS === 'ios'
+            ? 'http://localhost:3000/api/createBookingCampRecord'  // iOS simulator uses localhost
+            : 'http://192.168.1.186:3000/api/createBookingCampRecord';  // Android emulator 
+    
             const responseRecord = await fetch(apiBookingCampRecord, {
               method: 'POST',
               headers: {

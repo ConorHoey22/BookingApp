@@ -1,7 +1,28 @@
-Working on -  ----  
+Working on -  
+Make it that a camp can only be a max of 5 days . 
+
+TEST T&Cs to see if it works? 
+
+ENV File Work needs done
+,- Stripe api key a
+- DB Key 
+- Email and App passcode 
+-  IP addresses of Fetchs how do we handle them as its not going to be always on localhost? (PRod/ localhost repo needed)
+
+Remove console logs of JWT tokens Etc and user details
+
+Apple PAY  / Google pay - can we get this - Yes but you need to setup Apple Pay and Google accounts - I think we leave this before LIVE 
+
+DEV / TEST Site and Production REPO needed
+
+-------------------------------------------------------------------------
+
+DEV / TEST Site and Production REPO needed
 
 
+(node:1312) [DEP0044] DeprecationWarning: The `util.isArray` API is deprecated. Please use `Array.isArray()` instead.
 
+See what the above is abut??
 
 
 -------------------
@@ -29,6 +50,7 @@ Handlesubmit within createcamp is only tested in ios unsure about Andriod yet
 
 2.0 
 Notifications
+ unlimited specific amount of day prices for camps so not limited to 5days
 --------
 
 
@@ -48,6 +70,16 @@ We can implement refunds on the app but that could be a future feature / Release
 For now i think we could have it that the User can see previous Camps / Events within the last X days 
 and then request a refund then the business would log in and see the nofication and go on the Stripe application and process
 how do we tell the outcome - Notifications ?  
+
+
+FORGET PASSWORD - How do we handle this ? 1. Gmail (via Nodemailer)
+Free Tier: If you use your personal Gmail account to send emails via Nodemailer, it’s free for low volumes of email (e.g., personal use, small apps).
+Limitations: Gmail has daily sending limits. For example:
+Free Gmail accounts are limited to around 100–500 emails per day.
+If you use Google Workspace (formerly G Suite), the limit increases, but it's still capped.
+Important: Gmail is not suitable for large-scale email sending (like marketing or app notifications), as it’s meant for personal use. Overuse may result in temporary suspension of sending capabilities.
+
+
 
 
 refunds

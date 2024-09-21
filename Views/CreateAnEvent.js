@@ -22,10 +22,6 @@ const CreateEvent = ({navigation}) => {
     setShow(true);
 
  
-  
-
-    
-
   }, []);
 
 
@@ -46,6 +42,9 @@ const CreateEvent = ({navigation}) => {
 
 const [startDate, setStartDate] = useState(new Date());
 const [endDate, setEndDate] = useState(new Date());
+
+const [startTime, setStartTime] = useState(new Date());
+const [endTime, setEndTime] = useState(new Date());
 const [startPickerVisible, setStartPickerVisible] = useState(false);
 const [endPickerVisible, setEndPickerVisible] = useState(false);
 
@@ -61,16 +60,102 @@ const [endPickerVisible, setEndPickerVisible] = useState(false);
     
   };
 
-  const showStartPicker = () => {
-    setStartPickerVisible(true);
-  };
-
-  const showEndPicker = () => {
-    setEndPickerVisible(true);
-  };
 
 // -------------------------------------------------------- 
 
+
+
+
+//----------Android -------------------------
+const [startAndroidDate, setStartAndroidDate] = useState(new Date());
+
+
+const [startAndroidTime, setStartAndroidTime] = useState(new Date());
+const [endAndroidTime, setEndAndroidTime] = useState(new Date());
+
+const [showStartDateVisible, setShowStartDateVisible] = useState(false);
+const [showStartTimeVisible, setShowStartTimeVisible] = useState(false);
+const [showEndTimeVisible, setShowEndTimeVisible] = useState(false);
+
+const handleStartAndroidChange = (event, selectedDate) => {
+  const currentDate = selectedDate || startAndroidDate;
+
+  setStartAndroidDate(currentDate);
+
+  if (event.type === 'dismissed') {
+    // User pressed the Cancel button
+    setShowStartDateVisible(false);
+    return;
+  }
+
+  if (event.type === 'set' && currentDate) {
+    // User pressed the OK button and selected a date
+
+    setStartAndroidDate(currentDate);
+    setShowStartDateVisible(false);
+  }
+
+};
+
+
+
+
+const showStartPicker = () => {
+  setShowStartDateVisible(true);
+};
+
+const showStartTime = () => {
+  setShowStartTimeVisible(true);
+};
+
+const showEndTime = () => {
+  setShowEndTimeVisible(true);
+};
+
+
+const onStartTimeChange = (event , selectedTime) => {
+    setShowStartTimeVisible(false);
+    const currentTime = selectedTime || startAndroidTime;
+    setStartAndroidTime(currentTime);
+
+
+    if (event.type === 'dismissed') {
+      // User pressed the Cancel button
+      setShowStartTimeVisible(false);
+      return;
+    }
+  
+    if (event.type === 'set' && currentDate) {
+      // User pressed the OK button and selected a date
+
+      setStartAndroidTime(currentTime);
+      setShowStartTimeVisible(false);
+    };
+
+  };
+
+  const onEndTimeChange = (event , selectedTime) => {
+   
+    setShowEndTimeVisible(false);
+    const currentTime = selectedTime || endAndroidTime;
+    setEndAndroidTime(currentTime);
+
+    if (event.type === 'dismissed') {
+      // User pressed the Cancel button
+      setShowEndTimeVisible(false);
+      return;
+    }
+  
+    if (event.type === 'set' && currentDate) {
+      // User pressed the OK button and selected a date
+
+      setEndAndroidTime(currentTime);
+      setShowEndTimeVisible(false);
+    };
+  };
+
+//-------------------------------------------------------
+  
 
 ///--------- WEB  -------------
 
@@ -81,18 +166,15 @@ const [mode, setMode] = useState('date');
 const [show, setShow] = useState(false);
 
 
-const [startTime, setStartTime] = useState(new Date());
-const [endTime, setEndTime] = useState(new Date());
-const [showTimePicker, setShowTimePicker] = useState(false);
 
 const onStartChange = (event, selectedTime) => {
-  setShowTimePicker(false);
+  setStartPickerVisible(false);
   const currentTime = selectedTime || startTime;
   setStartTime(currentTime);
 };
 
 const onEndChange = (event, selectedTime) => {
-  setShowTimePicker(false);
+  setStartPickerVisible(false);
   const currentTime = selectedTime || endTime;
   setEndTime(currentTime);
 };
@@ -155,7 +237,13 @@ useEffect(() => {
 
   const handleSubmit = async () => {
     try {
-      const apiCreateEvent = 'http://localhost:3000/api/createEvent';
+
+
+      const apiCreateEvent =
+      Platform.OS === 'ios'
+        ? 'http://localhost:3000/api/createEvent'  // iOS simulator uses localhost
+        : 'http://192.168.1.186:3000/api/createEvent';  // Android emulator 
+
       const jwtToken = await AsyncStorage.getItem('jwtToken');
   
       if (!jwtToken) {
@@ -232,7 +320,99 @@ useEffect(() => {
       
   };
 
- 
+
+
+
+  const handleAndroidSubmit = async () => {
+
+    try {
+
+      
+
+      const apiCreateEvent =
+      Platform.OS === 'andriod'
+        ? 'http://localhost:3000/api/createEventAndroid'  
+        : 'http://192.168.1.186:3000/api/createEventAndroid';  // Android emulator 
+
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
+  
+      if (!jwtToken) {
+        throw new Error('JWT token not found');
+      }
+
+      // Reset error messages
+      setEventNameErrorMessage("");
+      setLocationErrorMessage("");
+      setPriceErrorMessage("");
+
+      //Form Validation before User can Handle Submition
+      
+      //If eventName is blank
+      if(eventName == "")
+      {
+        const errorMessage1 = "Please enter the event name";
+        setEventNameErrorMessage(errorMessage1);
+      }
+      else if(location == "")
+      {
+        const errorMessage2 = "Please enter a location";
+        setLocationErrorMessage(errorMessage2);
+      }
+      else if(price == "") 
+      {
+        const errorMessage3 = "Please enter a price";
+        setPriceErrorMessage(errorMessage3);
+      }
+      else {
+
+  
+        const response = await fetch(apiCreateEvent, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify({ 
+            eventName,
+            location, 
+            price,
+            startDate: startAndroidDate,
+            startTime: startAndroidTime,
+            endTime: endAndroidTime,
+            
+          }),
+        });
+    
+        if (response.ok) {
+          const jsonResponse = await response.json();
+          console.log('Event Created', jsonResponse);
+          navigation.navigate('Manage Bookings', { dataTrigger: true}); 
+        } else {
+          console.log('Error Status:', response.status);
+          console.log('Error Message:', response.statusText);
+          let errorMessage = 'Unknown error occurred.';
+          try {
+            const jsonResponse = await response.json();
+            errorMessage = jsonResponse.message || jsonResponse.error || jsonResponse.errorMessage || errorMessage;
+          } catch (error) {
+            errorMessage = response.statusText || errorMessage;
+          }
+          console.log('Error Message from JSON:', errorMessage);
+        }
+      } 
+       }catch (error) {
+        console.error('Network Error:', error.message);
+        // Handle the error here. For example, set an error message state
+        setErrorMessage(error.message);
+      }
+
+      
+  };
+
+
+
+
+
 
 
   return (
@@ -288,12 +468,13 @@ useEffect(() => {
               
     
 
-                        {/* ios */}
+            {/* ios */}
                     
-                        {Platform.OS === 'ios' && 
-                            // <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
+            {Platform.OS === 'ios' && 
+                      
                           
-                            <SafeAreaView>
+                        <SafeAreaView>
+
                              <View style={styles.formContent}>
                               <Text style={styles.headerText}>Select a start date:</Text>
                                   
@@ -308,8 +489,8 @@ useEffect(() => {
                                   )}
                               </View>
 
-                        
-      
+                          
+    
                               <View style={styles.formContent}>
                               <Text style={styles.headerText}>Select a start time:</Text>
                                   {show && (
@@ -357,25 +538,99 @@ useEffect(() => {
               </SafeAreaView>
             }
 
-            {/* Andriod */}
+            {/* Android */}
             {Platform.OS === 'android' &&
             <SafeAreaView style={{ justifyContent: 'center', flex: 1, alignItems: 'center' }}>
-            <Button onPress={showDatepicker} title="Show date picker!" />
-            <Button onPress={showTimepicker} title="Show time picker!" />
-            <Text>selected: {date.toLocaleString()}</Text>
+
+                    <TouchableOpacity onPress={showStartPicker} style={styles.button}>
+                          <View style={styles.buttonContent}>
+                              <Text style={styles.buttonText}>Select a start date </Text>
+                              <Ionicons name="book-outline" size={20} style={styles.icon} />
+                          </View>
+                    </TouchableOpacity>
+
+              
+
+                    <TouchableOpacity onPress={showStartTime} style={styles.button}>
+                          <View style={styles.buttonContent}>
+                              <Text style={styles.buttonText}>Select a start time </Text>
+                              <Ionicons name="book-outline" size={20} style={styles.icon} />
+                          </View>
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity onPress={showEndTime} style={styles.button}>
+                          <View style={styles.buttonContent}>
+                              <Text style={styles.buttonText}>Select a end time </Text>
+                              <Ionicons name="book-outline" size={20} style={styles.icon} />
+                          </View>
+                    </TouchableOpacity>
+
+
+                    <View style={styles.formContent2}>
+                      <Text style={styles.headerText}>Start Date: </Text> 
+                      <Text>{new Date(startAndroidDate).toLocaleDateString('en-GB')}</Text>
+                    </View>
+
+                  
+
+                    <View style={styles.formContent2}>
+                      <Text style={styles.headerText}>Start Time: </Text> 
+                      <Text>{new Date(startAndroidTime).toLocaleTimeString()}</Text>
+                    </View>
+
+
+
+                    <View style={styles.formContent2}>
+                      <Text style={styles.headerText}>End Time: </Text> 
+                      <Text>{new Date(endAndroidTime).toLocaleTimeString()}</Text>
+                    </View>
 
 
 
 
-                    {show && (
+                    {showStartDateVisible && (
                       <DateTimePicker
                         testID="dateTimePicker"
-                        value={date}
+                        value={startAndroidDate}
                         mode={mode}
                         is24Hour={true}
-                        onChange={onChange}
+                        onChange={handleStartAndroidChange}
                       />
                     )}
+
+
+                  
+                   {showStartTimeVisible && (
+                        <DateTimePicker
+                        testID="dateTimePicker"
+                        value={startAndroidTime}
+                        mode="time"
+                        is24Hour={true}
+                        display="default"
+                        onChange={onStartTimeChange}
+                      />
+                    )}
+
+                    {showEndTimeVisible && (
+                        <DateTimePicker
+                        testID="dateTimePicker"
+                        value={endAndroidTime}
+                        mode="time"
+                        is24Hour={true}
+                        display="default"
+                        onChange={onEndTimeChange}
+                      />
+                    )}
+
+                          <TouchableOpacity onPress={handleAndroidSubmit} style={styles.button}>
+                                <View style={styles.buttonContent}>
+                                    <Text style={styles.buttonText}>Create </Text>
+                                    <Ionicons name="book-outline" size={20} style={styles.icon} />
+                                </View>
+                          </TouchableOpacity>
+
+
                     </SafeAreaView>
                     }
 
@@ -448,6 +703,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 10,
     color: 'red',
+  },
+  formContent2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    // marginBottom:-15,
+    marginTop:10,
+    paddingLeft:10
+
+
   },
   container: {
     flexGrow: 1,

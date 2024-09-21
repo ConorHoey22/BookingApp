@@ -143,7 +143,13 @@ const CreateAnOffer = ({navigation}) => {
  const CreateEventOffer = async () => {
   
   try {
-    const apiCreateEventOffer = 'http://localhost:3000/api/createEventOffer';
+
+    const apiCreateEventOffer =
+    Platform.OS === 'ios'
+      ? 'http://localhost:3000/api/createEventOffer'  // iOS simulator uses localhost
+      : 'http://192.168.1.186:3000/api/createEventOffer';  // Android emulator 
+
+
     const jwtToken = await AsyncStorage.getItem('jwtToken');
 
     if (!jwtToken) {
@@ -236,8 +242,12 @@ const ViewEventOffers = async () => {
 
 
     //Get API Request - Fetch all event offers 
+    const apiGetEventOffers =
+    Platform.OS === 'ios'
+      ? 'http://localhost:3000/api/getEventOffers'  // iOS simulator uses localhost
+      : 'http://192.168.1.186:3000/api/getEventOffers';  // Android emulator 
 
-    const apiGetEventOffers = 'http://localhost:3000/api/getEventOffers';
+
     const jwtToken = await AsyncStorage.getItem('jwtToken'); 
 
     try {
@@ -292,7 +302,13 @@ const closeViewCampOfferModal = async () => {
 const CreateCampOffer = async () => {
   
     try {
-      const apiCreateCampOffer = 'http://localhost:3000/api/createCampOffer';
+    
+      //Get API Request - Fetch all event offers 
+    const apiCreateCampOffer =
+    Platform.OS === 'ios'
+      ? 'http://localhost:3000/api/createCampOffer'  // iOS simulator uses localhost
+      : 'http://192.168.1.186:3000/api/createCampOffer';  // Android emulator 
+
       const jwtToken = await AsyncStorage.getItem('jwtToken');
   
       if (!jwtToken) {
@@ -378,8 +394,11 @@ const CreateCampOffer = async () => {
 
 
     //Get API Request - Fetch all camps offers 
+ const apiGetCampsOffers =
+          Platform.OS === 'ios'
+            ? 'http://localhost:3000/api/getCampOffers'  // iOS simulator uses localhost
+            : 'http://192.168.1.186:3000/api/getCampOffers';  // Android emulator 
 
-  const apiGetCampsOffers = 'http://localhost:3000/api/getCampOffers';
   const jwtToken = await AsyncStorage.getItem('jwtToken'); 
   
   try {
@@ -418,9 +437,13 @@ const CreateCampOffer = async () => {
 
     const CampOfferID = id; // Assuming each camp has an '_id' property
 
+    const apiActivateCampOffer =
+    Platform.OS === 'ios'
+      ? `http://localhost:3000/api/ActivateCampOffer/${CampOfferID}` // iOS simulator uses localhost
+      : `http://192.168.1.186:3000/api/ActivateCampOffer/${CampOfferID}`;  // Android emulator
+
     try{
 
-      const apiActivateCampOffer = `http://localhost:3000/api/ActivateCampOffer/${CampOfferID}`;
       const jwtToken = await AsyncStorage.getItem('jwtToken');
   
       if (!jwtToken) {
@@ -468,9 +491,15 @@ const CreateCampOffer = async () => {
 
       const CampOfferID = id; // Assuming each camp has an '_id' property
 
+
+
+    const apiDeactivateCampOffer =
+    Platform.OS === 'ios'
+      ? `http://localhost:3000/api/DeactivateCampOffer/${CampOfferID}` // iOS simulator uses localhost
+      : `http://192.168.1.186:3000/api/DeactivateCampOffer/${CampOfferID}`;  // Android emulator
+
       try{
 
-        const apiDeactivateCampOffer = `http://localhost:3000/api/DeactivateCampOffer/${CampOfferID}`;
         const jwtToken = await AsyncStorage.getItem('jwtToken');
     
         if (!jwtToken) {
@@ -519,11 +548,15 @@ const CreateCampOffer = async () => {
 
     // API PUT - update DB - IsActive = True
 
-    const EventOfferID = id; // Assuming each camp has an '_id' property
+    const EventOfferID = id; // Assuming each event has an '_id' property
+
+    const apiActivateEventOffer =
+    Platform.OS === 'ios'
+      ? `http://localhost:3000/api/ActivateEventOffer/${EventOfferID}` // iOS simulator uses localhost
+      : `http://192.168.1.186:3000/api/ActivateEventOffer/${EventOfferID}`;  // Android emulator
 
     try{
 
-      const apiActivateEventOffer = `http://localhost:3000/api/ActivateEventOffer/${EventOfferID}`;
       const jwtToken = await AsyncStorage.getItem('jwtToken');
   
       if (!jwtToken) {
@@ -573,7 +606,11 @@ const CreateCampOffer = async () => {
 
       try{
 
-        const apiDeactivateEventOffer = `http://localhost:3000/api/DeactivateEventOffer/${EventOfferID}`;
+        const apiDeactivateEventOffer =
+        Platform.OS === 'ios'
+          ? `http://localhost:3000/api/DeactivateEventOffer/${EventOfferID}` // iOS simulator uses localhost
+          : `http://192.168.1.186:3000/api/DeactivateEventOffer/${EventOfferID}`;  // Android emulator
+     
         const jwtToken = await AsyncStorage.getItem('jwtToken');
     
         if (!jwtToken) {
@@ -627,8 +664,13 @@ const CreateCampOffer = async () => {
       const jwtToken = await AsyncStorage.getItem('jwtToken');
       const id = campOfferData[index]._id; // Assuming each camp has an '_id' property
   
+      const deleteCampOfferAPI =
+      Platform.OS === 'ios'
+        ? `http://localhost:3000/api/campOffers/${id}` // iOS simulator uses localhost
+        : `http://192.168.1.186:3000/api/campOffers/${id}`;  // Android emulator
+
       try {
-        await fetch(`http://localhost:3000/api/campOffers/${id}`, {
+        await fetch(deleteCampOfferAPI, {
           method: 'DELETE',
           headers: {
               'Content-Type': 'application/json',
@@ -660,8 +702,13 @@ const CreateCampOffer = async () => {
     const jwtToken = await AsyncStorage.getItem('jwtToken');
     const id = eventOfferData[index]._id; // Assuming each event has an '_id' property
 
+    const deleteEventOfferAPI =
+      Platform.OS === 'ios'
+        ? `http://localhost:3000/api/eventOffers/${id}` // iOS simulator uses localhost
+        : `http://192.168.1.186:3000/api/eventOffers/${id}`;  // Android emulator
+
     try {
-      await fetch(`http://localhost:3000/api/eventOffers/${id}`, {
+      await fetch(deleteEventOfferAPI, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -684,13 +731,7 @@ const CreateCampOffer = async () => {
 
 
 
-//   DELETE OFFERS 
-//   VIEW OFFERS
-  
 
-// Camp wide
-
-// Account 
 
 
   return (

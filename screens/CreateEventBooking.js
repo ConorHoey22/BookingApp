@@ -1,7 +1,7 @@
 // Create an Event Booking 
 
 import React, { useEffect, useState } from 'react';
-import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal, Alert } from 'react-native';
+import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal, Alert, Platform } from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -89,7 +89,13 @@ const CreateEventBookings = ({navigation}) => {
 
 //-----------------------------
       //Get API Request - Fetch all events offers 
-      const apiGetEventOffers = 'http://localhost:3000/api/getEventOffers';
+
+    //Get API Request 
+          const apiGetEventOffers =
+          Platform.OS === 'ios'
+            ? 'http://localhost:3000/api/getEventOffers'  // iOS simulator uses localhost
+            : 'http://192.168.1.186:3000/api/getEventOffers';  // Android emulator 
+
 
       
       try {
@@ -119,7 +125,10 @@ const CreateEventBookings = ({navigation}) => {
 
           // --------------------------------------------------------------------------
 
-            const apiGetUsers = 'http://localhost:3000/api/user/:userId';
+          const apiGetUsers =
+          Platform.OS === 'ios'
+            ? 'http://localhost:3000/api/user/:userId'  // iOS simulator uses localhost
+            : 'http://192.168.1.186:3000/api/user/:userId';  // Android emulator 
             
             try {
               const response = await fetch(apiGetUsers, {
@@ -625,8 +634,12 @@ const CreateEventBookings = ({navigation}) => {
           reward: tempRewardArray
         };
           
+        const apiCreateEventBooking =
+        Platform.OS === 'ios'
+          ? 'http://localhost:3000/api/eventPayment'  // iOS simulator uses localhost
+          : 'http://192.168.1.186:3000/api/eventPayment';  // Android emulator 
 
-      const apiCreateEventBooking = 'http://localhost:3000/api/eventPayment';
+
       const jwtToken = await AsyncStorage.getItem('jwtToken');
 
           const response = await fetch(apiCreateEventBooking, {
@@ -660,7 +673,14 @@ const CreateEventBookings = ({navigation}) => {
           //Create Booking on DB 
           try{
 
-            const apiBookingEventRecord = 'http://localhost:3000/api/createBookingEventRecord';
+
+                     
+        const apiBookingEventRecord =
+        Platform.OS === 'ios'
+          ? 'http://localhost:3000/api/createBookingEventRecord'  // iOS simulator uses localhost
+          : 'http://192.168.1.186:3000/api/createBookingEventRecord';  // Android emulator 
+
+
             const responseRecord = await fetch(apiBookingEventRecord, {
               method: 'POST',
               headers: {

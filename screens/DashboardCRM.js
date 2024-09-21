@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal ,FlatList} from 'react-native';
+import { ScrollView,StyleSheet, View, TextInput, Button, Text, TouchableOpacity, Modal ,FlatList,Platform} from 'react-native';
 import validator from 'validator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -39,7 +39,13 @@ const DashboardCRM = ({navigation}) => {
 
     // Fetch all camps 
 
-    const apiGetCamps = 'http://localhost:3000/api/camps';
+ 
+
+    const apiGetCamps =
+    Platform.OS === 'ios'
+      ? 'http://localhost:3000/api/camps'  // iOS simulator uses localhost
+      : 'http://192.168.1.186:3000/api/camps';  //andriod 
+    
     const jwtToken = await AsyncStorage.getItem('jwtToken');
     
         try {
@@ -90,7 +96,11 @@ const DashboardCRM = ({navigation}) => {
 
     // Fetch all events 
 
-    const apiGetEvents = 'http://localhost:3000/api/events';
+    const apiGetEvents =
+    Platform.OS === 'ios'
+      ? 'http://localhost:3000/api/events'  // iOS simulator uses localhost
+      : 'http://192.168.1.186:3000/api/events';  // Android emulator uses 10.0.2.2
+    
     const jwtToken = await AsyncStorage.getItem('jwtToken');
     
     try {
